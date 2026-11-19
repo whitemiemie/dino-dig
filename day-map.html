@@ -1,0 +1,1505 @@
+<!doctype html>
+<html lang="en" data-phase="dawn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<!--/wrapper-->
+<title>A Day of Small Bones</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Pixelify+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* One map, one day. The town island (town.jpg) sits in the left ~65%; the dig island and the card live in the right sky.
+   Stage is a 16:9 box sized by JS; --u = 1% of its width. Single warm-paper look shared with the Dino Dig game;
+   time of day is shown by a multiply tint over everything except the UI, plus a crossfade to town_night.jpg. */
+/* Pixelify Sans draws 5 like S and 2 like a tilted 8, so digits come from Tiny5 (OFL, 0–9 only, inlined) */
+@font-face{font-family:"PixNum";src:url(data:font/woff2;base64,d09GMgABAAAAAAO0AA4AAAAACdAAAANcAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGx4cOgZgP1NUQVSBIABQEQgKhxyHPAscAAE2AiQDMAQgBYUqByAb3wjIBJ7n517PfUl+ASgj/iWG/CKrpsJVqLGeBsrA1U3NEVhShfzfWqs3p+jrNP1IvNB41LTzd31mMPVzK4UQacsmIu9SIFS1KcxynagSRo0x7/8tBAgkuW4jVTVNXfijUx1z3Zl6wcyrMAP1nx9fW1zCnNxdW8CcXrPmMRfGN5YwiSEsG13NygEGqMoGuPbijJRhi31CGz75jMetkO9HB+9WZHTXiINJvmbf5o4HxRhy53Q/hbJBgkva8ccDi56drUJtT89sRPul21MbMyJIR2tLlWioiqbqKtHRGuq7usRAn90YX5CzGDRRRhaXSSYYDQMl5xTPCDom5cxusrYZqGijTZKZ4lpsDXIwrp5fEOrEfDSaGIlmRdkwXWDeJN+myyZe13V/h0T7+gbjIYhAiv7++KEw9sV1CauzEGmRSCbhZoQjp2LI/FJxh3iIOB3eyf6+BLaIuIIs916GwFk/i5SVcQ7BYdEqZequT9G6cC4J55TX4QLuLHwypJwElaPApyT4lAIhu26xNIqEZD2lsKG1UKHSXJOKrChyohlJxKsl60ZoganL6EgliWSokyWiRDqHGVFHiP4sHN1ywFipuYjS6GyOyrAQbswKX1SifkrhzI6WGWu6Uds68epx+RlXdompCVnkAwoFL/tSnZUcHr5z8kbDiv77az/LQ358fBTnHp+e7J1i2B5+emoh0orgm072XDFsneF4kLa76DrqlxNxUiwUXNyaDyH8i2bJnRdDpTcXwXtDHukBwG0p2IAQKF5QhMpZ0PDyB3QS+UAM30vi8T3sDiWHJUtKnZgACIH0gUYkNaATSBEYBOMlyb7zcIZQYuEswQSa5+ofQQfLLDLOEvVs1OtfYJZJqrDwMc4mC2zQwjJrhN0FGphtBG9gsUYFC/MWUwLmZt1uiiUs1lmn15Eppxl6sZhlmpkd5H1uhXUKuMUtllnBYgkfy3WxERgP9texuBlyd5ouZhG8SzY36MDClPbHWaMnhfl1ZrnfNcngJl685NIHM19c/q+FVJBBNzUUyofZeUFhlYkv77KmDEP395JBDub8DNbiRQpObayxzBwWk8T5cjbtQIWvr2Ny2Ro2bfT9GTaZ4CaTz2n/FrXM2ouKh2/Zljwahl35d6Wtcdf+6wo/BAAA) format("woff2");unicode-range:U+30-39;font-weight:100 900;font-display:block}
+:root{
+  color-scheme:light;
+  --paper:#fbf3e0; --paper-2:#f2e7cc; --ink:#354638; --ink-2:#56604f; --muted:#6c6550; --line:#d6c7a2;
+  --more:#3f7a3a; --less:#b84332; --more-soft:#e1edd6; --less-soft:#f6dcd2; --bone-ink:#6b5a44;
+  --blue:#5d7d97; --orange:#d27a4c; --green:#7d9b7f; --purple:#a597d6;
+  --s-fr:#2f6fa8; --s-vr:#c25a22; --s-fi:#2f8a62; --s-vi:#8f5fc0;
+  --night-fg:#f1e8d0;
+  --f-pixel:"PixNum","Pixelify Sans",ui-monospace,"SF Mono",Menlo,monospace;
+  --f-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --u:13.66px;
+  --sky:#fae7c5; --tint:#ffe4d8; --night:0;
+}
+html[data-phase="morning"]{--tint:#fff9f0}
+html[data-phase="midday"]{--tint:#ffffff}
+html[data-phase="afternoon"]{--tint:#fff0dc}
+html[data-phase="golden"]{--tint:#ffdfba}
+html[data-phase="dusk"]{--tint:#ffb08c;--night:.25;--sky:#c4b6a3}
+html[data-phase="night"]{--tint:#ffffff;--night:1;--sky:#20223b}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%}
+body{background-color:var(--sky);color:var(--ink);font:16px/1.5 var(--f-body);overflow:hidden;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;transition:background-color 1.2s}
+p,h1,h2,h3,ol,ul{margin:0}
+button{font:inherit;color:inherit;touch-action:manipulation}
+a{color:inherit}
+img{display:block}
+:focus-visible{outline:3px solid var(--less);outline-offset:2px}
+.k{font:500 .72em/1.2 var(--f-pixel);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+
+/* ---------- stage ---------- */
+.stage{position:absolute;left:0;top:0;width:100vw;height:56.25vw}
+.mapview{position:fixed;inset:0;z-index:1;overflow:hidden;--m0:65vw;--m1:70vw;
+  -webkit-mask-image:linear-gradient(90deg,#000 var(--m0),transparent var(--m1));mask-image:linear-gradient(90deg,#000 var(--m0),transparent var(--m1));touch-action:none}
+.cam{position:absolute;inset:0;transform-origin:0 0;transition:transform .85s cubic-bezier(.3,.7,.2,1);--inv:1}
+.town{position:absolute;aspect-ratio:2752/1536}
+.town > img{position:absolute;inset:0;width:100%;height:100%;user-select:none;-webkit-user-drag:none;pointer-events:none}
+.town .tnight{opacity:var(--night);transition:opacity 1.2s}
+.town.no-night .tnight{display:none}
+html[data-phase="night"] .town.no-night .tday{filter:brightness(.42) saturate(.65) hue-rotate(-10deg)}
+.town.missing{background:repeating-linear-gradient(135deg,#efe0bd 0 14px,#f5e8c9 14px 28px);border:2px dashed var(--line);border-radius:12px}
+.town.missing::after{content:"town.png / town.jpg not found";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:500 calc(var(--u)*1.2) var(--f-pixel);color:var(--muted)}
+.route{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.route .rt{fill:none;stroke:var(--ink);stroke-width:.32;stroke-dasharray:.9 .7;stroke-linecap:round;stroke-linejoin:round;opacity:.45}
+html[data-phase="night"] .route .rt{stroke:var(--night-fg);opacity:.4}
+.route .glow{fill:none;stroke:#ffd27a;stroke-width:.9;stroke-linecap:round;stroke-linejoin:round;opacity:0;transition:opacity .8s}
+.ending .route .glow{opacity:.75;stroke-dasharray:2 1.2;animation:march 1.4s linear infinite}
+@keyframes march{to{stroke-dashoffset:-3.2}}
+
+/* the visitor */
+.dino{position:absolute;left:0;top:0;width:3.4%;transform:translate(-50%,-92%);pointer-events:none;z-index:2}
+.dino img,.dino .dfb{width:100%;height:auto;filter:drop-shadow(0 0 1px #fff8e6) drop-shadow(0 1px 0 rgba(53,70,56,.35))}
+.dino.left img{transform:scaleX(-1)}
+.dino.walk img{animation:bob .28s steps(2,jump-none) infinite}
+@keyframes bob{0%{translate:0 0}100%{translate:0 -6%}}
+.dino .dfb{display:grid;place-items:center;aspect-ratio:1;border-radius:50% 50% 50% 0;rotate:-45deg;background:var(--orange);border:2px solid var(--ink)}
+.dino .dfb::after{content:"you";rotate:45deg;font:600 calc(var(--u)*.7)/1 var(--f-pixel);color:var(--paper)}
+
+/* flags */
+.flag{position:absolute;z-index:3;width:calc(var(--u)*2.5);height:calc(var(--u)*3.1);margin:calc(var(--u)*-3.1) 0 0 calc(var(--u)*-.2);padding:0;border:0;background:none;cursor:pointer;transform:scale(var(--inv));transform-origin:calc(var(--u)*.2) 100%}
+.flag::before{content:"";position:absolute;inset:-8px -6px -4px -10px}
+.flag .pole{position:absolute;left:0;bottom:0;width:calc(var(--u)*.26);height:100%;background:var(--ink);border-radius:1px}
+.flag .foot{position:absolute;left:calc(var(--u)*-.35);bottom:calc(var(--u)*-.25);width:calc(var(--u)*1);height:calc(var(--u)*.5);border-radius:50%;background:rgba(53,70,56,.28)}
+.flag .pen{position:absolute;left:calc(var(--u)*.26);top:0;width:calc(var(--u)*2.15);height:calc(var(--u)*1.75);display:grid;place-items:center;padding-right:calc(var(--u)*.35);
+  background:var(--paper);color:var(--ink);border:2px solid var(--ink);border-left:0;font:600 calc(var(--u)*.95)/1 var(--f-pixel);
+  clip-path:polygon(0 0,100% 0,80% 50%,100% 100%,0 100%);box-shadow:inset 0 -3px 0 rgba(53,70,56,.12)}
+.flag:hover,.flag:focus-visible,.flag.cur{z-index:5}
+.flag.seen .pen{background:var(--more);color:var(--paper)}
+.flag.cur .pen{background:var(--orange);color:var(--paper)}
+.flag.cur{animation:hop 1.1s ease-in-out infinite}
+@keyframes hop{0%,100%{translate:0 0}50%{translate:0 calc(var(--u)*-.45)}}
+.flag .tip{position:absolute;left:calc(var(--u)*-.2);bottom:calc(100% + var(--u)*.35);white-space:nowrap;background:var(--ink);color:var(--paper);font:500 calc(var(--u)*.78)/1 var(--f-pixel);padding:.42em .6em;border-radius:3px;opacity:0;translate:0 4px;transition:opacity .15s,translate .15s;pointer-events:none}
+.flag.tip-l .tip{left:auto;right:calc(100% - var(--u)*.5)}
+.flag.tip-b .tip{bottom:auto;top:calc(100% + var(--u)*.5)}
+.flag:hover .tip,.flag:focus-visible .tip,.flag.cur .tip,.ending .flag .tip{opacity:1;translate:0 0}
+.ending .flag .tip{background:var(--paper);color:var(--ink);border:2px solid var(--ink)}
+.ending .flag.cur{animation:none}
+
+/* ---------- the dig, floating in the right sky ---------- */
+.dig{position:absolute;z-index:2;display:block;text-decoration:none;color:var(--ink)}
+.dig img{width:100%;height:auto;transition:filter 1.2s,transform .25s}
+.dig:hover img{transform:translateY(-3px)}
+.dig.raw img{-webkit-mask-image:radial-gradient(closest-side,#000 70%,transparent);mask-image:radial-gradient(closest-side,#000 70%,transparent)}
+html[data-phase="dusk"] .dig img{filter:brightness(.88) saturate(.9)}
+html[data-phase="night"] .dig img{filter:brightness(.5) saturate(.55) contrast(1.05)}
+.dig .tag{position:absolute;left:50%;bottom:4%;transform:translateX(-50%);white-space:nowrap;font:500 calc(var(--u)*.8)/1 var(--f-pixel);background:var(--paper);border:2px solid var(--ink);border-radius:4px;box-shadow:0 3px 0 var(--ink);padding:.5em .75em}
+.dig:hover .tag{background:var(--ink);color:var(--paper)}
+
+/* time-of-day tint: multiplies the sky, the town and the dig, never the UI */
+#tint{position:fixed;inset:0;z-index:3;pointer-events:none;background-color:var(--tint);mix-blend-mode:multiply;transition:background-color 1.2s}
+
+/* ---------- HUD ---------- */
+.hud{position:absolute;z-index:6;left:1.6%;top:2.1%;display:flex;align-items:center;gap:calc(var(--u)*.8);background:var(--paper);color:var(--ink);border:2px solid var(--ink);border-radius:999px;box-shadow:0 3px 0 var(--ink);padding:calc(var(--u)*.35) calc(var(--u)*.5) calc(var(--u)*.35) calc(var(--u)*.9)}
+.brand{display:flex;align-items:center;gap:.5em;font:600 calc(var(--u)*1.2)/1 var(--f-pixel);white-space:nowrap}
+.brand svg{width:1.6em;height:.8em}
+.clock{display:inline-flex;align-items:center;gap:.5em;font:500 calc(var(--u)*.85)/1 var(--f-pixel);border-left:2px dotted var(--line);padding:.2em .2em .2em .9em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.clock i{width:1em;height:1em;border-radius:50%;background:#ffc27a;box-shadow:0 0 0 2px var(--ink)}
+html[data-phase="midday"] .clock i,html[data-phase="morning"] .clock i{background:#ffe06a}
+html[data-phase="afternoon"] .clock i,html[data-phase="golden"] .clock i{background:#ffc35a}
+html[data-phase="dusk"] .clock i{background:#f08a5d}
+html[data-phase="night"] .clock i{background:#ece6f4;box-shadow:0 0 0 2px var(--ink),inset -.3em -.1em 0 #9aa0c4}
+.views{display:inline-flex;border:2px solid var(--ink);border-radius:999px;overflow:hidden;margin-left:calc(var(--u)*.2)}
+.views a{display:inline-flex;align-items:center;min-height:32px;padding:.45em .85em;font:500 calc(var(--u)*.8)/1 var(--f-pixel);text-decoration:none;color:var(--ink);white-space:nowrap}
+.views a + a{border-left:2px solid var(--ink)}
+.views a:hover{background:var(--paper-2)}
+.views a[aria-current]{background:var(--ink);color:var(--paper)}
+
+/* ---------- zoom ---------- */
+.zoom{position:absolute;z-index:6;left:1.6%;top:66%;display:grid;gap:calc(var(--u)*.4)}
+.zoom button{width:calc(var(--u)*2.5);height:calc(var(--u)*2.5);min-width:36px;min-height:36px;display:grid;place-items:center;font:600 calc(var(--u)*1.1)/1 var(--f-pixel);background:var(--paper);color:var(--ink);border:2px solid var(--ink);border-radius:4px;box-shadow:0 3px 0 var(--ink);cursor:pointer}
+.zoom button:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+
+/* ---------- field notebook ---------- */
+.notebook{position:absolute;z-index:6;left:1.6%;top:90.4%;width:62%;height:7.6%;display:flex;align-items:stretch;gap:calc(var(--u)*.35);background:var(--paper);border:2px solid var(--ink);border-radius:6px;box-shadow:0 3px 0 var(--ink);padding:calc(var(--u)*.3) calc(var(--u)*.45)}
+.nb-h{flex:none;display:grid;align-content:center;padding:0 calc(var(--u)*.6) 0 calc(var(--u)*.2);border-right:2px dotted var(--line);font:500 clamp(9px,calc(var(--u)*.62),13px)/1.25 var(--f-pixel);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.nb-h b{display:block;font-size:1.5em;color:var(--ink);letter-spacing:0}
+.nb-slot{flex:1 1 0;min-width:0;display:grid;justify-items:center;align-content:center;gap:2px;background:none;border:0;border-radius:4px;padding:0 2px;cursor:default;color:var(--muted)}
+.nb-slot svg{width:clamp(22px,calc(var(--u)*2.1),40px);height:clamp(11px,calc(var(--u)*1.05),20px);opacity:.22;filter:grayscale(1)}
+.nb-slot span{font:500 clamp(8.5px,calc(var(--u)*.6),12.5px)/1.1 var(--f-pixel);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;opacity:.45}
+.nb-slot.on{cursor:pointer;color:var(--ink)}
+.nb-slot.on svg{opacity:1;filter:none}
+.nb-slot.on span{opacity:1}
+.nb-slot.on:hover{background:var(--paper-2)}
+.nb-slot.pop svg{animation:pop .45s ease-out}
+.flybone{position:fixed;z-index:20;width:44px;height:22px;pointer-events:none}
+.flybone svg{width:100%;height:100%}
+
+/* ---------- panel (intro / stop card / end) ---------- */
+.panel{position:absolute;z-index:6;left:69%;top:32.5%;width:29.4%;height:65%;display:flex;flex-direction:column;background:var(--paper);color:var(--ink);border:2px solid var(--ink);border-radius:8px;box-shadow:0 5px 0 var(--ink);font-size:clamp(13px,calc(var(--u)*.98),20px);line-height:1.45;overflow:hidden}
+.p-view{display:flex;flex-direction:column;min-height:0;flex:1}
+.p-head{flex:none;display:flex;align-items:center;justify-content:space-between;gap:.6em;padding:.75em 1em .6em;border-bottom:2px dotted var(--line)}
+.p-head .k{color:var(--ink-2)}
+.xbtn{flex:none;width:2.1em;height:2.1em;min-width:36px;min-height:36px;display:grid;place-items:center;background:none;border:2px solid var(--ink);border-radius:4px;font:600 1em/1 var(--f-pixel);cursor:pointer}
+.p-body{flex:1;min-height:0;overflow:auto;padding:1em 1.05em 1.2em;overscroll-behavior:contain;scrollbar-width:thin}
+.p-foot{flex:none;display:flex;align-items:center;justify-content:space-between;gap:.6em;padding:.6em .8em;border-top:2px solid var(--ink);background:var(--paper-2)}
+.p-foot .prog{font:500 .78em var(--f-pixel);color:var(--muted);font-variant-numeric:tabular-nums}
+.enter{animation:enter .45s cubic-bezier(.2,.7,.2,1)}
+@keyframes enter{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+
+/* buttons */
+.pbtn{font:500 1em/1 var(--f-pixel);color:var(--ink);background:var(--paper);border:2px solid var(--ink);border-radius:4px;padding:.62em .95em;min-height:40px;box-shadow:0 3px 0 var(--ink);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:.5em;text-decoration:none;white-space:nowrap}
+.pbtn.primary{background:var(--ink);color:var(--paper)}
+.pbtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.pbtn:disabled{opacity:.4;cursor:default;transform:none;box-shadow:0 3px 0 var(--ink)}
+.pbtn.sm{font-size:.86em;min-height:34px;padding:.5em .75em}
+.linkbtn{background:none;border:0;padding:.35em .1em;min-height:36px;font:500 .86em var(--f-pixel);color:inherit;opacity:.8;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+
+/* intro + end */
+.intro{display:grid;gap:.85em}
+.intro h1{font:600 1.75em/1.05 var(--f-pixel);text-wrap:balance}
+.intro .lead{font-size:1em}
+.bigloop{list-style:none;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8em}
+.bigloop li{position:relative;border:2px solid var(--ink);border-radius:6px;padding:.5em .55em .55em;display:grid;gap:.25em;align-content:start;background:var(--paper)}
+.bigloop li + li::before{content:"→";position:absolute;left:-.45em;top:50%;transform:translate(-50%,-50%);font:600 .95em var(--f-pixel)}
+.bigloop .ic{height:2.2em;display:flex;align-items:center}
+.bigloop .ic img{height:2.2em;width:auto}
+.bigloop .ic svg{width:2.4em;height:1.2em}
+.bigloop .up{font:600 1.4em/1 var(--f-pixel);color:var(--more)}
+.bigloop b{font:600 .9em/1.15 var(--f-pixel)}
+.theory{display:grid;gap:.35em;font-size:.94em}
+.theory p:first-child{font-weight:700}
+.theory .small{font-size:.9em;color:var(--ink-2)}
+.cta{display:flex;flex-wrap:wrap;gap:.6em;margin-top:.2em}
+.hint{font-size:.86em;color:var(--muted)}
+.endv h2{font:600 1.45em/1.1 var(--f-pixel);text-wrap:balance}
+.endv h2:focus{outline:none}
+.dayline{list-style:none;padding:0;display:grid}
+.dayline li{border-bottom:2px dotted var(--line)}
+.dayline button{width:100%;display:grid;grid-template-columns:3.3em minmax(0,1fr);gap:.1em .7em;text-align:left;background:none;border:0;padding:.45em 0;cursor:pointer}
+.dayline .t{font:600 .86em var(--f-pixel);font-variant-numeric:tabular-nums;color:var(--muted);grid-row:1/3}
+.dayline .m{font-size:.9em;line-height:1.25}
+.dayline .r{font:500 .78em var(--f-pixel);color:var(--more)}
+.dayline button:hover .m{text-decoration:underline;text-underline-offset:3px}
+.bigline{font:600 1.15em/1.2 var(--f-pixel);text-wrap:balance}
+.foot{font-size:.78em;color:var(--muted)}
+
+/* scene */
+.scene{display:grid;gap:.85em}
+.sc-t{font:600 1.45em/1.1 var(--f-pixel);text-wrap:balance}
+.sc-t:focus{outline:none}
+.sub{margin-top:-.45em;color:var(--ink-2)}
+.device{border:2px solid var(--ink);border-radius:8px;box-shadow:0 3px 0 var(--ink);padding:.8em;display:grid;gap:.7em;background:#fffaf0;min-width:0}
+.d-row{display:flex;flex-wrap:wrap;gap:.45em .8em;align-items:center}
+.d-msg{font:500 .95em/1.35 var(--f-pixel);min-height:1.35em}
+.tally{font:500 .78em var(--f-pixel);color:var(--muted);font-variant-numeric:tabular-nums}
+.loop{list-style:none;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.75em}
+.loop li{position:relative;border:2px solid var(--line);border-radius:6px;padding:.45em .5em .5em;min-height:4.6em;display:grid;gap:.2em;align-content:start}
+.loop li + li::before{content:"→";position:absolute;left:-.42em;top:50%;transform:translate(-50%,-50%);font:600 .85em var(--f-pixel)}
+.loop .v{font-size:.86em;line-height:1.25}
+.loop .v.q{font:600 1.2em/1 var(--f-pixel);color:var(--muted)}
+.loop li.on{border-color:var(--ink);background:#fffaf0}
+.loop li.on .v{animation:pop .35s ease-out}
+@keyframes pop{0%{transform:scale(.85);opacity:.2}100%{transform:none;opacity:1}}
+.rule{border:2px solid var(--ink);border-radius:6px;padding:.8em .85em .85em;display:grid;gap:.5em;background:var(--paper-2)}
+.rule.in{animation:pop .4s ease-out}
+.r-name{font:600 1.2em/1.12 var(--f-pixel);text-wrap:balance}
+.r-name span{font-size:.8em;color:var(--muted)}
+.r-def{font-size:.95em}
+.r-note{font-size:.88em;color:var(--ink-2);border-top:2px dotted var(--line);padding-top:.5em}
+.chips{display:flex;flex-wrap:wrap;gap:.3em}
+.chip{font:500 .74em/1 var(--f-pixel);padding:.38em .5em;border-radius:3px;border:2px solid var(--ink);background:var(--paper);white-space:nowrap}
+.chip.more{background:var(--more);border-color:var(--more);color:var(--paper)}
+.chip.less{background:var(--less);border-color:var(--less);color:var(--paper)}
+.digc{display:flex;align-items:center;gap:.6em;background:var(--paper);border-radius:4px;padding:.4em .55em;font-size:.86em;line-height:1.3}
+.digc img,.digc .bn{flex:none;width:2.6em;height:2.6em;object-fit:contain}
+.digc .bn{display:grid;place-items:center}
+.digc .bn svg{width:2.2em;height:1.1em}
+.digc b{display:block;font:500 .74em var(--f-pixel);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.digc.dry img{filter:grayscale(.8)}
+.nameit{justify-self:start}
+
+/* phone */
+.phone-screen{background:var(--ink);color:var(--paper);border-radius:14px;padding:.9em;min-height:6.8em;display:grid;place-content:center;justify-items:center;gap:.4em;text-align:center}
+.ps-clock{font:600 1.8em/1 var(--f-pixel)}
+.ps-note{font-size:.84em;opacity:.8}
+.ps-likes{display:none;align-items:center;gap:.4em;background:var(--paper);color:var(--ink);border-radius:8px;padding:.35em .55em;font:500 .88em var(--f-pixel)}
+.ps-likes svg{width:1em;height:.85em;color:var(--less)}
+.done .ps-note{display:none}
+.done .ps-likes{display:flex;animation:pop .35s ease-out}
+/* car */
+.dash{background:var(--ink);color:var(--paper);border-radius:10px;padding:.8em .9em;display:flex;align-items:center;gap:.9em;min-height:4.6em}
+.belt{width:2em;height:2.4em;color:var(--less);animation:blink .7s steps(2,jump-none) infinite;flex:none}
+.belt .strap{stroke:var(--ink)}
+.beep{font:600 1.05em var(--f-pixel);letter-spacing:.06em;animation:blink .7s steps(2,jump-none) infinite}
+.quiet{display:none;font:600 1.05em var(--f-pixel)}
+@keyframes blink{0%{opacity:1}100%{opacity:.25}}
+.done .belt{animation:none;color:#9fd19a}
+.done .beep{display:none}
+.done .quiet{display:block;animation:pop .35s ease-out}
+/* lecture */
+.hall{display:grid;gap:.45em}
+.bub{background:var(--paper-2);border-radius:10px;padding:.5em .7em;font-size:.92em}
+.bub b{font:500 .74em var(--f-pixel);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block}
+.bub.you{justify-self:end;background:var(--ink);color:var(--paper)}
+.bub.you b{color:var(--paper);opacity:.75}
+.bub.call{display:none;border:2px solid var(--less);background:var(--less-soft)}
+.done .bub.call{display:block;animation:pop .35s ease-out}
+.done .bub.lect{opacity:.45}
+.heads{display:none;font:500 .82em var(--f-pixel);color:var(--less)}
+.done .heads{display:block}
+/* marks */
+.slip{background:#fffdf6;border:2px dashed var(--line);border-radius:4px;padding:.7em .8em;display:grid;grid-template-columns:1fr auto;gap:.15em .9em;align-items:baseline}
+.slip .sl-t{font:600 1em var(--f-pixel)}
+.slip .sl-d{font-size:.84em;color:var(--muted);grid-column:1}
+.slip .sl-m{font:600 1.5em var(--f-pixel);grid-row:1/3;grid-column:2;text-align:right}
+.slip .sl-m s,.slip .sl-m .new,.slip .pen{display:none}
+.slip .sl-m s{color:var(--muted);font-size:.7em;margin-right:.3em}
+.slip .sl-m .new{color:var(--less)}
+.slip .pen{grid-column:1/-1;font:500 .8em var(--f-pixel);color:var(--less)}
+.done .slip .sl-m s,.done .slip .sl-m .new,.done .slip .pen{display:inline}
+.done .slip .sl-m .old{display:none}
+/* sort */
+.quad{display:grid;grid-template-columns:4.6em minmax(0,1fr) minmax(0,1fr);gap:.4em}
+.qh{font:500 .74em/1.1 var(--f-pixel);letter-spacing:.05em;text-transform:uppercase;text-align:center;padding:.2em 0}
+.qr{font:600 .76em/1.15 var(--f-pixel);align-self:center}
+.qr small{display:block;font:400 .92em var(--f-body);color:var(--ink-2);margin-top:.15em}
+.qr.up{color:var(--more)} .qr.down{color:var(--less)}
+.qc{background:var(--paper);color:var(--ink);border:2px solid var(--ink);border-radius:6px;box-shadow:0 3px 0 var(--ink);padding:.55em .55em .6em;min-height:5em;text-align:left;display:grid;gap:.25em;align-content:start;cursor:pointer}
+.qc b{font:600 .84em/1.15 var(--f-pixel)}
+.qc small{font-size:.76em;color:var(--muted);line-height:1.25}
+.qc:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.qc.right{background:var(--more-soft);border-color:var(--more);box-shadow:0 3px 0 var(--more)}
+.qc.wrong{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.qz-top{display:flex;justify-content:space-between;gap:1em}
+.qz-case{font-size:1em;font-weight:700;line-height:1.4}
+.qz-case:focus{outline:none}
+.qz-steps{list-style:none;padding:0;display:grid;gap:.1em;font-size:.86em;color:var(--ink-2)}
+.qz-fb{font-size:.92em;min-height:2.6em}
+.qz-fb.ok{color:var(--more)} .qz-fb.no{color:var(--less)}
+/* stamp card */
+.card-h{display:flex;justify-content:space-between;align-items:baseline;gap:1em;font:600 1em var(--f-pixel)}
+.card-h span{font:500 .76em var(--f-pixel);color:var(--muted)}
+.slots{list-style:none;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,2.9em));gap:.5em}
+.slots li{aspect-ratio:1;border:2px dashed var(--bone-ink);border-radius:50%;display:grid;place-items:center;font:600 .6em var(--f-pixel);color:var(--muted)}
+.slots li.on{border-style:solid;background:var(--bone-ink);color:var(--paper);animation:pop .3s ease-out}
+.slots li.on::after{content:"✓";font-size:1.4em}
+.slots li.free{border-color:var(--orange);color:var(--orange)}
+.slots li.free.on{background:var(--orange);color:var(--paper)}
+.slots li.on span{display:none}
+/* claw */
+.clawbox{position:relative;height:7.5em;border:2px solid var(--ink);border-radius:6px;background:linear-gradient(180deg,#eef2ee,#dfe7e2);overflow:hidden}
+.arm{position:absolute;left:50%;top:0;width:2px;height:2em;background:var(--ink);transform:translateX(-50%)}
+.arm::after{content:"";position:absolute;left:50%;bottom:-12px;width:26px;height:12px;border:3px solid var(--ink);border-top:0;border-radius:0 0 4px 4px;transform:translateX(-50%)}
+.clawbox.drop .arm{animation:drop .6s ease-in-out}
+@keyframes drop{50%{height:4.8em}100%{height:2em}}
+.toys{position:absolute;left:8px;right:8px;bottom:6px;display:flex;justify-content:space-around;align-items:flex-end}
+.toys i{display:block;width:22px;height:20px;border-radius:6px 6px 3px 3px;background:var(--c);box-shadow:inset 0 -4px 0 rgba(0,0,0,.15)}
+.clawbox.win .toys i:nth-child(3){animation:lift .9s ease-out}
+@keyframes lift{40%{transform:translateY(-4em)}100%{transform:none}}
+/* parcel */
+.postbar{display:grid;gap:.3em}
+.pb-track{height:14px;border:2px solid var(--ink);border-radius:3px;background:var(--paper-2);overflow:hidden}
+.pb-fill{height:100%;width:100%;background:var(--green);transform:scaleX(0);transform-origin:left}
+.pb-lab{display:flex;justify-content:space-between;font:500 .72em var(--f-pixel);color:var(--muted)}
+.post.ready .pb-fill{background:var(--more)}
+.post.ready .pb-lab .end{color:var(--more)}
+/* reply */
+.chatlog{display:grid;gap:.4em;background:var(--paper-2);border-radius:10px;padding:.65em;min-height:5.8em;align-content:start}
+.chatlog .b{max-width:80%;padding:.4em .65em;border-radius:12px;font-size:.92em;line-height:1.3}
+.chatlog .me{justify-self:end;background:var(--ink);color:var(--paper);border-bottom-right-radius:3px}
+.chatlog .them{justify-self:start;background:var(--paper);border:2px solid var(--ink);border-bottom-left-radius:3px;animation:pop .35s ease-out}
+.chatlog .st{justify-self:end;font:500 .7em var(--f-pixel);color:var(--muted)}
+/* compare */
+.cmp{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5em}
+.cc{border:2px solid var(--ink);border-radius:6px;padding:.5em .55em .55em;display:grid;gap:.3em;align-content:start;min-width:0;background:#fffaf0}
+.cc-k{font:500 .62em/1.2 var(--f-pixel);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.cc-n{font:600 .9em/1.1 var(--f-pixel)}
+.cc-n span{color:var(--muted);font-size:.85em}
+.rec{width:100%;height:auto;display:block}
+.rec .ax{stroke:var(--line);stroke-width:2;fill:none}
+.rec .ln{fill:none;stroke:var(--c);stroke-width:2.6;stroke-linejoin:round;stroke-linecap:round}
+.rec .tk{stroke:var(--ink);stroke-width:1.6;stroke-linecap:round}
+.cc-p{font-size:.82em;line-height:1.25}
+.cc-l{display:flex;align-items:center;gap:.35em;font-size:.74em;color:var(--muted);line-height:1.2}
+.cc-l img{width:1.8em;height:1.8em;flex:none}
+.cc-you{font:500 .7em var(--f-pixel);color:var(--ink-2);border-top:2px dotted var(--line);padding-top:.3em}
+.cmp-cap{font-size:.8em;color:var(--ink-2)}
+.takeaways{list-style:none;padding:0;display:grid;gap:.55em}
+.takeaways li{display:grid;gap:.1em}
+.takeaways b{font:600 .95em/1.2 var(--f-pixel)}
+.takeaways span{font-size:.88em;color:var(--ink-2)}
+/* vending */
+.vm{display:grid;grid-template-columns:minmax(0,1fr) 3.2em;gap:.5em;background:var(--ink);border-radius:8px;padding:.6em}
+.vm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.35em;background:#e8efe9;border-radius:4px;padding:.4em}
+.vm-grid i{display:block;height:1.4em;border-radius:3px;background:var(--c)}
+.vm-side{display:grid;gap:.35em;align-content:start}
+.vm-side span{display:block;height:1em;background:var(--paper-2);border-radius:2px}
+.vm-side span:last-child{height:1.6em;background:#1f2a22}
+.vm.shake{animation:shake .3s}
+.predict{display:grid;gap:.6em}
+.predict .q{font-weight:700}
+.pick[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.reveal{display:grid;gap:.6em}
+.ext{width:100%;height:auto;display:block}
+.ext .ax{stroke:var(--line);stroke-width:2;fill:none}
+.ext .l1{fill:none;stroke:var(--ink);stroke-width:3}
+.ext .l2{fill:none;stroke:var(--s-vr);stroke-width:3}
+.ext text{font:500 11px var(--f-pixel);fill:var(--ink-2)}
+.ext .t1{fill:var(--ink)} .ext .t2{fill:var(--s-vr)}
+.ext-cap{font-size:.76em;color:var(--muted)}
+/* ladder */
+.ladder{list-style:none;padding:0;display:grid;gap:.4em}
+.ladder li{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:.3em .7em;margin-left:calc(var(--i) * 1.1em);border:2px solid var(--line);border-radius:6px;padding:.4em .5em .4em .65em;background:var(--paper)}
+.ladder .st{font:500 .9em/1.2 var(--f-pixel)}
+.ladder .rw{grid-column:1/-1;font-size:.82em;color:var(--more);display:none}
+.ladder li.done{border-color:var(--more);background:var(--more-soft)}
+.ladder li.done .rw{display:block;animation:pop .3s ease-out}
+.ladder li.next{border-color:var(--ink)}
+/* red dot */
+.home{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8em;background:var(--ink);border-radius:14px;padding:.9em}
+.app{position:relative;display:grid;justify-items:center;gap:.2em;font:500 .64em var(--f-pixel);color:var(--paper)}
+.app i{display:block;width:2.6rem;height:2.6rem;border-radius:10px;background:var(--c)}
+.app .dot{position:absolute;top:-6px;right:calc(50% - 1.6rem);min-width:1.25rem;height:1.25rem;border-radius:999px;background:#e5483a;color:#fff;font:600 .7rem/1.25rem var(--f-pixel);text-align:center;padding:0 .25rem;box-shadow:0 0 0 2px var(--ink)}
+.nodots .app .dot{display:none}
+/* plan */
+.uses{display:grid;gap:.5em}
+.use{display:grid;gap:.2em;text-align:left;background:var(--paper);border:2px solid var(--ink);border-radius:6px;box-shadow:0 3px 0 var(--ink);padding:.6em .7em;cursor:pointer}
+.use b{font:600 .98em/1.15 var(--f-pixel)}
+.use span{font-size:.86em;line-height:1.35;color:var(--ink-2)}
+.use[aria-pressed="true"]{background:var(--more-soft);border-color:var(--more);box-shadow:0 3px 0 var(--more)}
+.world{list-style:none;padding:0;display:grid;gap:.5em}
+.world li{display:grid;gap:.05em;padding-bottom:.45em;border-bottom:2px dotted var(--line)}
+.world li:last-child{border:0;padding-bottom:0}
+.world b{font:600 .92em var(--f-pixel)}
+.world span{font-size:.86em;color:var(--ink-2);line-height:1.35}
+/* feed */
+.clip{display:grid;place-items:center;height:5.6em;border-radius:14px;background:var(--ink);color:var(--paper);font:600 1.3em var(--f-pixel);text-align:center;padding:.5em}
+.clip.fun{background:var(--orange)}
+.rq{display:flex;flex-wrap:wrap;gap:.45em}
+
+/* ---------- portrait / phone: map on top, card below, page scrolls ---------- */
+.portrait body{overflow:auto;height:auto}
+.portrait .stage{position:relative;width:100%;height:auto;left:auto;top:auto;padding-bottom:max(16px,env(safe-area-inset-bottom,0px))}
+.portrait .hud{position:relative;left:auto;top:auto;padding:12px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));flex-wrap:wrap;gap:8px 12px}
+.portrait .brand{font-size:18px}
+.portrait .clock{font-size:13px}
+.portrait .views a{font-size:13px}
+.portrait .mapview{position:relative;inset:auto;width:100%;aspect-ratio:5/4;-webkit-mask-image:none;mask-image:none}
+.portrait .hud{border-radius:0;border-width:0 0 2px;box-shadow:none;margin:0}
+.portrait .dig{display:none}
+.portrait .zoom{position:absolute;left:max(16px,env(safe-area-inset-left,0px));display:flex;gap:6px}
+.portrait .notebook{position:relative;left:auto;top:auto;width:auto;height:auto;margin:10px max(16px,env(safe-area-inset-left,0px)) 0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px 2px;padding:8px}
+.portrait .nb-h{grid-column:1/-1;border:0;padding:0 0 4px;display:flex;gap:.6em;align-items:baseline}
+.portrait .nb-h b{font-size:1.2em}
+.portrait .nb-slot{padding:4px 0}
+.portrait .panel{position:relative;left:auto;top:auto;width:auto;height:auto;margin:12px max(16px,env(safe-area-inset-left,0px)) 0;font-size:16px;overflow:visible}
+.portrait .p-body{overflow:visible}
+.portrait .flag{width:30px;height:38px;margin:-38px 0 0 -2px;transform-origin:2px 100%}
+.portrait .flag .pen{font-size:13px}
+.portrait .flag .tip{font-size:11px}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+<!--wrapper-->
+</head>
+<body>
+<!--/wrapper-->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-bone" viewBox="0 0 16 8"><path fill="#6b5a44" d="M1 0h3v1h1v1h6V1h1V0h3v1h1v2h-1v2h1v2h-1v1h-3V7h-1V6H5v1H4v1H1V7H0V5h1V3H0V1h1z"/><path fill="#f7eed8" d="M2 1h1v1h1v1h8V2h1V1h1v2h-1v2h1v2h-1V6h-1V5H4v1H3v1H2V5h1V3H2z"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 7 6"><path fill="currentColor" d="M1 0h2v1h1V0h2v1h1v2H6v1H5v1H4v1H3V5H2V4H1V3H0V1h1z"/></symbol>
+</svg>
+
+<div class="stage" id="stage">
+
+  <header class="hud">
+    <span class="brand"><svg aria-hidden="true"><use href="#i-bone"/></svg>A Day of Small Bones</span>
+    <span class="clock" aria-live="polite"><i aria-hidden="true"></i><span id="clockT">07:00 · Dawn</span></span>
+    <span class="views" role="group" aria-label="Switch view"><a href="index.html#game" data-view="game">Dino Dig</a><a href="index.html#game" data-view="guide">Field guide</a><a href="index.html#map" data-view="map" aria-current="page">Your day</a></span>
+  </header>
+
+  <div class="mapview" id="mapview">
+    <div class="cam" id="cam">
+      <div class="town" id="town">
+        <img class="tday" id="tDay" alt="An island town: a house with a car, a lecture hall with a notice board, a kopitiam, a mall with a claw machine, a post office, a park bench, a lookout, and a bus stop with a vending machine.">
+        <img class="tnight" id="tNight" alt="">
+        <svg class="route" id="route" viewBox="0 0 100 55.814" aria-hidden="true"><path class="glow" id="routeGlow"/><path class="rt" id="routePath"/></svg>
+        <div class="dino" id="dino" aria-hidden="true"><img id="dinoImg" alt=""></div>
+        <div id="flags"></div>
+      </div>
+    </div>
+  </div>
+
+  <a class="dig" id="dig" href="index.html#game" data-view="game" aria-label="Dino Dig. Play the 150-second game.">
+    <img id="digImg" alt="">
+    <span class="tag">Dino Dig · Play ↗</span>
+  </a>
+
+  <div class="zoom" role="group" aria-label="Map zoom">
+    <button type="button" id="zIn" aria-label="Zoom in">+</button>
+    <button type="button" id="zOut" aria-label="Zoom out">−</button>
+    <button type="button" id="zReset" aria-label="Show the whole town">↺</button>
+  </div>
+
+  <nav class="notebook" aria-label="Field notebook: concepts collected">
+    <p class="nb-h">Field notebook<b id="nbCount">0 / 12</b></p>
+  </nav>
+
+  <section class="panel" id="panel" aria-label="Guide">
+
+    <!-- intro -->
+    <div class="p-view" id="pIntro">
+      <div class="p-body">
+        <div class="intro">
+          <p class="k">Dino Dig · After the dig</p>
+          <h1>Your day is full of small bones.</h1>
+          <p class="lead">In the dig, a bone kept you hitting. Out here the bones are smaller: a like, a free coffee, a quiet car. Every place in this town hides one.</p>
+          <ol class="bigloop" aria-label="The loop, shown with the dig">
+            <li><span class="k">You act</span><span class="ic"><img src="slab_blue.png" alt="" onerror="this.hidden=true"></span><b>Hit the slab</b></li>
+            <li><span class="k">Right after</span><span class="ic"><svg aria-hidden="true"><use href="#i-bone"/></svg></span><b>A bone pops out</b></li>
+            <li><span class="k">Next time</span><span class="ic up" aria-hidden="true">▲</span><b>You hit again, sooner</b></li>
+          </ol>
+          <div class="theory">
+            <p>What comes right after an action changes how often you do it again.</p>
+            <p>Thorndike called this the law of effect. Skinner named the learning operant conditioning.</p>
+            <p class="small">Operant means actions you choose. Classical conditioning is the other kind: reflexes set off by what comes before.</p>
+          </div>
+          <div class="cta">
+            <button class="pbtn primary" type="button" id="startBtn">Start the day · 07:05</button>
+            <a class="pbtn" href="index.html#game" data-view="game">Play Dino Dig first</a>
+          </div>
+          <p class="hint">Or tap any flag on the map.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- stop card -->
+    <div class="p-view" id="pStop" hidden>
+      <div class="p-head"><p class="k" id="scLabel">Stop 1 · 07:05 · Bedroom</p><button class="xbtn" type="button" id="closeBtn" aria-label="Close and see the whole town">×</button></div>
+      <div class="p-body" id="pBody">
+
+        <article class="scene" data-scene="likes" data-loop hidden>
+          <h2 class="sc-t" tabindex="-1">Your phone lights up.</h2>
+          <div class="device">
+            <div class="phone-screen" aria-live="polite">
+              <span class="ps-clock">07:05</span>
+              <span class="ps-note">1 notification</span>
+              <span class="ps-likes"><svg aria-hidden="true"><use href="#i-heart"/></svg>3 new likes on your post</span>
+            </div>
+            <div class="d-row"><button class="pbtn primary" type="button" data-act>Open it</button><button class="linkbtn" type="button" data-reset hidden>Reset</button></div>
+          </div>
+          <ol class="loop">
+            <li class="on"><span class="k">You</span><span class="v">Open the phone</span></li>
+            <li><span class="k">Right after</span><span class="v q" data-a="+ 3 likes on your post">?</span></li>
+            <li><span class="k">Next morning</span><span class="v q" data-a="▲ You grab it before you’re out of bed">?</span></li>
+          </ol>
+          <aside class="rule" data-bone="PR" hidden>
+            <p class="k">The rule</p>
+            <p class="r-name">Positive reinforcement</p>
+            <p class="chips"><span class="chip">+ Added</span><span class="chip more">▲ More likely</span></p>
+            <p class="r-def">Something pleasant is added, so the action becomes more likely.</p>
+            <p class="r-note">Positive means added. It doesn’t mean good.</p>
+            <p class="digc"><span class="bn"><svg aria-hidden="true"><use href="#i-bone"/></svg></span><span><b>In the dig</b>Hit the slab, a bone pops out.</span></p>
+          </aside>
+          <button class="linkbtn nameit" type="button" data-nameit>Name it</button>
+        </article>
+
+        <article class="scene" data-scene="belt" data-loop hidden>
+          <h2 class="sc-t" tabindex="-1">Beep. Beep. Beep.</h2>
+          <p class="sub">It won’t stop until you buckle up.</p>
+          <div class="device">
+            <div class="dash" aria-live="polite">
+              <svg class="belt" viewBox="0 0 12 14" aria-hidden="true"><circle cx="6" cy="2.4" r="2.2" fill="currentColor"/><path d="M1.5 14V8.2a4.5 4.5 0 0 1 9 0V14z" fill="currentColor"/><path class="strap" d="M2.6 6.4 9.8 13.6" stroke-width="1.6"/></svg>
+              <span class="beep" aria-hidden="true">BEEP · BEEP · BEEP</span>
+              <span class="quiet">Quiet.</span>
+            </div>
+            <div class="d-row"><button class="pbtn primary" type="button" data-act>Buckle up</button><button class="linkbtn" type="button" data-reset hidden>Reset</button></div>
+          </div>
+          <ol class="loop">
+            <li class="on"><span class="k">You</span><span class="v">Buckle up</span></li>
+            <li><span class="k">Right after</span><span class="v q" data-a="− The beeping stops">?</span></li>
+            <li><span class="k">Next drive</span><span class="v q" data-a="▲ You buckle up before it starts">?</span></li>
+          </ol>
+          <aside class="rule" data-bone="NR" hidden>
+            <p class="k">The rule</p>
+            <p class="r-name">Negative reinforcement</p>
+            <p class="chips"><span class="chip">− Taken away</span><span class="chip more">▲ More likely</span></p>
+            <p class="r-def">Something unpleasant is taken away, so the action becomes more likely. Escaping it counts. So does avoiding it.</p>
+            <p class="r-note">Negative means taken away. It doesn’t mean bad.</p>
+            <p class="digc"><img src="flare.png" alt="" onerror="this.hidden=true"><span><b>In the dig</b>Fire the flare, the big dino backs off.</span></p>
+          </aside>
+          <button class="linkbtn nameit" type="button" data-nameit>Name it</button>
+        </article>
+
+        <article class="scene" data-scene="lecture" data-loop hidden>
+          <h2 class="sc-t" tabindex="-1">You chat through the lecture.</h2>
+          <div class="device">
+            <div class="hall" aria-live="polite">
+              <p class="bub lect"><b>Lecturer</b>…so the law of effect says—</p>
+              <p class="bub you"><b>You</b>psst, did you eat yet?</p>
+              <p class="bub call"><b>Lecturer</b>You at the back. Something to share with everyone?</p>
+              <p class="heads">120 heads turn.</p>
+            </div>
+            <div class="d-row"><button class="pbtn primary" type="button" data-act>Keep chatting</button><button class="linkbtn" type="button" data-reset hidden>Reset</button></div>
+          </div>
+          <ol class="loop">
+            <li class="on"><span class="k">You</span><span class="v">Chat in class</span></li>
+            <li><span class="k">Right after</span><span class="v q" data-a="+ Called out in front of everyone">?</span></li>
+            <li><span class="k">Next lecture</span><span class="v q" data-a="▼ You stay quiet">?</span></li>
+          </ol>
+          <aside class="rule" data-bone="PP" hidden>
+            <p class="k">The rule</p>
+            <p class="r-name">Positive punishment</p>
+            <p class="chips"><span class="chip">+ Added</span><span class="chip less">▼ Less likely</span></p>
+            <p class="r-def">Something unpleasant is added, so the action becomes less likely.</p>
+            <p class="digc"><img src="raider.png" alt="" onerror="this.hidden=true"><span><b>In the dig</b>Ignore the footsteps and the big dino grabs you.</span></p>
+          </aside>
+          <button class="linkbtn nameit" type="button" data-nameit>Name it</button>
+        </article>
+
+        <article class="scene" data-scene="late" data-loop hidden>
+          <h2 class="sc-t" tabindex="-1">Your report is two days late.</h2>
+          <div class="device">
+            <div class="slip" aria-live="polite">
+              <span class="sl-t">Report 1</span>
+              <span class="sl-d">Due Monday · sent Wednesday</span>
+              <span class="sl-m"><span class="old">78</span><s>78</s><span class="new">68</span><small style="font-size:.5em;color:var(--muted)"> / 100</small></span>
+              <span class="pen">Late penalty: −10 marks</span>
+            </div>
+            <div class="d-row"><button class="pbtn primary" type="button" data-act>Send it late</button><button class="linkbtn" type="button" data-reset hidden>Reset</button></div>
+          </div>
+          <ol class="loop">
+            <li class="on"><span class="k">You</span><span class="v">Hand in late</span></li>
+            <li><span class="k">Right after</span><span class="v q" data-a="− 10 marks taken off">?</span></li>
+            <li><span class="k">Next report</span><span class="v q" data-a="▼ You hand in on time">?</span></li>
+          </ol>
+          <aside class="rule" data-bone="NP" hidden>
+            <p class="k">The rule</p>
+            <p class="r-name">Negative punishment</p>
+            <p class="chips"><span class="chip">− Taken away</span><span class="chip less">▼ Less likely</span></p>
+            <p class="r-def">Something you value is taken away, so the action becomes less likely.</p>
+            <p class="digc"><span class="bn"><svg aria-hidden="true" style="opacity:.45"><use href="#i-bone"/></svg></span><span><b>In the dig</b>No bone was ever taken back.</span></p>
+          </aside>
+          <button class="linkbtn nameit" type="button" data-nameit>Name it</button>
+        </article>
+
+        <article class="scene" data-scene="sort" hidden>
+          <h2 class="sc-t" tabindex="-1">Your morning, sorted.</h2>
+          <p class="sub">Two questions sort every consequence.</p>
+          <div class="quad" role="group" aria-label="Consequence grid. Tap a box to answer the case.">
+            <span></span><span class="qh">+ Added</span><span class="qh">− Taken away</span>
+            <span class="qr up">▲ More<small>Reinforcement</small></span>
+            <button class="qc" type="button" data-q="PR"><b>Positive reinforcement</b><small>07:05 · likes</small></button>
+            <button class="qc" type="button" data-q="NR"><b>Negative reinforcement</b><small>08:10 · beeping stops</small></button>
+            <span class="qr down">▼ Less<small>Punishment</small></span>
+            <button class="qc" type="button" data-q="PP"><b>Positive punishment</b><small>09:05 · called out</small></button>
+            <button class="qc" type="button" data-q="NP"><b>Negative punishment</b><small>09:40 · marks off</small></button>
+          </div>
+          <div class="device quiz" aria-label="Sorting quiz">
+            <p class="qz-top"><span class="k" id="qzN">Case 1 of 6</span><span class="k" id="qzScore">0 right</span></p>
+            <p class="qz-case" id="qzCase" tabindex="-1">You tidy your room. Mum stops nagging. Next week you tidy without being asked.</p>
+            <ol class="qz-steps"><li>1. Was something added or taken away?</li><li>2. Did the action go up or down?</li></ol>
+            <p class="qz-fb" id="qzFb" aria-live="polite">Tap the box that fits.</p>
+            <div class="d-row"><button class="pbtn" type="button" id="qzNext" hidden>Next case</button></div>
+          </div>
+          <p class="digc"><span class="bn"><svg aria-hidden="true"><use href="#i-bone"/></svg></span><span><b>In the dig</b>The camp notice board sorts the same four.</span></p>
+        </article>
+
+        <article class="scene" data-scene="coffee" hidden>
+          <h2 class="sc-t" tabindex="-1">Every 5th coffee is free.</h2>
+          <p class="sub">All morning, every action paid off every time. Most of life pays only some of the time.</p>
+          <div class="device">
+            <p class="card-h">Kopi Corner<span>Loyalty card</span></p>
+            <ol class="slots" id="frSlots" aria-hidden="true"><li><span>1</span></li><li><span>2</span></li><li><span>3</span></li><li><span>4</span></li><li class="free"><span>FREE</span></li></ol>
+            <p class="d-msg" id="frMsg" aria-live="polite">Stamp 0 of 5.</p>
+            <div class="d-row"><button class="pbtn primary" type="button" id="frBtn">Buy a coffee</button><span class="tally" id="frTally">Coffees 0 · Free 0</span></div>
+          </div>
+          <aside class="rule" data-bone="FR" hidden>
+            <p class="k">The rule</p>
+            <p class="r-name">Fixed ratio <span>FR 5</span></p>
+            <p class="r-def">A reward after a set number of actions.</p>
+            <p class="chips"><span class="chip">Bursts, then a pause</span></p>
+            <p class="r-note">Why does a stamp feel good at all? It’s a <b>secondary reinforcer</b>: it matters because it leads to a drink. Food and drink are <b>primary reinforcers</b>.</p>
+            <p class="r-note">Every time = <b>continuous reinforcement</b>. Only some of the time = <b>partial reinforcement</b>.</p>
+            <p class="digc"><img src="slab_blue.png" alt="" onerror="this.hidden=true"><span><b>In the dig</b>Blue slab: every 5th hit, a bone.</span></p>
+          </aside>
+          <button class="linkbtn nameit" type="button" data-nameit>Name it</button>
+        </article>
+
+        <article class="scene" data-scene="claw" hidden>
+          <h2 class="sc-t" tabindex="-1">Maybe this time.</h2>
+          <p class="sub">The claw machine by the mall door.</p>
+          <div class="device">
+            <div class="clawbox" id="vrBox" aria-hidden="true"><span class="arm"></span><span class="toys"><i style="--c:var(--blue)"></i><i style="--c:var(--purple)"></i><i style="--c:var(--orange)"></i><i style="--c:var(--green)"></i><i style="--c:var(--blue)"></i></span></div>
+            <p class="d-msg" id="vrMsg" aria-live="polite">RM1 a try.</p>
+            <div class="d-row"><button class="pbtn primary" type="button" id="vrBtn">Try again</button><span class="tally" id="vrTally">Tries 0 · Prizes 0</span></div>
+          </div>
+          <aside class="rule" data-bone="VR" hidden>
+            <p class="k">The rule</p>
+            <p class="r-name">Variable ratio <span>VR 5</span></p>
+            <p class="r-def">A reward after a changing number of actions. Here it averages 5.</p>
+            <p class="chips"><span class="chip">Fast and steady · no pause</span></p>
+            <p class="r-note">Lucky draws, loot boxes and endless feeds run on this rule. The next try always might be the one.</p>
+            <p class="digc"><img src="slab_orange.png" alt="" onerror="this.hidden=true"><span><b>In the dig</b>Orange slab: the hits needed kept changing.</span></p>
+          </aside>
+          <button class="linkbtn nameit" type="button" data-nameit>Name it</button>
+        </article>
+
+        <article class="scene" data-scene="post" hidden>
+          <h2 class="sc-t" tabindex="-1">Your parcel comes in at 3:00.</h2>
+          <p class="sub">Some rules don’t count actions. Time has to pass first. Here a whole day lasts 5 seconds.</p>
+          <div class="device post" id="fiDev">
+            <div class="postbar" aria-hidden="true">
+              <div class="pb-track"><div class="pb-fill" id="fiFill"></div></div>
+              <div class="pb-lab"><span>Morning</span><span class="end">3:00 · parcel’s in</span></div>
+            </div>
+            <p class="d-msg" id="fiMsg" aria-live="polite">Ask whenever you like.</p>
+            <div class="d-row"><button class="pbtn primary" type="button" id="fiBtn">Ask at the counter</button><span class="tally" id="fiTally">Asks 0 · Parcels 0</span></div>
+          </div>
+          <aside class="rule" data-bone="FI" hidden>
+            <p class="k">The rule</p>
+            <p class="r-name">Fixed interval <span>FI 5 s</span></p>
+            <p class="r-def">After a set time, the first action is rewarded. Waiting alone gets nothing.</p>
+            <p class="chips"><span class="chip">Pause, then a rush near 3:00</span></p>
+            <p class="r-note">Studying hardest the night before a weekly quiz follows the same curve.</p>
+            <p class="digc"><img src="pit_green.png" alt="" onerror="this.hidden=true"><span><b>In the dig</b>Green pit: after 5 s, the first hit.</span></p>
+          </aside>
+          <button class="linkbtn nameit" type="button" data-nameit>Name it</button>
+        </article>
+
+        <article class="scene" data-scene="reply" hidden>
+          <h2 class="sc-t" tabindex="-1">Did they reply yet?</h2>
+          <p class="sub">You never know when it’ll come.</p>
+          <div class="device">
+            <div class="chatlog" id="viLog" aria-live="polite"><p class="b me" id="viMe">still on for tonight?</p><p class="st" id="viSt">Delivered</p></div>
+            <p class="d-msg" id="viMsg" aria-live="polite">Check whenever you like.</p>
+            <div class="d-row"><button class="pbtn primary" type="button" id="viBtn">Check</button><span class="tally" id="viTally">Checks 0 · Replies 0</span></div>
+          </div>
+          <aside class="rule" data-bone="VI" hidden>
+            <p class="k">The rule</p>
+            <p class="r-name">Variable interval <span>VI 4 s</span></p>
+            <p class="r-def">After a changing time, the first action is rewarded. Here the wait is 3 or 5 s.</p>
+            <p class="chips"><span class="chip">Slow and steady · no pause</span></p>
+            <p class="r-note">Checking doesn’t make the reply come sooner. It’s only how you find it.</p>
+            <p class="digc"><img src="pit_purple.png" alt="" onerror="this.hidden=true"><span><b>In the dig</b>Purple pit: the wait kept changing.</span></p>
+          </aside>
+          <button class="linkbtn nameit" type="button" data-nameit>Name it</button>
+        </article>
+
+        <article class="scene" data-scene="compare" hidden>
+          <h2 class="sc-t" tabindex="-1">Four rules, one afternoon.</h2>
+          <p class="sub">Look right: the dig ran on these same four.</p>
+          <div class="cmp">
+            <div class="cc" style="--c:var(--s-fr)">
+              <p class="cc-k">Count actions · fixed</p>
+              <p class="cc-n">Fixed ratio <span>FR</span></p>
+              <svg class="rec" viewBox="0 0 120 72" role="img" aria-label="Fixed ratio: steep steps with a flat pause after each reward"><path class="ax" d="M6 4V66H116"/><path class="ln" d="M6 66L14 55H24L32 44H42L50 33H60L68 22H78L86 11H112"/><path class="tk" d="M13 50l3 4M31 39l3 4M49 28l3 4M67 17l3 4M85 6l3 4"/></svg>
+              <p class="cc-p">Bursts, then a pause.</p>
+              <p class="cc-l"><img src="slab_blue.png" alt="" onerror="this.hidden=true">Coffee card · Blue slab</p>
+              <p class="cc-you" id="you-fr">You: not tried yet</p>
+            </div>
+            <div class="cc" style="--c:var(--s-fi)">
+              <p class="cc-k">Count time · fixed</p>
+              <p class="cc-n">Fixed interval <span>FI</span></p>
+              <svg class="rec" viewBox="0 0 120 72" role="img" aria-label="Fixed interval: scallops, flat after each reward then curving up"><path class="ax" d="M6 4V66H116"/><path class="ln" d="M6 66C16 66 22 63 26 57C36 57 42 54 46 48C56 48 62 45 66 39C76 39 82 36 86 30C96 30 102 27 106 21"/><path class="tk" d="M25 52l3 4M45 43l3 4M65 34l3 4M85 25l3 4M105 16l3 4"/></svg>
+              <p class="cc-p">Pause, then a rush near the time.</p>
+              <p class="cc-l"><img src="pit_green.png" alt="" onerror="this.hidden=true">Parcel at 3:00 · Green pit</p>
+              <p class="cc-you" id="you-fi">You: not tried yet</p>
+            </div>
+            <div class="cc" style="--c:var(--s-vr)">
+              <p class="cc-k">Count actions · changing</p>
+              <p class="cc-n">Variable ratio <span>VR</span></p>
+              <svg class="rec" viewBox="0 0 120 72" role="img" aria-label="Variable ratio: the steepest straight line, rewards at uneven points"><path class="ax" d="M6 4V66H116"/><path class="ln" d="M6 66L110 8"/><path class="tk" d="M15 56l3 4M29 48l3 4M37 44l3 4M57 32l3 4M65 28l3 4M87 16l3 4M99 9l3 4"/></svg>
+              <p class="cc-p">Fastest. No pause.</p>
+              <p class="cc-l"><img src="slab_orange.png" alt="" onerror="this.hidden=true">Claw machine · Orange slab</p>
+              <p class="cc-you" id="you-vr">You: not tried yet</p>
+            </div>
+            <div class="cc" style="--c:var(--s-vi)">
+              <p class="cc-k">Count time · changing</p>
+              <p class="cc-n">Variable interval <span>VI</span></p>
+              <svg class="rec" viewBox="0 0 120 72" role="img" aria-label="Variable interval: a gentle straight line, rewards at uneven points"><path class="ax" d="M6 4V66H116"/><path class="ln" d="M6 66L110 30"/><path class="tk" d="M17 58l3 4M33 52l3 4M45 48l3 4M63 42l3 4M77 37l3 4M95 31l3 4"/></svg>
+              <p class="cc-p">Slow and steady. No pause.</p>
+              <p class="cc-l"><img src="pit_purple.png" alt="" onerror="this.hidden=true">Waiting for a reply · Purple pit</p>
+              <p class="cc-you" id="you-vi">You: not tried yet</p>
+            </div>
+          </div>
+          <p class="cmp-cap">Each line shows total actions climbing over time. Each tick is a reward. Same scale in all four.</p>
+          <ul class="takeaways">
+            <li><b>Counting actions makes you faster.</b><span>Ratio lines climb steeper than interval lines.</span></li>
+            <li><b>A changing rule removes the pause.</b><span>You can’t tell when the next one comes, so you never rest.</span></li>
+            <li><b>“Sometimes” is the hardest habit to quit.</b><span>The bus stop shows why.</span></li>
+          </ul>
+        </article>
+
+        <article class="scene" data-scene="vending" hidden>
+          <h2 class="sc-t" tabindex="-1">The vending machine eats your coin.</h2>
+          <p class="sub">Waiting for the bus home. It has paid every single time before.</p>
+          <div class="device">
+            <div class="vm" id="exVm" aria-hidden="true">
+              <div class="vm-grid"><i style="--c:var(--orange)"></i><i style="--c:var(--blue)"></i><i style="--c:var(--green)"></i><i style="--c:var(--purple)"></i><i style="--c:var(--less)"></i><i style="--c:var(--orange)"></i></div>
+              <div class="vm-side"><span></span><span></span><span></span></div>
+            </div>
+            <p class="d-msg" id="exMsg" aria-live="polite">Press B4 for a snack.</p>
+            <div class="d-row"><button class="pbtn primary" type="button" id="exBtn">Press B4</button><span class="tally" id="exTally">Presses 0 · Snacks 0</span></div>
+          </div>
+          <div class="predict">
+            <p class="q">The claw machine stops paying too. Which one do you give up on first?</p>
+            <div class="d-row"><button class="pbtn sm pick" type="button" data-pick="vend" aria-pressed="false">The vending machine</button><button class="pbtn sm pick" type="button" data-pick="claw" aria-pressed="false">The claw machine</button></div>
+            <div class="reveal" id="exReveal" hidden>
+              <p id="exVerdict" aria-live="polite"></p>
+              <svg class="ext" viewBox="0 0 300 150" role="img" aria-label="Illustration: after the rewards stop, trying drops fast for the machine that always paid, and slowly for the one that paid only sometimes">
+                <path class="ax" d="M30 10V128H292"/>
+                <path class="l1" d="M30 22C48 22 56 100 84 120L290 124"/>
+                <path class="l2" d="M30 22C120 24 190 64 246 118L290 122"/>
+                <text class="t1" x="84" y="88">Paid every time</text>
+                <text class="t2" x="150" y="40">Paid only sometimes</text>
+                <text x="292" y="145" text-anchor="end">Tries with no reward →</text>
+                <text x="24" y="20" text-anchor="end" transform="rotate(-90 24 20)">Still trying</text>
+              </svg>
+              <p class="ext-cap">Illustration of the pattern, not measured data.</p>
+            </div>
+          </div>
+          <aside class="rule" data-bone="EX" hidden>
+            <p class="k">The rule</p>
+            <p class="r-name">Extinction</p>
+            <p class="r-def">Stop the reward and the action fades.</p>
+            <p class="r-note"><b>Partial reinforcement effect:</b> actions rewarded only some of the time fade slowest.</p>
+            <p class="r-note"><b>Spontaneous recovery:</b> tomorrow you walk past and press once more.</p>
+            <p class="r-note">Ignoring a tantrum works the same way. With no attention, it fades.</p>
+            <p class="digc dry"><img src="slab_blue.png" alt="" onerror="this.hidden=true"><span><b>In the dig</b>At dusk, the blue or orange slab went dry.</span></p>
+          </aside>
+          <button class="linkbtn nameit" type="button" data-nameit>Name it</button>
+        </article>
+
+        <article class="scene" data-scene="steps" hidden>
+          <h2 class="sc-t" tabindex="-1">You want to study 25 minutes a night.</h2>
+          <p class="sub">The dig ended at sunset. Your day didn’t. Don’t start at 25. Reward each step, right away.</p>
+          <div class="device">
+            <ol class="ladder" id="ladder">
+              <li style="--i:0" class="next"><span class="st">Open your notes</span><button class="pbtn sm" type="button">Done</button><span class="rw">✓ Tick on the calendar</span></li>
+              <li style="--i:1"><span class="st">Read one page</span><button class="pbtn sm" type="button" disabled>Done</button><span class="rw">✓ One song</span></li>
+              <li style="--i:2"><span class="st">Study 10 minutes</span><button class="pbtn sm" type="button" disabled>Done</button><span class="rw">✓ A cup of teh tarik</span></li>
+              <li style="--i:3"><span class="st">Study 25 minutes</span><button class="pbtn sm" type="button" disabled>Done</button><span class="rw">✓ One episode, guilt-free</span></li>
+            </ol>
+            <p class="d-msg" id="shMsg" aria-live="polite">Start with the smallest step.</p>
+            <div class="d-row"><button class="linkbtn" type="button" id="shReset" hidden>Reset</button></div>
+          </div>
+          <aside class="rule" data-bone="SH" hidden>
+            <p class="k">The rule</p>
+            <p class="r-name">Shaping</p>
+            <p class="r-def">Reward small steps that get closer and closer to the goal. Each step is a successive approximation.</p>
+            <p class="chips"><span class="chip">Right away</span><span class="chip">Only the exact step</span></p>
+            <p class="digc"><span class="bn"><svg aria-hidden="true"><use href="#i-bone"/></svg></span><span><b>In the dig</b>The skeleton grew one bone at a time.</span></p>
+          </aside>
+          <button class="linkbtn nameit" type="button" data-nameit>Name it</button>
+        </article>
+
+        <article class="scene" data-scene="dot" hidden>
+          <h2 class="sc-t" tabindex="-1">A red dot.</h2>
+          <p class="sub">Mid-study, your phone lights up. The dot tells you a reward is waiting.</p>
+          <div class="device" id="cueDev">
+            <div class="home" aria-hidden="true">
+              <span class="app" style="--c:var(--blue)"><i></i>Notes</span>
+              <span class="app" style="--c:var(--orange)"><i></i>Feed<span class="dot">9</span></span>
+              <span class="app" style="--c:var(--green)"><i></i>Chat<span class="dot">3</span></span>
+              <span class="app" style="--c:var(--purple)"><i></i>Music</span>
+              <span class="app" style="--c:var(--bone-ink)"><i></i>Mail<span class="dot">1</span></span>
+              <span class="app" style="--c:var(--muted)"><i></i>Maps</span>
+            </div>
+            <p class="d-msg" id="cueMsg" aria-live="polite">Red dot on: you tap.</p>
+            <div class="d-row"><button class="pbtn primary" type="button" id="cueBtn" aria-pressed="false">Hide the red dots</button></div>
+          </div>
+          <aside class="rule" data-bone="CU" hidden>
+            <p class="k">The rule</p>
+            <p class="r-name">Discriminative stimulus</p>
+            <p class="r-def">A cue that tells you when an action will pay off. Remove the cue and the action loses its trigger.</p>
+            <p class="r-note"><b>Generalisation:</b> soon any red dot pulls a little, even on an app you never use.</p>
+            <p class="digc"><img src="pit_green.png" alt="" onerror="this.hidden=true"><span><b>In the dig</b>The ring turning green meant ready.</span></p>
+          </aside>
+          <button class="linkbtn nameit" type="button" data-nameit>Name it</button>
+        </article>
+
+        <article class="scene" data-scene="plan" hidden>
+          <h2 class="sc-t" tabindex="-1">Make tomorrow’s consequences work.</h2>
+          <p class="sub">Pick one to try tomorrow.</p>
+          <div class="uses" role="group" aria-label="Three ways to use consequences well">
+            <button class="use" type="button" data-use="0" aria-pressed="false"><b>Right away.</b><span>The sooner it follows, the stronger it works. Adults can wait for a later reward; pets and small children can’t.</span></button>
+            <button class="use" type="button" data-use="1" aria-pressed="false"><b>The exact action.</b><span>Reward the thing you want, not something near it.</span></button>
+            <button class="use" type="button" data-use="2" aria-pressed="false"><b>Go easy on punishment.</b><span>Harsh punishment teaches fear, hiding and lying. Keep it immediate and consistent, and reward the right action too.</span></button>
+          </div>
+          <p class="d-msg" id="useMsg" aria-live="polite"></p>
+          <aside class="rule" data-bone="US" hidden>
+            <p class="k">Out in the world</p>
+            <ul class="world">
+              <li><b>Token economy</b><span>Points, stamps and stars traded for rewards, in classrooms and loyalty apps.</span></li>
+              <li><b>Time-out</b><span>A short break away from attention. Mild negative punishment.</span></li>
+              <li><b>Applied behaviour analysis</b><span>Therapy that shapes skills one small step at a time.</span></li>
+              <li><b>Biofeedback</b><span>A watch shows your heart rate so you can learn to slow it.</span></li>
+            </ul>
+          </aside>
+          <button class="linkbtn nameit" type="button" data-nameit>Out in the world</button>
+        </article>
+
+        <article class="scene" data-scene="feed" hidden>
+          <h2 class="sc-t" tabindex="-1">One more video.</h2>
+          <p class="sub">You know these rules now. Which one keeps your thumb moving?</p>
+          <div class="device">
+            <div class="clip" id="fdClip" aria-live="polite">Swipe</div>
+            <div class="d-row"><button class="pbtn primary" type="button" id="fdBtn">Swipe</button><span class="tally" id="fdTally">Swipes 0 · Funny 0</span></div>
+            <div class="rq" role="group" aria-label="Which rule is this?">
+              <button class="pbtn sm" type="button" data-r="FR">Fixed ratio</button>
+              <button class="pbtn sm" type="button" data-r="VR">Variable ratio</button>
+              <button class="pbtn sm" type="button" data-r="FI">Fixed interval</button>
+              <button class="pbtn sm" type="button" data-r="VI">Variable interval</button>
+            </div>
+            <p class="d-msg" id="fdMsg" aria-live="polite"></p>
+          </div>
+          <aside class="rule" hidden>
+            <p class="k">The rule</p>
+            <p class="r-name">Variable ratio, again</p>
+            <p class="r-def">Every swipe might be the funny one. That’s the orange slab in your pocket.</p>
+            <p class="r-note">Seeing the rule is the first step to changing the loop.</p>
+          </aside>
+        </article>
+
+      </div>
+      <div class="p-foot">
+        <button class="pbtn sm" type="button" id="backBtn">← Back</button>
+        <span class="prog" id="prog">1 / 12</span>
+        <button class="pbtn sm primary" type="button" id="nextBtn">Next →</button>
+      </div>
+    </div>
+
+    <!-- end -->
+    <div class="p-view" id="pEnd" hidden>
+      <div class="p-head"><p class="k">Your day, in rules</p><button class="xbtn" type="button" id="endClose" aria-label="Close and see the whole town">×</button></div>
+      <div class="p-body">
+        <div class="intro endv">
+          <h2 tabindex="-1" id="endH">Twelve small bones, one idea.</h2>
+          <p>What comes right after an action changes what you do next. Tap a line to go back.</p>
+          <ol class="dayline" id="dayline"></ol>
+          <p class="bigline">Change what comes right after, and you change what comes next.</p>
+          <div class="cta">
+            <a class="pbtn primary" href="index.html#game" data-view="game">Play Dino Dig</a>
+            <button class="pbtn" type="button" id="againBtn">Start the day again</button>
+          </div>
+          <p class="foot">Built for the PSY 111 exhibition on operant conditioning. Concepts follow the course lecture Learning (Part 1) and Kosslyn &amp; Rosenberg, <i>Introducing Psychology</i>. The everyday examples show common patterns. They don’t describe any one person.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div id="tint" aria-hidden="true"></div>
+
+<script>
+(function(){
+  'use strict';
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function $(s, r){ return (r || document).querySelector(s); }
+  function $$(s, r){ return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function ms(n){ return reduce ? 0 : n; }
+  function bag(arr){ var i = 0; return function(){ return arr[i++ % arr.length]; }; }
+  function plural(n, one, many){ return n + ' ' + (n === 1 ? one : many); }
+  function replay(el, cls){ el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
+  function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+  function r1(v){ return Math.round(v * 10) / 10; }
+
+  /* ================= layout =================
+     town / dig: % of the stage. flags / route: % of the town picture (route snapped to the road's centre).
+     tips: which side a flag's label sits on, so the labels around the house don't collide. */
+  var L = {
+    town: { x: -8.1, y: 3, w: 89 },
+    dig:  { x: 71, y: 3.5, w: 22 },
+    dino: { w: 3.4 },
+    zoom: 1.6,
+    flags: {
+      bedroom: { x: 19.1, y: 29.9 }, car: { x: 18.4, y: 40.6 }, hall: { x: 32.0, y: 23.5 }, board: { x: 40.9, y: 19.6 },
+      kopi: { x: 48.6, y: 21.5 }, claw: { x: 53.2, y: 28.6 }, post: { x: 64.3, y: 31.6 }, park: { x: 67.8, y: 39.3 },
+      lookout: { x: 78.3, y: 38.6 }, bus: { x: 55.4, y: 56.6 }, desk: { x: 25.8, y: 35.2 }, bed: { x: 24.8, y: 30.6 }
+    },
+    tips: { bedroom:'l', car:'l', lookout:'l', desk:'b', park:'b' },
+    route: [[25.3,48.3],[32.2,40.7],[41.3,32.5],[44.4,30.4],[49.2,33.7],[54.1,38.0],[61.9,45.4],[67.0,50.6],[68.1,53.7],[64.0,58.5],[56.9,64.9],[50.1,69.5],[42.2,64.7],[32.4,56.0]]
+  };
+  var TOWN_PORTRAIT = { x: -15.5, y: 0, w: 140 };
+
+  /* ================= the day ================= */
+  var STOPS = [
+    { id:'bedroom', place:'Bedroom',      scenes:['likes'] },
+    { id:'car',     place:'The car',      scenes:['belt'] },
+    { id:'hall',    place:'Lecture hall', scenes:['lecture','late'] },
+    { id:'board',   place:'Notice board', scenes:['sort'] },
+    { id:'kopi',    place:'Kopi Corner',  scenes:['coffee'] },
+    { id:'claw',    place:'Claw machine', scenes:['claw'] },
+    { id:'post',    place:'Post office',  scenes:['post'] },
+    { id:'park',    place:'Park bench',   scenes:['reply'] },
+    { id:'lookout', place:'Lookout',      scenes:['compare'] },
+    { id:'bus',     place:'Bus stop',     scenes:['vending'] },
+    { id:'desk',    place:'Your desk',    scenes:['steps','dot'] },
+    { id:'bed',     place:'Bed',          scenes:['plan','feed'] }
+  ];
+  var SC = {
+    likes:{t:'07:05',ph:'dawn'}, belt:{t:'08:10',ph:'dawn'}, lecture:{t:'09:05',ph:'morning'}, late:{t:'09:40',ph:'morning'}, sort:{t:'10:00',ph:'morning'},
+    coffee:{t:'12:40',ph:'midday'}, claw:{t:'13:20',ph:'midday'}, post:{t:'15:00',ph:'afternoon'}, reply:{t:'16:20',ph:'afternoon'},
+    compare:{t:'17:00',ph:'golden'}, vending:{t:'18:30',ph:'dusk'}, steps:{t:'21:00',ph:'night'}, dot:{t:'21:40',ph:'night'},
+    plan:{t:'22:45',ph:'night'}, feed:{t:'23:30',ph:'night'}
+  };
+  var PH = { dawn:'Dawn', morning:'Morning', midday:'Midday', afternoon:'Afternoon', golden:'Late afternoon', dusk:'Dusk', night:'Night' };
+  var BONES = [
+    { id:'PR', short:'+ Reinforce', name:'Positive reinforcement',  stop:0,  scene:'likes',   m:'Likes on your post' },
+    { id:'NR', short:'− Reinforce', name:'Negative reinforcement',  stop:1,  scene:'belt',    m:'The beeping stops' },
+    { id:'PP', short:'+ Punish',    name:'Positive punishment',     stop:2,  scene:'lecture', m:'Called out in class' },
+    { id:'NP', short:'− Punish',    name:'Negative punishment',     stop:2,  scene:'late',    m:'Marks taken off' },
+    { id:'FR', short:'FR 5',        name:'Fixed ratio',             stop:4,  scene:'coffee',  m:'Every 5th coffee free' },
+    { id:'VR', short:'VR 5',        name:'Variable ratio',          stop:5,  scene:'claw',    m:'Maybe this time' },
+    { id:'FI', short:'FI 5 s',      name:'Fixed interval',          stop:6,  scene:'post',    m:'The parcel at 3:00' },
+    { id:'VI', short:'VI 4 s',      name:'Variable interval',       stop:7,  scene:'reply',   m:'Waiting for a reply' },
+    { id:'EX', short:'Extinction',  name:'Extinction',              stop:9,  scene:'vending', m:'The machine stops paying' },
+    { id:'SH', short:'Shaping',     name:'Shaping',                 stop:10, scene:'steps',   m:'One small step at a time' },
+    { id:'CU', short:'Cue',         name:'Discriminative stimulus', stop:10, scene:'dot',     m:'The red dot' },
+    { id:'US', short:'Use it well', name:'Using consequences well', stop:11, scene:'plan',    m:'Tomorrow, on purpose' }
+  ];
+  var CONCEPT = ['+ Reinforce','− Reinforce','+ / − Punish','Sort the four','FR 5','VR 5','FI 5 s','VI 4 s','Compare','Extinction','Shaping · Cue','Use it well']; // short, so the end labels fit on the map
+
+  var html = document.documentElement, stage = $('#stage'), mapview = $('#mapview'), cam = $('#cam'), town = $('#town');
+  var dino = $('#dino'), dig = $('#dig'), panel = $('#panel');
+  var portrait = false;
+  var state = { started:false, stop:-1, scene:0, ending:false, ds:0 };
+  var bones = {};
+
+  /* ================= images (png first, then jpg) ================= */
+  function pick(img, names, fail){
+    var i = 0;
+    img.addEventListener('error', function(){ i++; if (i < names.length) img.src = names[i]; else if (fail) fail(); });
+    img.src = names[0];
+  }
+  pick($('#tDay'), ['town.png','town.jpg'], function(){ town.classList.add('missing'); $('#tDay').hidden = true; });
+  pick($('#tNight'), ['town_night.png','town_night.jpg'], function(){ town.classList.add('no-night'); });
+  pick($('#digImg'), ['dig_island.png','bg.jpg'], null);
+  $('#digImg').addEventListener('load', function(){ if (/bg\.jpg$/.test(this.src)) dig.classList.add('raw'); });
+  pick($('#dinoImg'), ['dino_sage_hat.png','dino.png'], function(){ var s = document.createElement('span'); s.className = 'dfb'; $('#dinoImg').replaceWith(s); });
+
+  /* ================= stage sizing ================= */
+  function size(){
+    var vw = window.innerWidth, vh = window.innerHeight;
+    portrait = vw / vh < 1.05 || vw < 640;
+    html.classList.toggle('portrait', portrait);
+    if (portrait){
+      stage.style.cssText = '';
+      html.style.setProperty('--u', '14px');
+    } else {
+      var w = Math.min(vw, vh * 16 / 9), h = w * 9 / 16;
+      stage.style.width = w + 'px'; stage.style.height = h + 'px';
+      stage.style.left = ((vw - w) / 2) + 'px'; stage.style.top = ((vh - h) / 2) + 'px';
+      SB = { x:(vw - w) / 2, y:(vh - h) / 2, w:w, h:h };
+      html.style.setProperty('--u', (w / 100) + 'px');
+    }
+    applyLayout();
+    var z = $('.zoom'); z.style.top = portrait ? (mapview.offsetTop + mapview.offsetHeight - z.offsetHeight - 10) + 'px' : '';
+    if (state.stop >= 0 && !state.ending) focusStop(state.stop, true); else setCam(1, 0, 0, true);
+  }
+
+  /* ================= route geometry (image units: x 0–100, y scaled to keep the aspect) ================= */
+  var R = 1536 / 2752, P = [], LEN = [], TOT = 1, stands = [];
+  function buildRoute(){
+    P = L.route.map(function(p){ return [p[0], p[1] * R]; });
+    LEN = []; TOT = 0;
+    for (var i = 0; i < P.length; i++){ var a = P[i], b = P[(i + 1) % P.length]; var l = Math.hypot(b[0] - a[0], b[1] - a[1]); LEN.push(l); TOT += l; }
+    var d = 'M' + P.map(function(p){ return r1(p[0] * 10) / 10 + ' ' + r1(p[1] * 10) / 10; }).join(' L') + ' Z';
+    $('#routePath').setAttribute('d', d); $('#routeGlow').setAttribute('d', d);
+    stands = STOPS.map(function(s){ var f = L.flags[s.id]; return project(f.x, f.y * R); });
+  }
+  function project(x, y){
+    var best = Infinity, bs = 0, acc = 0;
+    for (var i = 0; i < P.length; i++){
+      var a = P[i], b = P[(i + 1) % P.length], dx = b[0] - a[0], dy = b[1] - a[1], l2 = dx * dx + dy * dy || 1e-6;
+      var t = clamp(((x - a[0]) * dx + (y - a[1]) * dy) / l2, 0, 1), px = a[0] + t * dx, py = a[1] + t * dy, d = Math.hypot(x - px, y - py);
+      if (d < best){ best = d; bs = acc + t * LEN[i]; }
+      acc += LEN[i];
+    }
+    return bs;
+  }
+  function pointAt(s){
+    s = ((s % TOT) + TOT) % TOT;
+    for (var i = 0; i < P.length; i++){
+      if (s <= LEN[i] || i === P.length - 1){
+        var a = P[i], b = P[(i + 1) % P.length], t = LEN[i] ? clamp(s / LEN[i], 0, 1) : 0;
+        return { x: a[0] + (b[0] - a[0]) * t, y: (a[1] + (b[1] - a[1]) * t) / R, dx: b[0] - a[0] };
+      }
+      s -= LEN[i];
+    }
+    return { x: P[0][0], y: P[0][1] / R, dx: 1 };
+  }
+  function placeDino(s, dirSign){
+    var p = pointAt(s);
+    dino.style.left = p.x + '%'; dino.style.top = p.y + '%';
+    if (dirSign){ var goingLeft = p.dx * dirSign < 0; dino.classList.toggle('left', goingLeft); }
+  }
+  var walkRaf = 0;
+  function walkTo(target, how, done){
+    cancelAnimationFrame(walkRaf);
+    var from = state.ds, fwd = ((target - from) % TOT + TOT) % TOT, bwd = ((from - target) % TOT + TOT) % TOT;
+    var dir = how === 'next' ? 1 : how === 'back' ? -1 : (fwd <= bwd ? 1 : -1);
+    var dist = dir > 0 ? fwd : bwd;
+    if (how === 'loop'){ dir = 1; dist = TOT; }
+    var dur = reduce ? 0 : clamp(dist / 40 * 1000, 250, how === 'loop' ? 6000 : 1700);
+    if (dist < 0.05 || !dur){ state.ds = target; placeDino(target, dir); if (done) done(); return; }
+    var t0 = performance.now(); dino.classList.add('walk');
+    (function step(now){
+      var k = clamp((now - t0) / dur, 0, 1), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+      state.ds = from + dir * dist * e; placeDino(state.ds, dir);
+      if (k < 1) walkRaf = requestAnimationFrame(step);
+      else { state.ds = ((target % TOT) + TOT) % TOT; dino.classList.remove('walk'); if (done) done(); }
+    })(t0);
+  }
+
+  /* ================= flags + notebook ================= */
+  var flags = STOPS.map(function(s, i){
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'flag' + (L.tips[s.id] ? ' tip-' + L.tips[s.id] : ''); b.setAttribute('data-i', i);
+    b.innerHTML = '<span class="foot"></span><span class="pole"></span><span class="pen">' + (i + 1) + '</span><span class="tip"></span>';
+    b.setAttribute('aria-label', 'Stop ' + (i + 1) + ', ' + s.place + ', ' + SC[s.scenes[0]].t);
+    b.addEventListener('click', function(){ go(i, 0, 'jump'); });
+    $('#flags').appendChild(b);
+    return b;
+  });
+  function flagTips(){
+    flags.forEach(function(f, i){ $('.tip', f).textContent = state.ending ? CONCEPT[i] : STOPS[i].place + ' · ' + SC[STOPS[i].scenes[0]].t; });
+  }
+  var nb = $('.notebook');
+  var slots = {};
+  BONES.forEach(function(bn){
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'nb-slot'; b.setAttribute('data-b', bn.id); b.disabled = true;
+    b.title = bn.name; b.setAttribute('aria-label', bn.name + ', not found yet');
+    b.innerHTML = '<svg aria-hidden="true"><use href="#i-bone"/></svg><span>' + bn.short + '</span>';
+    b.addEventListener('click', function(){ go(bn.stop, STOPS[bn.stop].scenes.indexOf(bn.scene), 'jump'); });
+    nb.appendChild(b); slots[bn.id] = b;
+  });
+  function count(){ var n = Object.keys(bones).length; $('#nbCount').textContent = n + ' / 12'; }
+  function collect(id, fromEl){
+    if (bones[id]) return;
+    bones[id] = true;
+    var slot = slots[id], bn = BONES.filter(function(b){ return b.id === id; })[0];
+    function land(){ slot.classList.add('on'); slot.disabled = false; slot.setAttribute('aria-label', bn.name + ', found. Go back to it.'); replay(slot, 'pop'); count(); }
+    if (reduce || !fromEl || !fromEl.getBoundingClientRect) return land();
+    var a = fromEl.getBoundingClientRect(), z = slot.getBoundingClientRect();
+    var fb = document.createElement('div'); fb.className = 'flybone'; fb.innerHTML = '<svg><use href="#i-bone"/></svg>';
+    var sx = a.left + a.width / 2, sy = a.top + 24, ex = z.left + z.width / 2, ey = z.top + z.height / 2 - 6;
+    fb.style.left = (sx - 22) + 'px'; fb.style.top = (sy - 11) + 'px';
+    document.body.appendChild(fb);
+    var mx = (ex - sx) / 2, my = Math.min(ey, sy) - sy - 120;
+    var an = fb.animate([
+      { transform:'translate(0,0) scale(1.5)' },
+      { transform:'translate(' + mx + 'px,' + my + 'px) scale(1.3) rotate(-20deg)', offset:.45 },
+      { transform:'translate(' + (ex - sx) + 'px,' + (ey - sy) + 'px) scale(.8)' }
+    ], { duration:1000, easing:'ease-in-out' });
+    an.onfinish = function(){ fb.remove(); land(); };
+  }
+
+  /* ================= layout → DOM ================= */
+  var SB = { x:0, y:0, w:1, h:1 }; // stage box in window px (landscape)
+  function applyLayout(){
+    if (portrait){
+      var t = TOWN_PORTRAIT;
+      town.style.left = t.x + '%'; town.style.top = t.y + '%'; town.style.width = t.w + '%';
+      mapview.style.removeProperty('--m0'); mapview.style.removeProperty('--m1');
+    } else {
+      town.style.left = (SB.x + L.town.x / 100 * SB.w) + 'px'; town.style.top = (SB.y + L.town.y / 100 * SB.h) + 'px'; town.style.width = (L.town.w / 100 * SB.w) + 'px';
+      mapview.style.setProperty('--m0', (SB.x + .65 * SB.w) + 'px'); mapview.style.setProperty('--m1', (SB.x + .70 * SB.w) + 'px');
+    }
+    dig.style.left = L.dig.x + '%'; dig.style.top = L.dig.y + '%'; dig.style.width = L.dig.w + '%';
+    dino.style.width = L.dino.w + '%';
+    flags.forEach(function(f, i){ var p = L.flags[STOPS[i].id]; f.style.left = p.x + '%'; f.style.top = p.y + '%'; });
+    buildRoute(); placeDino(state.ds, 0);
+  }
+
+  /* ================= camera ================= */
+  var C = { s:1, tx:0, ty:0 };
+  // the part of the map layer the visitor can see (landscape: left of the card column)
+  function view(){ var w = mapview.clientWidth, h = mapview.clientHeight; return portrait ? { w:w, h:h, cx:w / 2, cy:h / 2 } : { w:SB.x + SB.w * .69, h:h, cx:SB.x + SB.w * .345, cy:SB.y + SB.h * .5 }; }
+  function clampCam(s, tx, ty){
+    if (s <= 1.001) return { s:1, tx:0, ty:0 };
+    var v = view(), tl = town.offsetLeft, tt = town.offsetTop, tw = town.offsetWidth, th = town.offsetHeight;
+    var xMax = -s * tl, xMin = v.w - s * (tl + tw), yMax = -s * tt, yMin = v.h - s * (tt + th);
+    tx = xMin > xMax ? (xMin + xMax) / 2 : clamp(tx, xMin, xMax);
+    ty = yMin > yMax ? (yMin + yMax) / 2 : clamp(ty, yMin, yMax);
+    return { s:s, tx:tx, ty:ty };
+  }
+  function setCam(s, tx, ty, instant){
+    var c = clampCam(s, tx, ty); C = c;
+    cam.style.transition = instant ? 'none' : '';
+    cam.style.transform = 'translate(' + c.tx + 'px,' + c.ty + 'px) scale(' + c.s + ')';
+    cam.style.setProperty('--inv', (1 / c.s).toFixed(4));
+    if (instant){ void cam.offsetWidth; cam.style.transition = ''; }
+  }
+  function focusStop(i, instant){
+    var f = L.flags[STOPS[i].id], v = view(), s = L.zoom;
+    var fx = town.offsetLeft + f.x / 100 * town.offsetWidth, fy = town.offsetTop + f.y / 100 * town.offsetHeight;
+    setCam(s, v.cx - s * fx, v.cy - s * fy, instant);
+  }
+  function zoomBy(k){
+    var v = view(), s2 = clamp(C.s * k, 1, 3), cx = v.cx, cy = v.cy;
+    setCam(s2, cx - (s2 / C.s) * (cx - C.tx), cy - (s2 / C.s) * (cy - C.ty));
+  }
+  $('#zIn').addEventListener('click', function(){ zoomBy(1.3); });
+  $('#zOut').addEventListener('click', function(){ zoomBy(1 / 1.3); });
+  $('#zReset').addEventListener('click', function(){ setCam(1, 0, 0); });
+  (function(){ // drag to pan once zoomed in
+    var pan = null;
+    mapview.addEventListener('pointerdown', function(e){
+      if (e.button !== 0 || C.s <= 1.001 || e.target.closest('.flag')) return;
+      pan = { x:e.clientX, y:e.clientY, tx:C.tx, ty:C.ty, moved:false };
+      mapview.setPointerCapture(e.pointerId);
+    });
+    mapview.addEventListener('pointermove', function(e){
+      if (!pan) return;
+      var dx = e.clientX - pan.x, dy = e.clientY - pan.y;
+      if (Math.abs(dx) + Math.abs(dy) > 3) pan.moved = true;
+      if (pan.moved) setCam(C.s, pan.tx + dx, pan.ty + dy, true);
+    });
+    function end(){ pan = null; }
+    mapview.addEventListener('pointerup', end); mapview.addEventListener('pointercancel', end);
+  })();
+
+  /* ================= time of day ================= */
+  function setTime(sceneId){
+    var sc = SC[sceneId]; html.setAttribute('data-phase', sc.ph);
+    $('#clockT').textContent = sc.t + ' · ' + PH[sc.ph];
+  }
+
+  /* ================= panel ================= */
+  var views = { intro: $('#pIntro'), stop: $('#pStop'), end: $('#pEnd') };
+  function showView(k){ var was = views[k].hidden; Object.keys(views).forEach(function(n){ views[n].hidden = n !== k; }); if (was) replay(views[k], 'enter'); }
+  var scenes = {}; $$('.scene').forEach(function(a){ scenes[a.getAttribute('data-scene')] = a; });
+  var seen = {};
+
+  function go(i, k, how){
+    if (state.ending){ state.ending = false; html.classList.remove('ending'); flagTips(); }
+    var moved = state.stop !== i;
+    state.started = true; state.stop = i; state.scene = k || 0;
+    flags.forEach(function(f, n){ f.classList.toggle('cur', n === i); });
+    seen[i] = true; flags[i].classList.add('seen');
+    if (moved || C.s <= 1.001){ focusStop(i); walkTo(stands[i], how); }
+    renderScene();
+  }
+  function renderScene(){
+    var st = STOPS[state.stop], id = st.scenes[state.scene], sc = SC[id];
+    showView('stop');
+    Object.keys(scenes).forEach(function(n){ scenes[n].hidden = n !== id; });
+    $('#scLabel').textContent = 'Stop ' + (state.stop + 1) + ' · ' + sc.t + ' · ' + st.place;
+    $('#prog').textContent = (state.stop + 1) + ' / 12';
+    setTime(id);
+    var last = state.stop === STOPS.length - 1 && state.scene === st.scenes.length - 1;
+    var nextLabel = state.scene < st.scenes.length - 1 ? 'Then · ' + SC[st.scenes[state.scene + 1]].t + ' →'
+      : last ? 'Finish the day →' : 'Next · ' + SC[STOPS[state.stop + 1].scenes[0]].t + ' →';
+    $('#nextBtn').textContent = nextLabel;
+    $('#backBtn').disabled = state.stop === 0 && state.scene === 0;
+    $('#pBody').scrollTop = 0;
+    replay(scenes[id], 'enter');
+    $('.sc-t', scenes[id]).focus({ preventScroll:true });
+  }
+  function next(){
+    if (state.stop < 0) return go(0, 0, 'next');
+    var st = STOPS[state.stop];
+    if (state.scene < st.scenes.length - 1){ state.scene++; renderScene(); }
+    else if (state.stop < STOPS.length - 1) go(state.stop + 1, 0, 'next');
+    else finish();
+  }
+  function back(){
+    if (state.stop < 0) return;
+    if (state.scene > 0){ state.scene--; renderScene(); }
+    else if (state.stop > 0){ var p = state.stop - 1; go(p, STOPS[p].scenes.length - 1, 'back'); }
+  }
+  function overview(){
+    setCam(1, 0, 0);
+    if (state.ending) return;
+    $('#startBtn').textContent = state.started ? 'Continue · Stop ' + (state.stop + 1) : 'Start the day · 07:05';
+    showView('intro');
+  }
+  function finish(){
+    state.ending = true; html.classList.add('ending');
+    flags.forEach(function(f){ f.classList.remove('cur'); });
+    flagTips(); setCam(1, 0, 0);
+    html.setAttribute('data-phase', 'night'); $('#clockT').textContent = '23:59 · Night';
+    walkTo(stands[0], 'next');
+    var ol = $('#dayline'); ol.innerHTML = '';
+    BONES.forEach(function(bn){
+      var li = document.createElement('li'), b = document.createElement('button');
+      b.type = 'button';
+      b.innerHTML = '<span class="t">' + SC[bn.scene].t + '</span><span class="m"></span><span class="r"></span>';
+      $('.m', b).textContent = bn.m; $('.r', b).textContent = (bones[bn.id] ? '' : '○ ') + bn.name;
+      b.addEventListener('click', function(){ go(bn.stop, STOPS[bn.stop].scenes.indexOf(bn.scene), 'jump'); });
+      li.appendChild(b); ol.appendChild(li);
+    });
+    showView('end'); $('#endH').focus({ preventScroll:true });
+  }
+  $('#startBtn').addEventListener('click', function(){ state.stop >= 0 ? go(state.stop, state.scene, 'jump') : go(0, 0, 'next'); });
+  $('#nextBtn').addEventListener('click', next);
+  $('#backBtn').addEventListener('click', back);
+  $('#closeBtn').addEventListener('click', overview);
+  $('#endClose').addEventListener('click', function(){ state.ending = false; html.classList.remove('ending'); flagTips(); overview(); });
+  $('#againBtn').addEventListener('click', function(){ location.reload(); });
+  document.addEventListener('keydown', function(e){
+    if (e.target.closest && e.target.closest('input,textarea')) return;
+    if (e.key === 'ArrowRight'){ if (!state.ending){ e.preventDefault(); next(); } }
+    else if (e.key === 'ArrowLeft'){ if (!state.ending){ e.preventDefault(); back(); } }
+    else if (e.key === 'Escape'){ overview(); }
+    else if (e.key === '+' || e.key === '='){ zoomBy(1.3); }
+    else if (e.key === '-'){ zoomBy(1 / 1.3); }
+  });
+
+  /* switching to Dino Dig: index.html keeps both pages loaded; opened on its own, go through index.html */
+  var embedded = window.parent !== window;
+  document.addEventListener('click', function(e){
+    var v = e.target.closest('[data-view]'); if (!v) return;
+    var k = v.getAttribute('data-view'); e.preventDefault();
+    if (k === 'map') return;
+    if (embedded) window.parent.postMessage({ dd:'go', view:'game', mode: k === 'guide' ? 'guide' : null }, '*');
+    else location.href = 'index.html#game';
+  });
+
+  /* reveal the rule after the visitor has acted; collect its bone */
+  function reveal(sceneEl){
+    var r = $('.rule', sceneEl); if (!r || !r.hidden) return;
+    r.hidden = false; replay(r, 'in');
+    var nm = $('[data-nameit]', sceneEl); if (nm) nm.hidden = true;
+    var id = r.getAttribute('data-bone'); if (id) collect(id, r);
+    setTimeout(function(){ if (!portrait) r.scrollIntoView({ block:'nearest', behavior: reduce ? 'auto' : 'smooth' }); }, 30);
+  }
+  $$('[data-nameit]').forEach(function(b){ b.addEventListener('click', function(){ reveal(b.closest('.scene')); }); });
+
+  /* ================= scene behaviour (ported from day.html) ================= */
+  var S = { fr:{ taps:0, wins:0, w:'free coffee', ws:'free coffees' }, vr:{ taps:0, wins:0, w:'prize', ws:'prizes' },
+            fi:{ taps:0, wins:0, w:'parcel', ws:'parcels' }, vi:{ taps:0, wins:0, w:'reply', ws:'replies' } };
+  function you(k){ var s = S[k], el = document.getElementById('you-' + k); if (el) el.textContent = s.taps ? 'You: ' + plural(s.taps, 'tap', 'taps') + ' · ' + plural(s.wins, s.w, s.ws) : 'You: not tried yet'; }
+
+  $$('.scene[data-loop]').forEach(function(m){
+    var act = $('[data-act]', m), reset = $('[data-reset]', m), cells = $$('.loop li', m), timers = [];
+    function fill(i){ var li = cells[i], v = $('.v', li); v.textContent = v.getAttribute('data-a'); v.classList.remove('q'); li.classList.add('on'); }
+    act.addEventListener('click', function(){
+      m.classList.add('done'); act.disabled = true;
+      timers.push(setTimeout(function(){ fill(1); }, ms(450)));
+      timers.push(setTimeout(function(){ fill(2); reset.hidden = false; reveal(m); }, ms(1500)));
+    });
+    reset.addEventListener('click', function(){
+      timers.forEach(clearTimeout); timers = [];
+      m.classList.remove('done'); act.disabled = false; reset.hidden = true;
+      cells.slice(1).forEach(function(li){ var v = $('.v', li); v.textContent = '?'; v.classList.add('q'); li.classList.remove('on'); });
+      act.focus();
+    });
+  });
+
+  (function(){ // 10:00 sort
+    var QUAD = { PR:['add','up','Positive reinforcement'], NR:['take','up','Negative reinforcement'], PP:['add','down','Positive punishment'], NP:['take','down','Negative punishment'] };
+    var CASES = [
+      { t:'You tidy your room. Mum stops nagging. Next week you tidy without being asked.', a:'NR', why:'The nagging is taken away, and tidying goes up.' },
+      { t:'You touch a hot pan. It burns. Next time you grab a cloth first.', a:'PP', why:'Pain is added, and touching the pan bare-handed goes down.' },
+      { t:'You hand in early. Your lecturer praises it. You start the next one earlier.', a:'PR', why:'Praise is added, and starting early goes up.' },
+      { t:'You break curfew. Your phone is taken for the weekend. You come home on time.', a:'NP', why:'Your phone is taken away, and breaking curfew goes down.' },
+      { t:'You press stop on the alarm. The noise ends. You reach for it faster every day.', a:'NR', why:'The noise is taken away, and pressing stop goes up.' },
+      { t:'You post a rude comment. People pile on. You post fewer comments like it.', a:'PP', why:'Criticism is added, and rude comments go down.' }
+    ];
+    var qi = 0, score = 0, solved = false;
+    var qzN = $('#qzN'), qzScore = $('#qzScore'), qzCase = $('#qzCase'), qzFb = $('#qzFb'), qzNext = $('#qzNext'), qcs = $$('.qc');
+    function showCase(){
+      var c = CASES[qi]; solved = false;
+      qzN.textContent = 'Case ' + (qi + 1) + ' of ' + CASES.length;
+      qzCase.textContent = c.t; qzFb.textContent = 'Tap the box that fits.'; qzFb.className = 'qz-fb';
+      qcs.forEach(function(b){ b.classList.remove('right', 'wrong'); });
+      qzNext.hidden = true;
+    }
+    qcs.forEach(function(b){
+      b.addEventListener('click', function(){
+        if (solved) return;
+        var p = b.getAttribute('data-q'), c = CASES[qi], want = QUAD[c.a], got = QUAD[p];
+        if (p === c.a){
+          solved = true; score++; b.classList.add('right');
+          qzFb.className = 'qz-fb ok'; qzFb.textContent = 'Yes: ' + want[2].toLowerCase() + '. ' + c.why;
+          qzScore.textContent = score + ' right';
+          qzNext.hidden = false; qzNext.textContent = qi < CASES.length - 1 ? 'Next case' : 'Start again';
+        } else {
+          replay(b, 'wrong'); qzFb.className = 'qz-fb no';
+          qzFb.textContent = got[0] !== want[0] ? 'Check question 1: was something added, or taken away?' : 'Check question 2: did the action go up, or down?';
+        }
+      });
+    });
+    qzNext.addEventListener('click', function(){
+      if (qi < CASES.length - 1) qi++; else { qi = 0; score = 0; qzScore.textContent = '0 right'; }
+      showCase(); qzCase.focus();
+    });
+  })();
+
+  (function(){ // 12:40 fixed ratio
+    var btn = $('#frBtn'), sl = $$('#frSlots li'), msg = $('#frMsg'), tally = $('#frTally'), n = 0, coffees = 0;
+    btn.addEventListener('click', function(){
+      n++; coffees++; S.fr.taps++;
+      sl[n - 1].classList.add('on');
+      if (n === 5){
+        S.fr.wins++; msg.textContent = '5th coffee: free!'; btn.disabled = true; reveal(scenes.coffee);
+        setTimeout(function(){ sl.forEach(function(s){ s.classList.remove('on'); }); n = 0; btn.disabled = false; msg.textContent = 'New card. Most people take a break before filling it.'; }, ms(1500));
+      } else msg.textContent = 'Stamp ' + n + ' of 5.' + (n === 4 ? ' One more for a free one.' : '');
+      tally.textContent = 'Coffees ' + coffees + ' · Free ' + S.fr.wins; you('fr');
+    });
+  })();
+
+  (function(){ // 13:20 variable ratio (same bag as the orange slab)
+    var next = bag([2,7,4,9,3,5,6,3,8,3]), need = next(), since = 0;
+    var btn = $('#vrBtn'), box = $('#vrBox'), msg = $('#vrMsg'), tally = $('#vrTally');
+    var MISS = ['Missed.', 'So close.', 'Missed. One more?', 'It slipped.', 'Nothing.'];
+    btn.addEventListener('click', function(){
+      S.vr.taps++; since++; replay(box, 'drop');
+      if (since >= need){ S.vr.wins++; replay(box, 'win'); msg.textContent = 'Got one! That took ' + plural(since, 'try', 'tries') + '.'; since = 0; need = next(); reveal(scenes.claw); }
+      else msg.textContent = MISS[(S.vr.taps + since) % MISS.length];
+      tally.textContent = 'Tries ' + S.vr.taps + ' · Prizes ' + S.vr.wins; you('vr');
+    });
+  })();
+
+  (function(){ // 15:00 fixed interval
+    var FI = 5000, t0 = null, ready = false, raf = 0;
+    var btn = $('#fiBtn'), dev = $('#fiDev'), fill = $('#fiFill'), msg = $('#fiMsg'), tally = $('#fiTally');
+    function tick(){
+      var p = Math.min(1, (performance.now() - t0) / FI);
+      fill.style.transform = 'scaleX(' + p.toFixed(3) + ')';
+      if (p >= 1){ ready = true; dev.classList.add('ready'); msg.textContent = 'It’s 3:00. The parcel waits until you ask.'; return; }
+      raf = requestAnimationFrame(tick);
+    }
+    function start(){ cancelAnimationFrame(raf); t0 = performance.now(); ready = false; dev.classList.remove('ready'); raf = requestAnimationFrame(tick); }
+    btn.addEventListener('click', function(){
+      S.fi.taps++;
+      if (t0 === null){ msg.textContent = 'Not yet. It comes in at 3:00.'; start(); }
+      else if (!ready) msg.textContent = 'Still not in. Asking early doesn’t bring it sooner.';
+      else { S.fi.wins++; msg.textContent = 'Here’s your parcel! The next one comes tomorrow at 3:00.'; start(); reveal(scenes.post); }
+      tally.textContent = 'Asks ' + S.fi.taps + ' · Parcels ' + S.fi.wins; you('fi');
+    });
+  })();
+
+  (function(){ // 16:20 variable interval (same waits as the purple pit)
+    var next = bag([3,5,5,3,5,3,3,5,3,5]), t0 = null, wait = 0, busy = false;
+    var SENT = ['still on for tonight?', 'did you get the notes?', 'lunch tomorrow?', 'what time is the quiz?'];
+    var GOT = ['yes! see you at 8', 'yep, sending now', 'sure, 12:30?', '10am, room B'];
+    var btn = $('#viBtn'), me = $('#viMe'), st = $('#viSt'), log = $('#viLog'), msg = $('#viMsg'), tally = $('#viTally'), round = 0;
+    function begin(){ t0 = performance.now(); wait = next() * 1000; }
+    btn.addEventListener('click', function(){
+      if (busy) return;
+      S.vi.taps++;
+      if (t0 === null){ begin(); msg.textContent = 'No reply yet.'; }
+      else if (performance.now() - t0 < wait) msg.textContent = ['Nothing yet.', 'Still nothing.', 'Seen. No reply.'][S.vi.taps % 3];
+      else {
+        S.vi.wins++; busy = true; btn.disabled = true;
+        var r = document.createElement('p'); r.className = 'b them'; r.textContent = GOT[round % GOT.length];
+        log.insertBefore(r, st); st.textContent = 'Read';
+        msg.textContent = 'A reply! This one took ' + (wait / 1000) + ' s.'; reveal(scenes.reply);
+        setTimeout(function(){
+          round++; if (r.parentNode) r.parentNode.removeChild(r);
+          me.textContent = SENT[round % SENT.length]; st.textContent = 'Delivered';
+          msg.textContent = 'You sent another. Check whenever you like.';
+          begin(); busy = false; btn.disabled = false;
+        }, ms(2200));
+      }
+      tally.textContent = 'Checks ' + S.vi.taps + ' · Replies ' + S.vi.wins; you('vi');
+    });
+  })();
+
+  (function(){ // 18:30 extinction
+    var btn = $('#exBtn'), vm = $('#exVm'), msg = $('#exMsg'), tally = $('#exTally'), n = 0;
+    var LINES = ['Nothing drops.', 'Nothing. Press harder?', 'Still nothing.', 'Most people walk away about now.'];
+    btn.addEventListener('click', function(){ n++; replay(vm, 'shake'); msg.textContent = LINES[Math.min(n, LINES.length) - 1]; tally.textContent = 'Presses ' + n + ' · Snacks 0'; });
+    var picks = $$('.pick'), rv = $('#exReveal'), verdict = $('#exVerdict');
+    picks.forEach(function(p){
+      p.addEventListener('click', function(){
+        picks.forEach(function(q){ q.setAttribute('aria-pressed', q === p ? 'true' : 'false'); });
+        var v = p.getAttribute('data-pick') === 'vend';
+        verdict.innerHTML = (v ? '<b>Yes, the vending machine.</b> ' : '<b>Most people quit the vending machine first.</b> ') +
+          'It paid every time, so one miss stands out. The claw machine paid only sometimes, so a long dry run looks normal.';
+        rv.hidden = false; reveal(scenes.vending);
+      });
+    });
+  })();
+
+  (function(){ // 21:00 shaping
+    var steps = $$('#ladder li'), msg = $('#shMsg'), reset = $('#shReset'), at = 0;
+    var DONE = ['Small, but rewarded. Next step.', 'Rewarded right away. Next step.', 'Closer. Next step.', '25 minutes, reached one rewarded step at a time.'];
+    steps.forEach(function(li, i){
+      var b = $('button', li);
+      b.addEventListener('click', function(){
+        if (i !== at) return;
+        li.classList.remove('next'); li.classList.add('done'); b.disabled = true;
+        msg.textContent = DONE[i]; at++; reset.hidden = false;
+        if (steps[at]){ var nb2 = $('button', steps[at]); steps[at].classList.add('next'); nb2.disabled = false; nb2.focus(); }
+        if (i === 0) reveal(scenes.steps);
+      });
+    });
+    reset.addEventListener('click', function(){
+      at = 0; reset.hidden = true; msg.textContent = 'Start with the smallest step.';
+      steps.forEach(function(li, i){ li.classList.remove('done', 'next'); $('button', li).disabled = i !== 0; });
+      steps[0].classList.add('next'); $('button', steps[0]).focus();
+    });
+  })();
+
+  (function(){ // 21:40 cue
+    var btn = $('#cueBtn'), dev = $('#cueDev'), msg = $('#cueMsg');
+    btn.addEventListener('click', function(){
+      var off = btn.getAttribute('aria-pressed') !== 'true';
+      btn.setAttribute('aria-pressed', off ? 'true' : 'false');
+      dev.classList.toggle('nodots', off);
+      btn.textContent = off ? 'Show the red dots' : 'Hide the red dots';
+      msg.textContent = off ? 'No dot, no cue. You open the apps less.' : 'Red dot on: you tap.';
+      reveal(scenes.dot);
+    });
+  })();
+
+  (function(){ // 22:45 plan
+    var uses = $$('.use'), msg = $('#useMsg');
+    var SAY = ['Good pick. Tick the calendar the moment you finish, not at the weekend.', 'Good pick. Reward the 25 minutes, not just sitting at the desk.', 'Good pick. Catch the right action and reward that too.'];
+    uses.forEach(function(u, i){
+      u.addEventListener('click', function(){
+        uses.forEach(function(x){ x.setAttribute('aria-pressed', x === u ? 'true' : 'false'); });
+        msg.textContent = SAY[i]; reveal(scenes.plan);
+      });
+    });
+  })();
+
+  (function(){ // 23:30 feed
+    var CLIPS = [0,0,1,0,0,0,0,1,0,1,0,0,0,1,0,0,0,0,0,1], i = 0, fun = 0;
+    var MEH = ['meh', 'an ad', 'meh', 'seen it', 'meh'];
+    var btn = $('#fdBtn'), clip = $('#fdClip'), tally = $('#fdTally'), msg = $('#fdMsg');
+    btn.addEventListener('click', function(){
+      var f = CLIPS[i % CLIPS.length]; i++; if (f) fun++;
+      clip.textContent = f ? 'ha! funny one' : MEH[i % MEH.length];
+      clip.classList.toggle('fun', !!f);
+      tally.textContent = 'Swipes ' + i + ' · Funny ' + fun;
+    });
+    $$('[data-r]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var r = b.getAttribute('data-r');
+        msg.textContent = r === 'VR' ? 'Variable ratio. The funny one comes after a changing number of swipes.'
+          : r === 'FR' ? 'Not a set count. You never know how many swipes it takes.'
+          : 'Time isn’t the rule here. Every swipe is a fresh chance.';
+        if (r === 'VR') reveal(scenes.feed);
+      });
+    });
+  })();
+
+  /* ================= start ================= */
+  flagTips(); count();
+  window.addEventListener('resize', size);
+  size();
+  state.ds = stands[0] || 0; placeDino(state.ds, 1);
+  // presenters can open a stop directly, e.g. day-map.html#stop=5
+  var hs = /stop=(\d+)/.exec(location.hash); if (hs) go(clamp(+hs[1] - 1, 0, 11), 0, 'jump');
+})();
+</script>
+<!--wrapper-->
+</body>
+</html>
+<!--/wrapper-->

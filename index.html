@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<!--/wrapper-->
+<title>Dino Dig Field Camp</title>
+<style>
+/* One entry page for the exhibition: the game (game.html) and the map (day-map.html) both stay loaded,
+   and the switch in either page's top bar only changes which one is visible. A round in progress pauses
+   while the map is showing, and every stop on the map keeps its state. */
+:root{color-scheme:light;--sky:#fae7c5}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--sky)}
+.view{position:fixed;inset:0;width:100%;height:100%;border:0;display:block;background:var(--sky)}
+.view.off{visibility:hidden;pointer-events:none}
+</style>
+<!--wrapper-->
+</head>
+<body>
+<!--/wrapper-->
+<iframe class="view" id="vGame" src="game.html" title="Dino Dig"></iframe>
+<iframe class="view off" id="vMap" src="day-map.html" title="A Day of Small Bones"></iframe>
+<script>
+(function(){
+  'use strict';
+  var START = 'game';           // which view opens first; #map or #game in the link overrides it
+  var views = { game: document.getElementById('vGame'), map: document.getElementById('vMap') }, cur = null;
+  function post(k, msg){ try { views[k].contentWindow.postMessage(msg, '*'); } catch (e) {} }
+  function show(v, mode){
+    if (!views[v]) return;
+    cur = v;
+    Object.keys(views).forEach(function(k){ views[k].classList.toggle('off', k !== v); });
+    post('game', { dd: v === 'game' ? 'show' : 'away' });
+    if (v === 'game' && mode) post('game', { dd:'mode', mode:mode });
+    try { views[v].focus(); views[v].contentWindow.focus(); } catch (e) {}
+  }
+  window.addEventListener('message', function(e){
+    var d = e.data;
+    if (d && typeof d === 'object' && d.dd === 'go') show(d.view, d.mode);
+  });
+  // the game may finish loading after the first show(); tell it again whether it is on screen
+  views.game.addEventListener('load', function(){ post('game', { dd: cur === 'game' ? 'show' : 'away' }); });
+  var h = (location.hash || '').replace('#', '');
+  show(h === 'map' || h === 'game' ? h : START);
+})();
+</script>
+<!--wrapper-->
+</body>
+</html>
+<!--/wrapper-->

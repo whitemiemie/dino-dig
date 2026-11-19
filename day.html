@@ -1,0 +1,1180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<!--/wrapper-->
+<title>A Day of Small Bones</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Pixelify+Sans:wght@500;600;700&display=swap">
+<style>
+/* Layout: one long sky that runs from dawn to night. A sticky day bar carries a sun across the day.
+   Every moment is one row: time | the scene you act in | the rule it shows.
+   Single warm-paper look shared with the Dino Dig game, so no dark variant; the night band sets its own colours. */
+:root{
+  color-scheme:light;
+  --paper:#fbf3e0; --paper-2:#f2e7cc; --ink:#354638; --ink-2:#56604f; --muted:#6c6550; --line:#d6c7a2;
+  --more:#3f7a3a; --less:#b84332; --more-soft:#e1edd6; --less-soft:#f6dcd2; --bone:#f7eed8; --bone-ink:#6b5a44;
+  --blue:#5d7d97; --orange:#d27a4c; --green:#7d9b7f; --purple:#a597d6;
+  --s-fr:#2f6fa8; --s-vr:#c25a22; --s-fi:#2f8a62; --s-vi:#8f5fc0;
+  --sky-pre:#f5dbd5; --sky-dawn:#ffe3d0; --sky-mid:#fff8ea; --sky-aft:#ffefd6; --sky-dusk:#f4d6e0; --sky-dusk-2:#e8bed0; --sky-night:#28304c; --sky-late:#1c2238;
+  --seg-dawn:#f0b08c; --seg-mid:#eccb6c; --seg-aft:#e2a463; --seg-dusk:#c98aa9; --seg-night:#46527f;
+  --night-fg:#f1e8d0; --night-fg-2:#cdc6d8;
+  --fg:var(--ink); --fg-2:var(--ink-2); --rule:rgba(53,70,56,.22); --cell:rgba(255,252,244,.6);
+  --f-pixel:"Pixelify Sans","Silkscreen",ui-monospace,"SF Mono",Menlo,monospace;
+  --f-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth;scroll-padding-top:calc(72px + env(safe-area-inset-top,0px))}
+body{margin:0;background:var(--paper);color:var(--fg);font:17px/1.55 var(--f-body);-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--paper)}
+img{max-width:100%}
+p,h1,h2,h3,ol,ul{margin:0}
+button{font:inherit;color:inherit;touch-action:manipulation}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--less);outline-offset:2px}
+.in{max-width:72rem;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.px{font-family:var(--f-pixel)}
+.k{font:600 .72rem/1.2 var(--f-pixel);letter-spacing:.1em;text-transform:uppercase;color:var(--fg-2)}
+
+/* buttons */
+.pbtn{font:600 1rem/1 var(--f-pixel);color:var(--ink);background:var(--paper);border:2px solid var(--ink);border-radius:4px;padding:.65em 1em;min-height:44px;box-shadow:0 3px 0 var(--ink);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:.5em;text-decoration:none;white-space:nowrap}
+.pbtn.primary{background:var(--ink);color:var(--paper)}
+.pbtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.pbtn:disabled{opacity:.45;cursor:default;transform:none;box-shadow:0 3px 0 var(--ink)}
+.pbtn.sm{font-size:.85rem;min-height:36px;padding:.5em .8em}
+.linkbtn{background:none;border:0;padding:.4em .2em;min-height:44px;font:600 .85rem var(--f-pixel);color:inherit;opacity:.8;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+
+/* day bar */
+.daybar{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:var(--paper);border-bottom:2px solid var(--ink);color:var(--ink)}
+.daybar .in{display:flex;align-items:center;gap:1.1rem;height:60px}
+.brand{display:flex;align-items:center;gap:.55rem;font:700 1rem var(--f-pixel);text-decoration:none;white-space:nowrap}
+.brand svg{width:30px;height:15px}
+.track{position:relative;flex:1;min-width:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;height:40px;align-items:end}
+.track a{display:flex;flex-direction:column;align-items:center;gap:2px;font:600 .74rem/1 var(--f-pixel);color:var(--muted);text-decoration:none;padding-bottom:5px;border-bottom:5px solid var(--seg);min-width:0}
+.track a .t{font-size:.66rem;opacity:.85}
+.track a[aria-current]{color:var(--ink)}
+.track a[aria-current] .n{text-decoration:underline;text-underline-offset:3px}
+.track a:nth-child(1){--seg:var(--seg-dawn)} .track a:nth-child(2){--seg:var(--seg-mid)} .track a:nth-child(3){--seg:var(--seg-aft)}
+.track a:nth-child(4){--seg:var(--seg-dusk)} .track a:nth-child(5){--seg:var(--seg-night)}
+.sunmark{position:absolute;left:0;bottom:-3px;width:15px;height:15px;transform:translateX(-50%);border-radius:50%;background:#ffc27a;box-shadow:0 0 0 2px var(--ink);pointer-events:none;transition:left .25s linear,background-color .6s}
+.sunmark[data-phase="midday"]{background:#ffe06a}
+.sunmark[data-phase="afternoon"]{background:#ffc35a}
+.sunmark[data-phase="dusk"]{background:#f08a5d}
+.sunmark[data-phase="night"]{background:#ece6f4;box-shadow:0 0 0 2px var(--ink),inset -5px -2px 0 #9aa0c4}
+.track .sunwrap{position:absolute;left:7px;right:7px;bottom:0;height:0}
+@media (max-width:700px){
+  .brand span,.track a .t{display:none}
+  .daybar .in{gap:.7rem}
+  .track a{font-size:.66rem}
+}
+
+/* hero */
+.hero{position:relative;overflow:hidden;background:linear-gradient(180deg,var(--sky-pre),var(--sky-dawn))}
+.hero .in{position:relative;z-index:1;padding-block:4.2rem 4rem;display:grid;gap:1.4rem}
+.hero-sun{position:absolute;right:max(16px,9%);top:62%;width:min(34vw,240px);aspect-ratio:1;border-radius:50%;background:#ffd59c;box-shadow:0 0 0 14px rgba(255,213,156,.45),0 0 0 30px rgba(255,213,156,.22);z-index:0}
+.eyebrow{font:600 .82rem var(--f-pixel);letter-spacing:.14em;text-transform:uppercase;color:var(--fg-2)}
+h1{font:700 clamp(2.5rem,6.6vw,4.7rem)/1 var(--f-pixel);letter-spacing:-.01em;text-wrap:balance;max-width:13ch}
+.lead{font-size:1.16rem;max-width:38rem}
+.bigloop{list-style:none;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,13rem));gap:1.4rem;margin-top:.6rem}
+.bigloop li{position:relative;background:var(--paper);color:var(--ink);border:2px solid var(--ink);border-radius:8px;box-shadow:0 4px 0 var(--ink);padding:.8rem .9rem;display:grid;gap:.35rem;align-content:start}
+.bigloop li + li::before{content:"→";position:absolute;left:-.72rem;top:50%;transform:translate(-50%,-50%);font:700 1.2rem var(--f-pixel);color:var(--ink)}
+.bigloop b{font:700 1.15rem/1.15 var(--f-pixel)}
+.bigloop .ic{height:44px;display:flex;align-items:center}
+.bigloop .ic img{height:44px;width:auto}
+.bigloop .ic svg{height:22px;width:44px}
+.bigloop .up{font:700 1.6rem/1 var(--f-pixel);color:var(--more)}
+.theory{max-width:40rem;display:grid;gap:.4rem}
+.theory p:first-child{font-weight:700}
+.theory .small{font-size:.92rem;color:var(--fg-2)}
+.cta{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:.4rem}
+@media (max-width:640px){
+  .bigloop{grid-template-columns:minmax(0,1fr);gap:1.1rem;max-width:22rem}
+  .bigloop li + li::before{content:"↓";left:50%;top:-.62rem}
+  .hero-sun{top:auto;bottom:-60px;right:-40px;width:180px}
+}
+
+/* chapters: one band of sky each */
+.chapter{background:linear-gradient(180deg,var(--top),var(--bot));color:var(--fg)}
+#dawn{--top:var(--sky-dawn);--bot:var(--sky-mid)}
+#midday{--top:var(--sky-mid);--bot:var(--sky-aft)}
+#afternoon{--top:var(--sky-aft);--bot:var(--sky-dusk)}
+#dusk{--top:var(--sky-dusk);--bot:var(--sky-dusk-2)}
+#night{--top:var(--sky-night);--bot:var(--sky-late);--fg:var(--night-fg);--fg-2:var(--night-fg-2);--rule:rgba(241,232,208,.2);--cell:rgba(255,255,255,.07)}
+.ch-head{padding-block:4.2rem 1.6rem;display:grid;gap:.7rem;max-width:46rem}
+.ch-eye{font:600 .86rem var(--f-pixel);letter-spacing:.12em;text-transform:uppercase;color:var(--fg-2)}
+h2{font:700 clamp(2rem,4.6vw,3.1rem)/1.04 var(--f-pixel);text-wrap:balance}
+.ch-lead{font-size:1.1rem;max-width:40rem}
+.ch-lead b{font-weight:700}
+.horizon{position:relative;height:130px;overflow:hidden;background:linear-gradient(180deg,var(--sky-dusk-2),var(--sky-night))}
+.horizon::before{content:"";position:absolute;left:50%;bottom:-46px;width:112px;aspect-ratio:1;border-radius:50%;transform:translateX(-50%);background:#f08a5d;box-shadow:0 0 0 12px rgba(240,138,93,.25)}
+.horizon::after{content:"";position:absolute;left:0;right:0;bottom:0;height:10px;background:var(--sky-night)}
+
+/* one moment = one row */
+.moment{display:grid;grid-template-columns:6.8rem minmax(0,1fr) minmax(0,19.5rem);gap:1.3rem 2.4rem;padding-block:2.4rem;border-top:2px dashed var(--rule)}
+.moment:last-child{padding-bottom:4rem}
+.m-time{font:700 1.9rem/1 var(--f-pixel);font-variant-numeric:tabular-nums}
+.m-time small{display:block;margin-top:.45rem;font:600 .72rem/1.2 var(--f-pixel);letter-spacing:.1em;text-transform:uppercase;color:var(--fg-2)}
+.m-scene{display:grid;gap:1rem;align-content:start;min-width:0}
+.m-scene h3{font:700 1.55rem/1.12 var(--f-pixel);text-wrap:balance}
+.m-sub{margin-top:-.55rem;color:var(--fg-2)}
+@media (max-width:900px){
+  .moment{grid-template-columns:minmax(0,1fr);gap:1rem}
+  .m-time{display:flex;align-items:baseline;gap:.7rem;font-size:1.45rem}
+  .m-time small{margin:0}
+}
+
+/* the object you act on */
+.device{background:var(--paper);color:var(--ink);border:2px solid var(--ink);border-radius:8px;box-shadow:0 4px 0 var(--ink);padding:1rem;display:grid;gap:.85rem;max-width:32rem;min-width:0}
+.d-row{display:flex;flex-wrap:wrap;gap:.5rem .9rem;align-items:center}
+.d-msg{font:600 .98rem/1.35 var(--f-pixel);min-height:1.35em}
+.tally{font:600 .8rem var(--f-pixel);color:var(--muted);font-variant-numeric:tabular-nums}
+
+/* action → right after → next time */
+.loop{list-style:none;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.9rem;max-width:32rem}
+.loop li{position:relative;background:var(--cell);border:2px solid var(--rule);border-radius:6px;padding:.55rem .65rem .65rem;min-height:5.4rem;display:grid;gap:.25rem;align-content:start}
+.loop li + li::before{content:"→";position:absolute;left:-.5rem;top:50%;transform:translate(-50%,-50%);font:700 .95rem var(--f-pixel);color:var(--fg)}
+.loop .v{font-size:.95rem;line-height:1.3}
+.loop .v.q{font:700 1.3rem/1 var(--f-pixel);color:var(--fg-2)}
+.loop li.on{background:var(--paper);border-color:var(--ink);color:var(--ink)}
+.loop li.on .k{color:var(--ink-2)}
+.loop li.on .v{animation:pop .35s ease-out}
+@keyframes pop{0%{transform:scale(.85);opacity:.2}100%{transform:none;opacity:1}}
+@media (max-width:520px){
+  .loop{grid-template-columns:minmax(0,1fr)}
+  .loop li{min-height:0}
+  .loop li + li::before{content:"↓";left:50%;top:-.47rem}
+}
+
+/* the rule card */
+.rule{background:var(--paper);color:var(--ink);border:2px solid var(--ink);border-radius:6px;padding:1rem 1.05rem 1.05rem;display:grid;gap:.6rem;align-self:start;min-width:0}
+.rule .k{color:var(--muted)}
+.r-name{font:700 1.3rem/1.12 var(--f-pixel);text-wrap:balance}
+.r-name span{font-size:.8em;color:var(--muted)}
+.r-def{font-size:.98rem}
+.r-note{font-size:.9rem;color:var(--ink-2);border-top:2px dotted var(--line);padding-top:.55rem}
+.chips{display:flex;flex-wrap:wrap;gap:.35rem}
+.chip{font:600 .78rem/1 var(--f-pixel);padding:.38em .55em;border-radius:3px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);white-space:nowrap}
+.chip.more{background:var(--more);border-color:var(--more);color:var(--paper)}
+.chip.less{background:var(--less);border-color:var(--less);color:var(--paper)}
+.chip.time{border-style:dashed}
+.dig{display:flex;align-items:center;gap:.65rem;background:var(--paper-2);border-radius:4px;padding:.45rem .6rem;font-size:.88rem;line-height:1.3}
+.dig img,.dig .bn{flex:none;width:46px;height:46px;object-fit:contain}
+.dig .bn{display:grid;place-items:center}
+.dig .bn svg{width:38px;height:19px}
+.dig b{display:block;font:600 .7rem var(--f-pixel);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.dig.dry img{filter:grayscale(.8)}
+
+/* 07:05 phone */
+.phone-screen{background:var(--ink);color:var(--paper);border-radius:16px;padding:1rem;min-height:8rem;max-width:17rem;display:grid;place-content:center;justify-items:center;gap:.45rem;text-align:center}
+.ps-clock{font:700 2rem/1 var(--f-pixel)}
+.ps-note{font-size:.85rem;opacity:.8}
+.ps-likes{display:none;align-items:center;gap:.45rem;background:var(--paper);color:var(--ink);border-radius:8px;padding:.4rem .6rem;font:600 .9rem var(--f-pixel)}
+.ps-likes svg{width:16px;height:14px;color:var(--less)}
+.done .ps-note{display:none}
+.done .ps-likes{display:flex;animation:pop .35s ease-out}
+
+/* 08:10 car */
+.dash{background:var(--ink);color:var(--paper);border-radius:10px;padding:.9rem 1rem;display:flex;align-items:center;gap:1rem;min-height:5.2rem}
+.belt{width:34px;height:40px;color:var(--less);animation:blink .7s steps(2,jump-none) infinite;flex:none}
+.belt .strap{stroke:var(--ink)}
+.beep{font:700 1.15rem var(--f-pixel);letter-spacing:.06em;animation:blink .7s steps(2,jump-none) infinite}
+.quiet{display:none;font:700 1.15rem var(--f-pixel)}
+@keyframes blink{0%{opacity:1}100%{opacity:.25}}
+.done .belt{animation:none;color:#9fd19a}
+.done .beep{display:none}
+.done .quiet{display:block;animation:pop .35s ease-out}
+
+/* 09:05 lecture */
+.hall{display:grid;gap:.5rem}
+.bub{background:var(--paper-2);border-radius:10px;padding:.55rem .75rem;font-size:.95rem;max-width:24rem}
+.bub b{font:600 .72rem var(--f-pixel);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block}
+.bub.you{justify-self:end;background:var(--ink);color:var(--paper)}
+.bub.you b{color:var(--paper);opacity:.75}
+.bub.call{display:none;border:2px solid var(--less);background:var(--less-soft)}
+.done .bub.call{display:block;animation:pop .35s ease-out}
+.done .bub.lect{opacity:.45}
+.heads{display:none;font:600 .82rem var(--f-pixel);color:var(--less)}
+.done .heads{display:block}
+
+/* 09:40 marks */
+.slip{background:#fffaf0;border:2px dashed var(--line);border-radius:4px;padding:.8rem .9rem;display:grid;grid-template-columns:1fr auto;gap:.2rem 1rem;align-items:baseline;max-width:22rem}
+.slip .sl-t{font:700 1.05rem var(--f-pixel)}
+.slip .sl-d{font-size:.85rem;color:var(--muted);grid-column:1}
+.slip .sl-m{font:700 1.6rem var(--f-pixel);grid-row:1/3;grid-column:2;text-align:right}
+.slip .sl-m s{display:none;color:var(--muted);font-size:.7em;margin-right:.3em}
+.slip .sl-m .new{display:none;color:var(--less)}
+.slip .pen{display:none;grid-column:1/-1;font:600 .82rem var(--f-pixel);color:var(--less)}
+.done .slip .sl-m s,.done .slip .sl-m .new,.done .slip .pen{display:inline}
+.done .slip .sl-m .old{display:none}
+
+/* 10:00 sort */
+.quad{display:grid;grid-template-columns:5.6rem minmax(0,1fr) minmax(0,1fr);gap:.5rem;max-width:34rem}
+.qh{font:600 .78rem/1.1 var(--f-pixel);letter-spacing:.06em;text-transform:uppercase;text-align:center;padding:.3rem 0;color:var(--fg)}
+.qr{font:700 .8rem/1.15 var(--f-pixel);align-self:center;color:var(--fg)}
+.qr small{display:block;font:400 .78rem var(--f-body);color:var(--fg-2);margin-top:.2rem}
+.qr.up{color:var(--more)} .qr.down{color:var(--less)}
+.qc{background:var(--paper);color:var(--ink);border:2px solid var(--ink);border-radius:6px;box-shadow:0 3px 0 var(--ink);padding:.7rem .7rem .75rem;min-height:6.4rem;text-align:left;display:grid;gap:.3rem;align-content:start;cursor:pointer}
+.qc b{font:700 .95rem/1.15 var(--f-pixel)}
+.qc small{font-size:.82rem;color:var(--muted);line-height:1.3}
+.qc:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.qc.right{background:var(--more-soft);border-color:var(--more);box-shadow:0 3px 0 var(--more)}
+.qc.wrong{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.quiz .qz-top{display:flex;justify-content:space-between;gap:1rem}
+.quiz .qz-top .k{color:var(--muted)}
+.qz-case{font-size:1.06rem;font-weight:700;line-height:1.4}
+.qz-steps{list-style:none;padding:0;display:grid;gap:.15rem;font-size:.9rem;color:var(--ink-2)}
+.qz-fb{font-size:.95rem;min-height:2.6em}
+.qz-fb.ok{color:var(--more)} .qz-fb.no{color:var(--less)}
+
+/* 12:40 stamp card */
+.card-h{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;font:700 1.05rem var(--f-pixel)}
+.card-h span{font:600 .78rem var(--f-pixel);color:var(--muted)}
+.slots{list-style:none;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,3.2rem));gap:.6rem}
+.slots li{aspect-ratio:1;border:2px dashed var(--bone-ink);border-radius:50%;display:grid;place-items:center;font:700 .62rem var(--f-pixel);color:var(--muted)}
+.slots li.on{border-style:solid;background:var(--bone-ink);color:var(--paper);animation:pop .3s ease-out}
+.slots li.on::after{content:"✓";font-size:1.4rem}
+.slots li.free{border-color:var(--orange);color:var(--orange)}
+.slots li.free.on{background:var(--orange);color:var(--paper)}
+.slots li.on span{display:none}
+
+/* 13:20 claw */
+.clawbox{position:relative;height:8.5rem;max-width:22rem;border:2px solid var(--ink);border-radius:6px;background:linear-gradient(180deg,#eef2ee,#dfe7e2);overflow:hidden}
+.arm{position:absolute;left:50%;top:0;width:2px;height:2.2rem;background:var(--ink);transform:translateX(-50%)}
+.arm::after{content:"";position:absolute;left:50%;bottom:-12px;width:26px;height:12px;border:3px solid var(--ink);border-top:0;border-radius:0 0 4px 4px;transform:translateX(-50%)}
+.clawbox.drop .arm{animation:drop .6s ease-in-out}
+@keyframes drop{50%{height:5.4rem}100%{height:2.2rem}}
+.toys{position:absolute;left:8px;right:8px;bottom:6px;display:flex;justify-content:space-around;align-items:flex-end}
+.toys i{display:block;width:22px;height:20px;border-radius:6px 6px 3px 3px;background:var(--c);box-shadow:inset 0 -4px 0 rgba(0,0,0,.15)}
+.clawbox.win .toys i:nth-child(3){animation:lift .9s ease-out}
+@keyframes lift{40%{transform:translateY(-4.5rem)}100%{transform:none}}
+
+/* 15:00 post */
+.postbar{display:grid;gap:.35rem;max-width:24rem}
+.pb-track{height:14px;border:2px solid var(--ink);border-radius:3px;background:var(--paper-2);overflow:hidden}
+.pb-fill{height:100%;width:100%;background:var(--green);transform:scaleX(0);transform-origin:left}
+.pb-lab{display:flex;justify-content:space-between;font:600 .75rem var(--f-pixel);color:var(--muted)}
+.post.ready .pb-fill{background:var(--more)}
+.post.ready .pb-lab .end{color:var(--more)}
+
+/* 16:20 reply */
+.chatlog{display:grid;gap:.45rem;background:var(--paper-2);border-radius:10px;padding:.7rem;min-height:6.4rem;align-content:start;max-width:24rem}
+.chatlog .b{max-width:80%;padding:.45rem .7rem;border-radius:12px;font-size:.95rem;line-height:1.3}
+.chatlog .me{justify-self:end;background:var(--ink);color:var(--paper);border-bottom-right-radius:3px}
+.chatlog .them{justify-self:start;background:var(--paper);border:2px solid var(--ink);border-bottom-left-radius:3px;animation:pop .35s ease-out}
+.chatlog .st{justify-self:end;font:600 .7rem var(--f-pixel);color:var(--muted)}
+
+/* 17:00 compare */
+.cmp{display:grid;grid-template-columns:7rem repeat(2,minmax(0,1fr));gap:.55rem;max-width:40rem}
+.cmp .ch,.cmp .rh{font:600 .76rem/1.15 var(--f-pixel);letter-spacing:.06em;text-transform:uppercase;color:var(--fg)}
+.cmp .ch{text-align:center;padding:.2rem 0}
+.cmp .ch small,.cmp .rh small{display:block;font:400 .78rem var(--f-body);letter-spacing:0;text-transform:none;color:var(--fg-2)}
+.cmp .rh{align-self:center}
+.cc{background:var(--paper);color:var(--ink);border:2px solid var(--ink);border-radius:6px;padding:.65rem .7rem .7rem;display:grid;gap:.35rem;align-content:start;min-width:0}
+.cc-n{font:700 .98rem/1.1 var(--f-pixel)}
+.cc-n span{color:var(--muted);font-size:.85em}
+.cc-k{display:none}
+.rec{width:100%;height:auto;display:block}
+.rec .ax{stroke:var(--line);stroke-width:2;fill:none}
+.rec .ln{fill:none;stroke:var(--c);stroke-width:2.6;stroke-linejoin:round;stroke-linecap:round}
+.rec .tk{stroke:var(--ink);stroke-width:1.6;stroke-linecap:round}
+.cc-p{font-size:.88rem;line-height:1.3}
+.cc-l{display:flex;align-items:center;gap:.4rem;font-size:.8rem;color:var(--muted);line-height:1.25}
+.cc-l img{width:28px;height:28px;flex:none}
+.cc-you{font:600 .74rem var(--f-pixel);color:var(--ink-2);border-top:2px dotted var(--line);padding-top:.35rem}
+.cmp-cap{font-size:.84rem;color:var(--fg-2);max-width:40rem}
+@media (max-width:600px){
+  .cmp{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .cmp .ch,.cmp .rh,.cmp .corner{display:none}
+  .cc-k{display:block;font:600 .64rem/1.2 var(--f-pixel);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+}
+.takeaways{list-style:none;padding:0;display:grid;gap:.7rem}
+.takeaways li{display:grid;gap:.15rem}
+.takeaways b{font:700 1rem/1.2 var(--f-pixel)}
+.takeaways span{font-size:.92rem;color:var(--ink-2)}
+
+/* 18:30 vending */
+.vm{display:grid;grid-template-columns:minmax(0,1fr) 3.6rem;gap:.6rem;background:var(--ink);border-radius:8px;padding:.7rem;max-width:20rem}
+.vm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem;background:#e8efe9;border-radius:4px;padding:.45rem}
+.vm-grid i{display:block;height:1.6rem;border-radius:3px;background:var(--c)}
+.vm-side{display:grid;gap:.4rem;align-content:start}
+.vm-side span{display:block;height:1.1rem;background:var(--paper-2);border-radius:2px}
+.vm-side span:last-child{height:1.8rem;background:#1f2a22}
+.vm.shake{animation:shake .3s}
+.predict{display:grid;gap:.7rem;max-width:32rem}
+.predict .q{font-weight:700}
+.pick[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.reveal{display:grid;gap:.7rem}
+.ext{width:100%;max-width:30rem;height:auto;display:block}
+.ext .ax{stroke:var(--line);stroke-width:2;fill:none}
+.ext .l1{fill:none;stroke:var(--ink);stroke-width:3}
+.ext .l2{fill:none;stroke:var(--s-vr);stroke-width:3}
+.ext text{font:600 11px var(--f-pixel);fill:var(--ink-2)}
+.ext .t1{fill:var(--ink)} .ext .t2{fill:var(--s-vr)}
+.ext-cap{font-size:.8rem;color:var(--muted)}
+
+/* 21:00 ladder */
+.ladder{list-style:none;padding:0;display:grid;gap:.45rem}
+.ladder li{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:.4rem .8rem;margin-left:calc(var(--i) * 1.6rem);border:2px solid var(--line);border-radius:6px;padding:.45rem .55rem .45rem .75rem;background:var(--paper)}
+.ladder .st{font:600 .95rem/1.2 var(--f-pixel)}
+.ladder .rw{grid-column:1/-1;font-size:.84rem;color:var(--more);display:none}
+.ladder li.done{border-color:var(--more);background:var(--more-soft)}
+.ladder li.done .rw{display:block;animation:pop .3s ease-out}
+.ladder li.next{border-color:var(--ink)}
+@media (max-width:420px){.ladder li{margin-left:calc(var(--i) * .8rem)}}
+
+/* 22:30 red dot */
+.home{display:grid;grid-template-columns:repeat(3,minmax(0,4.4rem));gap:.9rem;background:var(--ink);border-radius:16px;padding:1rem;max-width:17rem}
+.app{position:relative;display:grid;justify-items:center;gap:.25rem;font:600 .66rem var(--f-pixel);color:var(--paper)}
+.app i{display:block;width:2.6rem;height:2.6rem;border-radius:10px;background:var(--c)}
+.app .dot{position:absolute;top:-6px;right:calc(50% - 1.6rem);min-width:1.25rem;height:1.25rem;border-radius:999px;background:#e5483a;color:#fff;font:700 .7rem/1.25rem var(--f-pixel);text-align:center;padding:0 .25rem;box-shadow:0 0 0 2px var(--ink)}
+.nodots .app .dot{display:none}
+
+/* 22:45 plan */
+.uses{list-style:none;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8rem;max-width:40rem}
+.uses li{background:var(--paper);color:var(--ink);border:2px solid var(--ink);border-radius:6px;padding:.8rem .85rem;display:grid;gap:.3rem;align-content:start}
+.uses b{font:700 1.05rem/1.15 var(--f-pixel)}
+.uses span{font-size:.9rem;line-height:1.4;color:var(--ink-2)}
+@media (max-width:700px){.uses{grid-template-columns:minmax(0,1fr)}}
+.world{list-style:none;padding:0;display:grid;gap:.6rem}
+.world li{display:grid;gap:.1rem;padding-bottom:.55rem;border-bottom:2px dotted var(--line)}
+.world li:last-child{border:0;padding-bottom:0}
+.world b{font:700 .95rem var(--f-pixel)}
+.world span{font-size:.88rem;color:var(--ink-2);line-height:1.35}
+
+/* 23:30 feed */
+.clip{display:grid;place-items:center;height:6.5rem;max-width:17rem;border-radius:14px;background:var(--ink);color:var(--paper);font:700 1.4rem var(--f-pixel);text-align:center;padding:.5rem}
+.clip.fun{background:var(--orange)}
+.rq{display:flex;flex-wrap:wrap;gap:.5rem}
+
+/* recap + end */
+.recap{padding-block:3rem 1rem;border-top:2px dashed var(--rule);display:grid;gap:1.2rem}
+.recap h2{font-size:clamp(1.6rem,3.6vw,2.3rem)}
+.dayline{list-style:none;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(6,auto);grid-auto-flow:column;gap:0 2.4rem;max-width:56rem}
+.dayline li{border-bottom:2px dotted var(--rule)}
+.dayline a{display:grid;grid-template-columns:3.6rem minmax(0,1fr) auto;gap:.8rem;align-items:baseline;padding:.6rem 0;text-decoration:none}
+.dayline .t{font:700 .95rem var(--f-pixel);font-variant-numeric:tabular-nums;color:var(--fg-2)}
+.dayline .m{font-size:.95rem}
+.dayline .r{font:600 .82rem var(--f-pixel);text-align:right}
+.dayline a:hover .m{text-decoration:underline;text-underline-offset:3px}
+@media (max-width:760px){.dayline{grid-template-columns:minmax(0,1fr);grid-template-rows:none;grid-auto-flow:row}}
+.end{padding-block:3rem 4.5rem;display:grid;gap:1.3rem;justify-items:start}
+.end h2{max-width:22ch}
+.foot{font-size:.82rem;color:var(--fg-2);max-width:44rem}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+<!--wrapper-->
+</head>
+<body>
+<!--/wrapper-->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-bone" viewBox="0 0 16 8"><path fill="#6b5a44" d="M1 0h3v1h1v1h6V1h1V0h3v1h1v2h-1v2h1v2h-1v1h-3V7h-1V6H5v1H4v1H1V7H0V5h1V3H0V1h1z"/><path fill="#f7eed8" d="M2 1h1v1h1v1h8V2h1V1h1v2h-1v2h1v2h-1V6h-1V5H4v1H3v1H2V5h1V3H2z"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 7 6"><path fill="currentColor" d="M1 0h2v1h1V0h2v1h1v2H6v1H5v1H4v1H3V5H2V4H1V3H0V1h1z"/></symbol>
+</svg>
+
+<header class="daybar">
+  <div class="in">
+    <a class="brand" href="#top" aria-label="A Day of Small Bones, back to top"><svg aria-hidden="true"><use href="#i-bone"/></svg><span>A Day of Small Bones</span></a>
+    <nav class="track" aria-label="Your day">
+      <a href="#dawn"><span class="n">Dawn</span><span class="t">07:00</span></a>
+      <a href="#midday"><span class="n">Midday</span><span class="t">12:00</span></a>
+      <a href="#afternoon"><span class="n">Afternoon</span><span class="t">15:00</span></a>
+      <a href="#dusk"><span class="n">Dusk</span><span class="t">18:00</span></a>
+      <a href="#night"><span class="n">Night</span><span class="t">21:00</span></a>
+      <span class="sunwrap" aria-hidden="true"><span class="sunmark" id="sun"></span></span>
+    </nav>
+    <a class="pbtn sm" href="index.html" data-game>Play the dig</a>
+  </div>
+</header>
+
+<main>
+<!-- ============ HERO ============ -->
+<section class="hero" id="top">
+  <div class="hero-sun" aria-hidden="true"></div>
+  <div class="in">
+    <p class="eyebrow">Dino Dig · After the dig</p>
+    <h1>Your day is full of small bones.</h1>
+    <p class="lead">In the dig, a bone kept you hitting. Out here the bones are smaller: a like, a free coffee, a quiet car. Follow one ordinary day and find them.</p>
+    <ol class="bigloop" aria-label="The loop, shown with the dig">
+      <li><span class="k">You act</span><span class="ic"><img src="slab_blue.png" alt="" onerror="this.hidden=true"></span><b>Hit the slab</b></li>
+      <li><span class="k">Right after</span><span class="ic"><svg aria-hidden="true"><use href="#i-bone"/></svg></span><b>A bone pops out</b></li>
+      <li><span class="k">Next time</span><span class="ic up" aria-hidden="true">▲</span><b>You hit again, sooner</b></li>
+    </ol>
+    <div class="theory">
+      <p>What comes right after an action changes how often you do it again.</p>
+      <p>Thorndike called this the law of effect. Skinner named the learning operant conditioning.</p>
+      <p class="small">Operant means actions you choose. Classical conditioning is the other kind: reflexes set off by what comes before.</p>
+    </div>
+    <div class="cta">
+      <a class="pbtn primary" href="#dawn">Start at 07:00 ↓</a>
+      <a class="pbtn" href="index.html" data-game>Play the dig first</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DAWN ============ -->
+<section class="chapter" id="dawn" aria-labelledby="dawn-h">
+  <div class="in">
+    <div class="ch-head">
+      <p class="ch-eye">Dawn · 07:00 – 10:00</p>
+      <h2 id="dawn-h">Add or take away? More or less?</h2>
+      <p class="ch-lead">A consequence <b>adds</b> something or <b>takes something away</b>. Then the action becomes <b>more</b> likely (reinforcement) or <b>less</b> likely (punishment). Four mornings, four combinations.</p>
+    </div>
+
+    <article class="moment" id="m-likes" data-loop>
+      <p class="m-time">07:05<small>In bed</small></p>
+      <div class="m-scene">
+        <h3>Your phone lights up.</h3>
+        <div class="device">
+          <div class="phone-screen" aria-live="polite">
+            <span class="ps-clock">07:05</span>
+            <span class="ps-note">1 notification</span>
+            <span class="ps-likes"><svg aria-hidden="true"><use href="#i-heart"/></svg>3 new likes on your post</span>
+          </div>
+          <div class="d-row"><button class="pbtn primary" type="button" data-act>Open it</button><button class="linkbtn" type="button" data-reset hidden>Reset</button></div>
+        </div>
+        <ol class="loop">
+          <li class="on"><span class="k">You</span><span class="v">Open the phone</span></li>
+          <li><span class="k">Right after</span><span class="v q" data-a="+ 3 likes on your post">?</span></li>
+          <li><span class="k">Next morning</span><span class="v q" data-a="▲ You grab it before you’re out of bed">?</span></li>
+        </ol>
+      </div>
+      <aside class="rule">
+        <p class="k">The rule</p>
+        <p class="r-name">Positive reinforcement</p>
+        <p class="chips"><span class="chip">+ Added</span><span class="chip more">▲ More likely</span></p>
+        <p class="r-def">Something pleasant is added, so the action becomes more likely.</p>
+        <p class="r-note">Positive means added. It doesn’t mean good.</p>
+        <p class="dig"><span class="bn"><svg aria-hidden="true"><use href="#i-bone"/></svg></span><span><b>In the dig</b>Hit the slab, a bone pops out.</span></p>
+      </aside>
+    </article>
+
+    <article class="moment" id="m-belt" data-loop>
+      <p class="m-time">08:10<small>In the car</small></p>
+      <div class="m-scene">
+        <h3>Beep. Beep. Beep.</h3>
+        <p class="m-sub">It won’t stop until you buckle up.</p>
+        <div class="device">
+          <div class="dash" aria-live="polite">
+            <svg class="belt" viewBox="0 0 12 14" aria-hidden="true"><circle cx="6" cy="2.4" r="2.2" fill="currentColor"/><path d="M1.5 14V8.2a4.5 4.5 0 0 1 9 0V14z" fill="currentColor"/><path class="strap" d="M2.6 6.4 9.8 13.6" stroke-width="1.6"/></svg>
+            <span class="beep" aria-hidden="true">BEEP · BEEP · BEEP</span>
+            <span class="quiet">Quiet.</span>
+          </div>
+          <div class="d-row"><button class="pbtn primary" type="button" data-act>Buckle up</button><button class="linkbtn" type="button" data-reset hidden>Reset</button></div>
+        </div>
+        <ol class="loop">
+          <li class="on"><span class="k">You</span><span class="v">Buckle up</span></li>
+          <li><span class="k">Right after</span><span class="v q" data-a="− The beeping stops">?</span></li>
+          <li><span class="k">Next drive</span><span class="v q" data-a="▲ You buckle up before it starts">?</span></li>
+        </ol>
+      </div>
+      <aside class="rule">
+        <p class="k">The rule</p>
+        <p class="r-name">Negative reinforcement</p>
+        <p class="chips"><span class="chip">− Taken away</span><span class="chip more">▲ More likely</span></p>
+        <p class="r-def">Something unpleasant is taken away, so the action becomes more likely. Escaping it counts. So does avoiding it.</p>
+        <p class="r-note">Negative means taken away. It doesn’t mean bad.</p>
+        <p class="dig"><img src="flare.png" alt="" onerror="this.hidden=true"><span><b>In the dig</b>Fire the flare, the footsteps stop.</span></p>
+      </aside>
+    </article>
+
+    <article class="moment" id="m-lecture" data-loop>
+      <p class="m-time">09:05<small>Lecture</small></p>
+      <div class="m-scene">
+        <h3>You chat through the lecture.</h3>
+        <div class="device">
+          <div class="hall" aria-live="polite">
+            <p class="bub lect"><b>Lecturer</b>…so the law of effect says—</p>
+            <p class="bub you"><b>You</b>psst, did you eat yet?</p>
+            <p class="bub call"><b>Lecturer</b>You at the back. Something to share with everyone?</p>
+            <p class="heads">120 heads turn.</p>
+          </div>
+          <div class="d-row"><button class="pbtn primary" type="button" data-act>Keep chatting</button><button class="linkbtn" type="button" data-reset hidden>Reset</button></div>
+        </div>
+        <ol class="loop">
+          <li class="on"><span class="k">You</span><span class="v">Chat in class</span></li>
+          <li><span class="k">Right after</span><span class="v q" data-a="+ Called out in front of everyone">?</span></li>
+          <li><span class="k">Next lecture</span><span class="v q" data-a="▼ You stay quiet">?</span></li>
+        </ol>
+      </div>
+      <aside class="rule">
+        <p class="k">The rule</p>
+        <p class="r-name">Positive punishment</p>
+        <p class="chips"><span class="chip">+ Added</span><span class="chip less">▼ Less likely</span></p>
+        <p class="r-def">Something unpleasant is added, so the action becomes less likely.</p>
+        <p class="dig"><span class="bn"><svg aria-hidden="true" style="opacity:.45"><use href="#i-bone"/></svg></span><span><b>In the dig</b>Nothing punished you there. Your day is different.</span></p>
+      </aside>
+    </article>
+
+    <article class="moment" id="m-late" data-loop>
+      <p class="m-time">09:40<small>Results</small></p>
+      <div class="m-scene">
+        <h3>Your report is two days late.</h3>
+        <div class="device">
+          <div class="slip" aria-live="polite">
+            <span class="sl-t">Report 1</span>
+            <span class="sl-d">Due Monday · sent Wednesday</span>
+            <span class="sl-m"><span class="old">78</span><s>78</s><span class="new">68</span><small style="font-size:.5em;color:var(--muted)"> / 100</small></span>
+            <span class="pen">Late penalty: −10 marks</span>
+          </div>
+          <div class="d-row"><button class="pbtn primary" type="button" data-act>Send it late</button><button class="linkbtn" type="button" data-reset hidden>Reset</button></div>
+        </div>
+        <ol class="loop">
+          <li class="on"><span class="k">You</span><span class="v">Hand in late</span></li>
+          <li><span class="k">Right after</span><span class="v q" data-a="− 10 marks taken off">?</span></li>
+          <li><span class="k">Next report</span><span class="v q" data-a="▼ You hand in on time">?</span></li>
+        </ol>
+      </div>
+      <aside class="rule">
+        <p class="k">The rule</p>
+        <p class="r-name">Negative punishment</p>
+        <p class="chips"><span class="chip">− Taken away</span><span class="chip less">▼ Less likely</span></p>
+        <p class="r-def">Something you value is taken away, so the action becomes less likely.</p>
+        <p class="dig"><span class="bn"><svg aria-hidden="true" style="opacity:.45"><use href="#i-bone"/></svg></span><span><b>In the dig</b>No bone was ever taken back.</span></p>
+      </aside>
+    </article>
+
+    <article class="moment" id="sort">
+      <p class="m-time">10:00<small>Break</small></p>
+      <div class="m-scene">
+        <h3>Your morning, sorted.</h3>
+        <p class="m-sub">Two questions sort every consequence.</p>
+        <div class="quad" role="group" aria-label="Consequence grid. Tap a box to answer the case.">
+          <span></span><span class="qh">+ Added</span><span class="qh">− Taken away</span>
+          <span class="qr up">▲ More likely<small>Reinforcement</small></span>
+          <button class="qc" type="button" data-q="PR"><b>Positive reinforcement</b><small>07:05 · likes</small></button>
+          <button class="qc" type="button" data-q="NR"><b>Negative reinforcement</b><small>08:10 · beeping stops</small></button>
+          <span class="qr down">▼ Less likely<small>Punishment</small></span>
+          <button class="qc" type="button" data-q="PP"><b>Positive punishment</b><small>09:05 · called out</small></button>
+          <button class="qc" type="button" data-q="NP"><b>Negative punishment</b><small>09:40 · marks off</small></button>
+        </div>
+      </div>
+      <aside class="device quiz" aria-label="Sorting quiz">
+        <p class="qz-top"><span class="k" id="qzN">Case 1 of 6</span><span class="k" id="qzScore">0 right</span></p>
+        <p class="qz-case" id="qzCase" tabindex="-1">You tidy your room. Mum stops nagging. Next week you tidy without being asked.</p>
+        <ol class="qz-steps"><li>1. Was something added or taken away?</li><li>2. Did the action go up or down?</li></ol>
+        <p class="qz-fb" id="qzFb" aria-live="polite">Tap the box that fits.</p>
+        <div class="d-row"><button class="pbtn" type="button" id="qzNext" hidden>Next case</button></div>
+      </aside>
+    </article>
+  </div>
+</section>
+
+<!-- ============ MIDDAY ============ -->
+<section class="chapter" id="midday" aria-labelledby="midday-h">
+  <div class="in">
+    <div class="ch-head">
+      <p class="ch-eye">Midday · 12:00 – 14:00</p>
+      <h2 id="midday-h">Count the actions.</h2>
+      <p class="ch-lead">All morning, every action paid off every time. That’s <b>continuous reinforcement</b>. Most of life pays only some of the time: <b>partial reinforcement</b>. Some rules count how many times you act.</p>
+    </div>
+
+    <article class="moment" id="m-coffee">
+      <p class="m-time">12:40<small>Lunch</small></p>
+      <div class="m-scene">
+        <h3>Every 5th coffee is free.</h3>
+        <div class="device">
+          <p class="card-h">Kopi Corner<span>Loyalty card</span></p>
+          <ol class="slots" id="frSlots" aria-hidden="true"><li><span>1</span></li><li><span>2</span></li><li><span>3</span></li><li><span>4</span></li><li class="free"><span>FREE</span></li></ol>
+          <p class="d-msg" id="frMsg" aria-live="polite">Stamp 0 of 5.</p>
+          <div class="d-row"><button class="pbtn primary" type="button" id="frBtn">Buy a coffee</button><span class="tally" id="frTally">Coffees 0 · Free 0</span></div>
+        </div>
+      </div>
+      <aside class="rule">
+        <p class="k">The rule</p>
+        <p class="r-name">Fixed ratio <span>FR 5</span></p>
+        <p class="r-def">A reward after a set number of actions.</p>
+        <p class="chips"><span class="chip">Bursts, then a pause</span></p>
+        <p class="r-note">Why does a stamp feel good at all? It’s a <b>secondary reinforcer</b>: it matters because it leads to a drink. Food and drink are <b>primary reinforcers</b>.</p>
+        <p class="dig"><img src="slab_blue.png" alt="" onerror="this.hidden=true"><span><b>In the dig</b>Blue slab: every 5th hit, a bone.</span></p>
+      </aside>
+    </article>
+
+    <article class="moment" id="m-claw">
+      <p class="m-time">13:20<small>Mall</small></p>
+      <div class="m-scene">
+        <h3>Maybe this time.</h3>
+        <p class="m-sub">The claw machine by the lift.</p>
+        <div class="device">
+          <div class="clawbox" id="vrBox" aria-hidden="true"><span class="arm"></span><span class="toys"><i style="--c:var(--blue)"></i><i style="--c:var(--purple)"></i><i style="--c:var(--orange)"></i><i style="--c:var(--green)"></i><i style="--c:var(--blue)"></i></span></div>
+          <p class="d-msg" id="vrMsg" aria-live="polite">RM1 a try.</p>
+          <div class="d-row"><button class="pbtn primary" type="button" id="vrBtn">Try again</button><span class="tally" id="vrTally">Tries 0 · Prizes 0</span></div>
+        </div>
+      </div>
+      <aside class="rule">
+        <p class="k">The rule</p>
+        <p class="r-name">Variable ratio <span>VR 5</span></p>
+        <p class="r-def">A reward after a changing number of actions. Here it averages 5.</p>
+        <p class="chips"><span class="chip">Fast and steady · no pause</span></p>
+        <p class="r-note">Lucky draws, loot boxes and endless feeds run on this rule. The next try always might be the one.</p>
+        <p class="dig"><img src="slab_orange.png" alt="" onerror="this.hidden=true"><span><b>In the dig</b>Orange slab: the hits needed kept changing.</span></p>
+      </aside>
+    </article>
+  </div>
+</section>
+
+<!-- ============ AFTERNOON ============ -->
+<section class="chapter" id="afternoon" aria-labelledby="afternoon-h">
+  <div class="in">
+    <div class="ch-head">
+      <p class="ch-eye">Afternoon · 15:00 – 17:00</p>
+      <h2 id="afternoon-h">Watch the clock.</h2>
+      <p class="ch-lead">Other rules don’t care how often you act. Time has to pass first. Then <b>one</b> action collects the reward.</p>
+    </div>
+
+    <article class="moment" id="m-post">
+      <p class="m-time">15:00<small>Home</small></p>
+      <div class="m-scene">
+        <h3>The post comes at 3:00.</h3>
+        <p class="m-sub">Here a whole day lasts 5 seconds.</p>
+        <div class="device post" id="fiDev">
+          <div class="postbar" aria-hidden="true">
+            <div class="pb-track"><div class="pb-fill" id="fiFill"></div></div>
+            <div class="pb-lab"><span>Last post</span><span class="end">3:00 · post’s in</span></div>
+          </div>
+          <p class="d-msg" id="fiMsg" aria-live="polite">Check whenever you like.</p>
+          <div class="d-row"><button class="pbtn primary" type="button" id="fiBtn">Check the letterbox</button><span class="tally" id="fiTally">Checks 0 · Letters 0</span></div>
+        </div>
+      </div>
+      <aside class="rule">
+        <p class="k">The rule</p>
+        <p class="r-name">Fixed interval <span>FI 5 s</span></p>
+        <p class="r-def">After a set time, the first action is rewarded. Waiting alone gets nothing.</p>
+        <p class="chips"><span class="chip">Pause, then a rush near 3:00</span></p>
+        <p class="r-note">Studying hardest the night before a weekly quiz follows the same curve.</p>
+        <p class="dig"><img src="pit_green.png" alt="" onerror="this.hidden=true"><span><b>In the dig</b>Green pit: after 5 s, the first hit.</span></p>
+      </aside>
+    </article>
+
+    <article class="moment" id="m-reply">
+      <p class="m-time">16:20<small>Waiting</small></p>
+      <div class="m-scene">
+        <h3>Did they reply yet?</h3>
+        <p class="m-sub">You never know when it’ll come.</p>
+        <div class="device">
+          <div class="chatlog" id="viLog" aria-live="polite"><p class="b me" id="viMe">still on for tonight?</p><p class="st" id="viSt">Delivered</p></div>
+          <p class="d-msg" id="viMsg" aria-live="polite">Check whenever you like.</p>
+          <div class="d-row"><button class="pbtn primary" type="button" id="viBtn">Check</button><span class="tally" id="viTally">Checks 0 · Replies 0</span></div>
+        </div>
+      </div>
+      <aside class="rule">
+        <p class="k">The rule</p>
+        <p class="r-name">Variable interval <span>VI 4 s</span></p>
+        <p class="r-def">After a changing time, the first action is rewarded. Here the wait is 3 or 5 s.</p>
+        <p class="chips"><span class="chip">Slow and steady · no pause</span></p>
+        <p class="r-note">Checking doesn’t make the reply come sooner. It’s only how you find it.</p>
+        <p class="dig"><img src="pit_purple.png" alt="" onerror="this.hidden=true"><span><b>In the dig</b>Purple pit: the wait kept changing.</span></p>
+      </aside>
+    </article>
+
+    <article class="moment" id="compare">
+      <p class="m-time">17:00<small>Bus home</small></p>
+      <div class="m-scene">
+        <h3>Four rules, one afternoon.</h3>
+        <div class="cmp">
+          <span class="corner"></span>
+          <span class="ch">Count actions<small>ratio</small></span>
+          <span class="ch">Count time<small>interval</small></span>
+          <span class="rh">Fixed<small>always the same</small></span>
+          <div class="cc" style="--c:var(--s-fr)">
+            <p class="cc-k">Count actions · fixed</p>
+            <p class="cc-n">Fixed ratio <span>FR</span></p>
+            <svg class="rec" viewBox="0 0 120 72" role="img" aria-label="Fixed ratio: steep steps with a flat pause after each reward"><path class="ax" d="M6 4V66H116"/><path class="ln" d="M6 66L14 55H24L32 44H42L50 33H60L68 22H78L86 11H112"/><path class="tk" d="M13 50l3 4M31 39l3 4M49 28l3 4M67 17l3 4M85 6l3 4"/></svg>
+            <p class="cc-p">Bursts, then a pause.</p>
+            <p class="cc-l"><img src="slab_blue.png" alt="" onerror="this.hidden=true">Coffee card · Blue slab</p>
+            <p class="cc-you" id="you-fr">You: not tried yet</p>
+          </div>
+          <div class="cc" style="--c:var(--s-fi)">
+            <p class="cc-k">Count time · fixed</p>
+            <p class="cc-n">Fixed interval <span>FI</span></p>
+            <svg class="rec" viewBox="0 0 120 72" role="img" aria-label="Fixed interval: scallops, flat after each reward then curving up"><path class="ax" d="M6 4V66H116"/><path class="ln" d="M6 66C16 66 22 63 26 57C36 57 42 54 46 48C56 48 62 45 66 39C76 39 82 36 86 30C96 30 102 27 106 21"/><path class="tk" d="M25 52l3 4M45 43l3 4M65 34l3 4M85 25l3 4M105 16l3 4"/></svg>
+            <p class="cc-p">Pause, then a rush near the time.</p>
+            <p class="cc-l"><img src="pit_green.png" alt="" onerror="this.hidden=true">Post at 3:00 · Green pit</p>
+            <p class="cc-you" id="you-fi">You: not tried yet</p>
+          </div>
+          <span class="rh">Changing<small>variable</small></span>
+          <div class="cc" style="--c:var(--s-vr)">
+            <p class="cc-k">Count actions · changing</p>
+            <p class="cc-n">Variable ratio <span>VR</span></p>
+            <svg class="rec" viewBox="0 0 120 72" role="img" aria-label="Variable ratio: the steepest straight line, rewards at uneven points"><path class="ax" d="M6 4V66H116"/><path class="ln" d="M6 66L110 8"/><path class="tk" d="M15 56l3 4M29 48l3 4M37 44l3 4M57 32l3 4M65 28l3 4M87 16l3 4M99 9l3 4"/></svg>
+            <p class="cc-p">Fastest. No pause.</p>
+            <p class="cc-l"><img src="slab_orange.png" alt="" onerror="this.hidden=true">Claw machine · Orange slab</p>
+            <p class="cc-you" id="you-vr">You: not tried yet</p>
+          </div>
+          <div class="cc" style="--c:var(--s-vi)">
+            <p class="cc-k">Count time · changing</p>
+            <p class="cc-n">Variable interval <span>VI</span></p>
+            <svg class="rec" viewBox="0 0 120 72" role="img" aria-label="Variable interval: a gentle straight line, rewards at uneven points"><path class="ax" d="M6 4V66H116"/><path class="ln" d="M6 66L110 30"/><path class="tk" d="M17 58l3 4M33 52l3 4M45 48l3 4M63 42l3 4M77 37l3 4M95 31l3 4"/></svg>
+            <p class="cc-p">Slow and steady. No pause.</p>
+            <p class="cc-l"><img src="pit_purple.png" alt="" onerror="this.hidden=true">Waiting for a reply · Purple pit</p>
+            <p class="cc-you" id="you-vi">You: not tried yet</p>
+          </div>
+        </div>
+        <p class="cmp-cap">Each line shows total actions climbing over time. Each tick is a reward. Same scale in all four.</p>
+      </div>
+      <aside class="rule">
+        <p class="k">The pattern</p>
+        <ul class="takeaways">
+          <li><b>Counting actions makes you faster.</b><span>Ratio lines climb steeper than interval lines.</span></li>
+          <li><b>A changing rule removes the pause.</b><span>You can’t tell when the next one comes, so you never rest.</span></li>
+          <li><b>“Sometimes” is the hardest habit to quit.</b><span>Dusk shows why.</span></li>
+        </ul>
+      </aside>
+    </article>
+  </div>
+</section>
+
+<!-- ============ DUSK ============ -->
+<section class="chapter" id="dusk" aria-labelledby="dusk-h">
+  <div class="in">
+    <div class="ch-head">
+      <p class="ch-eye">Dusk · 18:00 – 19:30</p>
+      <h2 id="dusk-h">When the bones stop.</h2>
+      <p class="ch-lead">In the dig, one slab quietly stopped paying at dusk. Most people kept hitting it for a while. What happens when a reward just stops?</p>
+    </div>
+
+    <article class="moment" id="m-vending">
+      <p class="m-time">18:30<small>Hostel</small></p>
+      <div class="m-scene">
+        <h3>The vending machine eats your coin.</h3>
+        <p class="m-sub">It has paid every single time before.</p>
+        <div class="device">
+          <div class="vm" id="exVm" aria-hidden="true">
+            <div class="vm-grid"><i style="--c:var(--orange)"></i><i style="--c:var(--blue)"></i><i style="--c:var(--green)"></i><i style="--c:var(--purple)"></i><i style="--c:var(--less)"></i><i style="--c:var(--orange)"></i></div>
+            <div class="vm-side"><span></span><span></span><span></span></div>
+          </div>
+          <p class="d-msg" id="exMsg" aria-live="polite">Press B4 for a snack.</p>
+          <div class="d-row"><button class="pbtn primary" type="button" id="exBtn">Press B4</button><span class="tally" id="exTally">Presses 0 · Snacks 0</span></div>
+        </div>
+        <div class="predict">
+          <p class="q">The claw machine stops paying too. Which one do you give up on first?</p>
+          <div class="d-row"><button class="pbtn pick" type="button" data-pick="vend" aria-pressed="false">The vending machine</button><button class="pbtn pick" type="button" data-pick="claw" aria-pressed="false">The claw machine</button></div>
+          <div class="reveal" id="exReveal" hidden>
+            <p id="exVerdict" aria-live="polite"></p>
+            <svg class="ext" viewBox="0 0 300 150" role="img" aria-label="Illustration: after the rewards stop, trying drops fast for the machine that always paid, and slowly for the one that paid only sometimes">
+              <path class="ax" d="M30 10V128H292"/>
+              <path class="l1" d="M30 22C48 22 56 100 84 120L290 124"/>
+              <path class="l2" d="M30 22C120 24 190 64 246 118L290 122"/>
+              <text class="t1" x="84" y="88">Paid every time</text>
+              <text class="t2" x="150" y="40">Paid only sometimes</text>
+              <text x="292" y="145" text-anchor="end">Tries with no reward →</text>
+              <text x="24" y="20" text-anchor="end" transform="rotate(-90 24 20)">Still trying</text>
+            </svg>
+            <p class="ext-cap">Illustration of the pattern, not measured data.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="rule">
+        <p class="k">The rule</p>
+        <p class="r-name">Extinction</p>
+        <p class="r-def">Stop the reward and the action fades.</p>
+        <p class="r-note"><b>Partial reinforcement effect:</b> actions rewarded only some of the time fade slowest.</p>
+        <p class="r-note"><b>Spontaneous recovery:</b> tomorrow you walk past and press once more.</p>
+        <p class="r-note">Ignoring a tantrum works the same way. With no attention, it fades.</p>
+        <p class="dig dry"><img src="slab_blue.png" alt="" onerror="this.hidden=true"><span><b>In the dig</b>At dusk, the blue or orange slab went dry.</span></p>
+      </aside>
+    </article>
+  </div>
+</section>
+<div class="horizon" aria-hidden="true"></div>
+
+<!-- ============ NIGHT ============ -->
+<section class="chapter" id="night" aria-labelledby="night-h">
+  <div class="in">
+    <div class="ch-head">
+      <p class="ch-eye">Night · 21:00 – 23:30</p>
+      <h2 id="night-h">Use it on purpose.</h2>
+      <p class="ch-lead">The dig ends at sunset. Your day doesn’t. The same rules work for you once you choose what comes right after.</p>
+    </div>
+
+    <article class="moment" id="m-steps">
+      <p class="m-time">21:00<small>Desk</small></p>
+      <div class="m-scene">
+        <h3>You want to study 25 minutes a night.</h3>
+        <p class="m-sub">Don’t start at 25. Reward each step, right away.</p>
+        <div class="device">
+          <ol class="ladder" id="ladder">
+            <li style="--i:0" class="next"><span class="st">Open your notes</span><button class="pbtn sm" type="button">Done</button><span class="rw">✓ Tick on the calendar</span></li>
+            <li style="--i:1"><span class="st">Read one page</span><button class="pbtn sm" type="button" disabled>Done</button><span class="rw">✓ One song</span></li>
+            <li style="--i:2"><span class="st">Study 10 minutes</span><button class="pbtn sm" type="button" disabled>Done</button><span class="rw">✓ A cup of teh tarik</span></li>
+            <li style="--i:3"><span class="st">Study 25 minutes</span><button class="pbtn sm" type="button" disabled>Done</button><span class="rw">✓ One episode, guilt-free</span></li>
+          </ol>
+          <p class="d-msg" id="shMsg" aria-live="polite">Start with the smallest step.</p>
+          <div class="d-row"><button class="linkbtn" type="button" id="shReset" hidden>Reset</button></div>
+        </div>
+      </div>
+      <aside class="rule">
+        <p class="k">The rule</p>
+        <p class="r-name">Shaping</p>
+        <p class="r-def">Reward small steps that get closer and closer to the goal. Each step is a successive approximation.</p>
+        <p class="chips"><span class="chip">Right away</span><span class="chip">Only the exact step</span></p>
+        <p class="dig"><span class="bn"><svg aria-hidden="true"><use href="#i-bone"/></svg></span><span><b>In the dig</b>The skeleton grew one bone at a time.</span></p>
+      </aside>
+    </article>
+
+    <article class="moment" id="m-dot">
+      <p class="m-time">22:30<small>Bed</small></p>
+      <div class="m-scene">
+        <h3>A red dot.</h3>
+        <p class="m-sub">It tells you a reward is waiting.</p>
+        <div class="device" id="cueDev">
+          <div class="home" aria-hidden="true">
+            <span class="app" style="--c:var(--blue)"><i></i>Notes</span>
+            <span class="app" style="--c:var(--orange)"><i></i>Feed<span class="dot">9</span></span>
+            <span class="app" style="--c:var(--green)"><i></i>Chat<span class="dot">3</span></span>
+            <span class="app" style="--c:var(--purple)"><i></i>Music</span>
+            <span class="app" style="--c:var(--bone-ink)"><i></i>Mail<span class="dot">1</span></span>
+            <span class="app" style="--c:var(--muted)"><i></i>Maps</span>
+          </div>
+          <p class="d-msg" id="cueMsg" aria-live="polite">Red dot on: you tap.</p>
+          <div class="d-row"><button class="pbtn primary" type="button" id="cueBtn" aria-pressed="false">Hide the red dots</button></div>
+        </div>
+      </div>
+      <aside class="rule">
+        <p class="k">The rule</p>
+        <p class="r-name">Discriminative stimulus</p>
+        <p class="r-def">A cue that tells you when an action will pay off. Remove the cue and the action loses its trigger.</p>
+        <p class="r-note"><b>Generalisation:</b> soon any red dot pulls a little, even on an app you never use.</p>
+        <p class="dig"><img src="pit_green.png" alt="" onerror="this.hidden=true"><span><b>In the dig</b>The ring turning green meant ready.</span></p>
+      </aside>
+    </article>
+
+    <article class="moment" id="m-plan">
+      <p class="m-time">22:45<small>Plan</small></p>
+      <div class="m-scene">
+        <h3>Make tomorrow’s consequences work.</h3>
+        <ol class="uses">
+          <li><b>Right away.</b><span>The sooner it follows, the stronger it works. Adults can wait for a later reward; pets and small children can’t.</span></li>
+          <li><b>The exact action.</b><span>Reward the thing you want, not something near it.</span></li>
+          <li><b>Go easy on punishment.</b><span>Harsh punishment teaches fear, hiding and lying. Keep it immediate and consistent, and reward the right action too.</span></li>
+        </ol>
+      </div>
+      <aside class="rule">
+        <p class="k">Out in the world</p>
+        <ul class="world">
+          <li><b>Token economy</b><span>Points, stamps and stars traded for rewards, in classrooms and loyalty apps.</span></li>
+          <li><b>Time-out</b><span>A short break away from attention. Mild negative punishment.</span></li>
+          <li><b>Applied behaviour analysis</b><span>Therapy that shapes skills one small step at a time.</span></li>
+          <li><b>Biofeedback</b><span>A watch shows your heart rate so you can learn to slow it.</span></li>
+        </ul>
+      </aside>
+    </article>
+
+    <article class="moment" id="m-feed">
+      <p class="m-time">23:30<small>Lights off</small></p>
+      <div class="m-scene">
+        <h3>One more video.</h3>
+        <p class="m-sub">You know these rules now. Which one keeps your thumb moving?</p>
+        <div class="device">
+          <div class="clip" id="fdClip" aria-live="polite">Swipe</div>
+          <div class="d-row"><button class="pbtn primary" type="button" id="fdBtn">Swipe</button><span class="tally" id="fdTally">Swipes 0 · Funny 0</span></div>
+          <div class="rq" role="group" aria-label="Which rule is this?">
+            <button class="pbtn sm" type="button" data-r="FR">Fixed ratio</button>
+            <button class="pbtn sm" type="button" data-r="VR">Variable ratio</button>
+            <button class="pbtn sm" type="button" data-r="FI">Fixed interval</button>
+            <button class="pbtn sm" type="button" data-r="VI">Variable interval</button>
+          </div>
+          <p class="d-msg" id="fdMsg" aria-live="polite"></p>
+        </div>
+      </div>
+      <aside class="rule">
+        <p class="k">The rule</p>
+        <p class="r-name">Variable ratio, again</p>
+        <p class="r-def">Every swipe might be the funny one. That’s the orange slab in your pocket.</p>
+        <p class="r-note">Seeing the rule is the first step to changing the loop.</p>
+      </aside>
+    </article>
+
+    <div class="recap" id="recap">
+      <p class="k">Your day, in rules</p>
+      <h2>Eleven moments, one idea.</h2>
+      <ol class="dayline">
+        <li><a href="#m-likes"><span class="t">07:05</span><span class="m">Likes on your post</span><span class="r">Positive reinforcement</span></a></li>
+        <li><a href="#m-belt"><span class="t">08:10</span><span class="m">The beeping stops</span><span class="r">Negative reinforcement</span></a></li>
+        <li><a href="#m-lecture"><span class="t">09:05</span><span class="m">Called out in class</span><span class="r">Positive punishment</span></a></li>
+        <li><a href="#m-late"><span class="t">09:40</span><span class="m">Marks taken off</span><span class="r">Negative punishment</span></a></li>
+        <li><a href="#m-coffee"><span class="t">12:40</span><span class="m">Every 5th coffee free</span><span class="r">Fixed ratio</span></a></li>
+        <li><a href="#m-claw"><span class="t">13:20</span><span class="m">Maybe this time</span><span class="r">Variable ratio</span></a></li>
+        <li><a href="#m-post"><span class="t">15:00</span><span class="m">The post at 3:00</span><span class="r">Fixed interval</span></a></li>
+        <li><a href="#m-reply"><span class="t">16:20</span><span class="m">Waiting for a reply</span><span class="r">Variable interval</span></a></li>
+        <li><a href="#m-vending"><span class="t">18:30</span><span class="m">The machine stops paying</span><span class="r">Extinction</span></a></li>
+        <li><a href="#m-steps"><span class="t">21:00</span><span class="m">One small step at a time</span><span class="r">Shaping</span></a></li>
+        <li><a href="#m-dot"><span class="t">22:30</span><span class="m">The red dot</span><span class="r">Discriminative stimulus</span></a></li>
+      </ol>
+    </div>
+
+    <div class="end">
+      <h2>Change what comes right after, and you change what comes next.</h2>
+      <div class="cta">
+        <a class="pbtn primary" href="index.html" data-game>Play the dig</a>
+        <a class="pbtn" href="#top">Back to the start ↑</a>
+      </div>
+      <p class="foot">Built for the PSY 111 exhibition on operant conditioning. Concepts follow the course lecture Learning (Part 1) and Kosslyn &amp; Rosenberg, <i>Introducing Psychology</i>. The everyday examples show common patterns. They don’t describe any one person.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<script>
+(function(){
+  'use strict';
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function $(s, r){ return (r || document).querySelector(s); }
+  function $$(s, r){ return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function ms(n){ return reduce ? 0 : n; }
+  function bag(arr){ var i = 0; return function(){ return arr[i++ % arr.length]; }; }
+  function plural(n, one, many){ return n + ' ' + (n === 1 ? one : many); }
+  function replay(el, cls){ el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
+
+  /* taps on the four schedule demos feed the 17:00 comparison */
+  var S = { fr:{ taps:0, wins:0, w:'free coffee', ws:'free coffees' }, vr:{ taps:0, wins:0, w:'prize', ws:'prizes' },
+            fi:{ taps:0, wins:0, w:'letter', ws:'letters' }, vi:{ taps:0, wins:0, w:'reply', ws:'replies' } };
+  function you(k){
+    var s = S[k], el = document.getElementById('you-' + k);
+    if (el) el.textContent = s.taps ? 'You: ' + plural(s.taps, 'tap', 'taps') + ' · ' + plural(s.wins, s.w, s.ws) : 'You: not tried yet';
+  }
+
+  /* ---------- dawn: action → right after → next time ---------- */
+  $$('.moment[data-loop]').forEach(function(m){
+    var act = $('[data-act]', m), reset = $('[data-reset]', m), cells = $$('.loop li', m), timers = [];
+    function fill(i){ var li = cells[i], v = $('.v', li); v.textContent = v.getAttribute('data-a'); v.classList.remove('q'); li.classList.add('on'); }
+    act.addEventListener('click', function(){
+      m.classList.add('done'); act.disabled = true;
+      timers.push(setTimeout(function(){ fill(1); }, ms(450)));
+      timers.push(setTimeout(function(){ fill(2); reset.hidden = false; }, ms(1500)));
+    });
+    reset.addEventListener('click', function(){
+      timers.forEach(clearTimeout); timers = [];
+      m.classList.remove('done'); act.disabled = false; reset.hidden = true;
+      cells.slice(1).forEach(function(li){ var v = $('.v', li); v.textContent = '?'; v.classList.add('q'); li.classList.remove('on'); });
+      act.focus();
+    });
+  });
+
+  /* ---------- 10:00 sort ---------- */
+  var QUAD = { PR:['add','up','Positive reinforcement'], NR:['take','up','Negative reinforcement'], PP:['add','down','Positive punishment'], NP:['take','down','Negative punishment'] };
+  var CASES = [
+    { t:'You tidy your room. Mum stops nagging. Next week you tidy without being asked.', a:'NR', why:'The nagging is taken away, and tidying goes up.' },
+    { t:'You touch a hot pan. It burns. Next time you grab a cloth first.', a:'PP', why:'Pain is added, and touching the pan bare-handed goes down.' },
+    { t:'You hand in early. Your lecturer praises it. You start the next one earlier.', a:'PR', why:'Praise is added, and starting early goes up.' },
+    { t:'You break curfew. Your phone is taken for the weekend. You come home on time.', a:'NP', why:'Your phone is taken away, and breaking curfew goes down.' },
+    { t:'You press stop on the alarm. The noise ends. You reach for it faster every day.', a:'NR', why:'The noise is taken away, and pressing stop goes up.' },
+    { t:'You post a rude comment. People pile on. You post fewer comments like it.', a:'PP', why:'Criticism is added, and rude comments go down.' }
+  ];
+  var qi = 0, score = 0, solved = false;
+  var qzN = $('#qzN'), qzScore = $('#qzScore'), qzCase = $('#qzCase'), qzFb = $('#qzFb'), qzNext = $('#qzNext'), qcs = $$('.qc');
+  function showCase(){
+    var c = CASES[qi]; solved = false;
+    qzN.textContent = 'Case ' + (qi + 1) + ' of ' + CASES.length;
+    qzCase.textContent = c.t; qzFb.textContent = 'Tap the box that fits.'; qzFb.className = 'qz-fb';
+    qcs.forEach(function(b){ b.classList.remove('right', 'wrong'); });
+    qzNext.hidden = true;
+  }
+  qcs.forEach(function(b){
+    b.addEventListener('click', function(){
+      if (solved) return;
+      var pick = b.getAttribute('data-q'), c = CASES[qi], want = QUAD[c.a], got = QUAD[pick];
+      if (pick === c.a){
+        solved = true; score++; b.classList.add('right');
+        qzFb.className = 'qz-fb ok'; qzFb.textContent = 'Yes: ' + want[2].toLowerCase() + '. ' + c.why;
+        qzScore.textContent = score + ' right';
+        qzNext.hidden = false; qzNext.textContent = qi < CASES.length - 1 ? 'Next case' : 'Start again';
+      } else {
+        replay(b, 'wrong'); qzFb.className = 'qz-fb no';
+        qzFb.textContent = got[0] !== want[0] ? 'Check question 1: was something added, or taken away?' : 'Check question 2: did the action go up, or down?';
+      }
+    });
+  });
+  qzNext.addEventListener('click', function(){
+    if (qi < CASES.length - 1) qi++; else { qi = 0; score = 0; qzScore.textContent = '0 right'; }
+    showCase(); qzCase.focus();
+  });
+
+  /* ---------- 12:40 fixed ratio ---------- */
+  (function(){
+    var btn = $('#frBtn'), slots = $$('#frSlots li'), msg = $('#frMsg'), tally = $('#frTally'), n = 0, coffees = 0;
+    btn.addEventListener('click', function(){
+      n++; coffees++; S.fr.taps++;
+      slots[n - 1].classList.add('on');
+      if (n === 5){
+        S.fr.wins++; msg.textContent = '5th coffee: free!'; btn.disabled = true;
+        setTimeout(function(){
+          slots.forEach(function(s){ s.classList.remove('on'); }); n = 0; btn.disabled = false;
+          msg.textContent = 'New card. Most people take a break before filling it.';
+        }, ms(1500));
+      } else msg.textContent = 'Stamp ' + n + ' of 5.' + (n === 4 ? ' One more for a free one.' : '');
+      tally.textContent = 'Coffees ' + coffees + ' · Free ' + S.fr.wins; you('fr');
+    });
+  })();
+
+  /* ---------- 13:20 variable ratio (same bag as the orange slab) ---------- */
+  (function(){
+    var RATIOS = [2,7,4,9,3,5,6,3,8,3], next = bag(RATIOS), need = next(), since = 0;
+    var btn = $('#vrBtn'), box = $('#vrBox'), msg = $('#vrMsg'), tally = $('#vrTally');
+    var MISS = ['Missed.', 'So close.', 'Missed. One more?', 'It slipped.', 'Nothing.'];
+    btn.addEventListener('click', function(){
+      S.vr.taps++; since++; replay(box, 'drop');
+      if (since >= need){
+        S.vr.wins++; replay(box, 'win');
+        msg.textContent = 'Got one! That took ' + plural(since, 'try', 'tries') + '.'; since = 0; need = next();
+      } else msg.textContent = MISS[(S.vr.taps + since) % MISS.length];
+      tally.textContent = 'Tries ' + S.vr.taps + ' · Prizes ' + S.vr.wins; you('vr');
+    });
+  })();
+
+  /* ---------- 15:00 fixed interval ---------- */
+  (function(){
+    var FI = 5000, t0 = null, ready = false, raf = 0;
+    var btn = $('#fiBtn'), dev = $('#fiDev'), fill = $('#fiFill'), msg = $('#fiMsg'), tally = $('#fiTally');
+    function tick(){
+      var p = Math.min(1, (performance.now() - t0) / FI);
+      fill.style.transform = 'scaleX(' + p.toFixed(3) + ')';
+      if (p >= 1){ ready = true; dev.classList.add('ready'); msg.textContent = 'It’s 3:00. The letter waits until you check.'; return; }
+      raf = requestAnimationFrame(tick);
+    }
+    function start(){ cancelAnimationFrame(raf); t0 = performance.now(); ready = false; dev.classList.remove('ready'); raf = requestAnimationFrame(tick); }
+    btn.addEventListener('click', function(){
+      S.fi.taps++;
+      if (t0 === null){ msg.textContent = 'Empty. The post comes at 3:00.'; start(); }
+      else if (!ready) msg.textContent = 'Still empty. Checking early doesn’t bring it sooner.';
+      else { S.fi.wins++; msg.textContent = 'A letter! The next post is tomorrow at 3:00.'; start(); }
+      tally.textContent = 'Checks ' + S.fi.taps + ' · Letters ' + S.fi.wins; you('fi');
+    });
+  })();
+
+  /* ---------- 16:20 variable interval (same waits as the purple pit) ---------- */
+  (function(){
+    var WAITS = [3,5,5,3,5,3,3,5,3,5], next = bag(WAITS), t0 = null, wait = 0, busy = false;
+    var SENT = ['still on for tonight?', 'did you get the notes?', 'lunch tomorrow?', 'what time is the quiz?'];
+    var GOT = ['yes! see you at 8', 'yep, sending now', 'sure, 12:30?', '10am, room B'];
+    var btn = $('#viBtn'), me = $('#viMe'), st = $('#viSt'), log = $('#viLog'), msg = $('#viMsg'), tally = $('#viTally'), round = 0;
+    function begin(){ t0 = performance.now(); wait = next() * 1000; }
+    btn.addEventListener('click', function(){
+      if (busy) return;
+      S.vi.taps++;
+      if (t0 === null){ begin(); msg.textContent = 'No reply yet.'; }
+      else if (performance.now() - t0 < wait) msg.textContent = ['Nothing yet.', 'Still nothing.', 'Seen. No reply.'][S.vi.taps % 3];
+      else {
+        S.vi.wins++; busy = true; btn.disabled = true;
+        var r = document.createElement('p'); r.className = 'b them'; r.textContent = GOT[round % GOT.length];
+        log.insertBefore(r, st); st.textContent = 'Read';
+        msg.textContent = 'A reply! This one took ' + (wait / 1000) + ' s.';
+        setTimeout(function(){
+          round++; if (r.parentNode) r.parentNode.removeChild(r);
+          me.textContent = SENT[round % SENT.length]; st.textContent = 'Delivered';
+          msg.textContent = 'You sent another. Check whenever you like.';
+          begin(); busy = false; btn.disabled = false;
+        }, ms(2200));
+      }
+      tally.textContent = 'Checks ' + S.vi.taps + ' · Replies ' + S.vi.wins; you('vi');
+    });
+  })();
+
+  /* ---------- 18:30 extinction ---------- */
+  (function(){
+    var btn = $('#exBtn'), vm = $('#exVm'), msg = $('#exMsg'), tally = $('#exTally'), n = 0;
+    var LINES = ['Nothing drops.', 'Nothing. Press harder?', 'Still nothing.', 'Most people walk away about now.'];
+    btn.addEventListener('click', function(){
+      n++; replay(vm, 'shake');
+      msg.textContent = LINES[Math.min(n, LINES.length) - 1];
+      tally.textContent = 'Presses ' + n + ' · Snacks 0';
+    });
+    var picks = $$('.pick'), reveal = $('#exReveal'), verdict = $('#exVerdict');
+    picks.forEach(function(p){
+      p.addEventListener('click', function(){
+        picks.forEach(function(q){ q.setAttribute('aria-pressed', q === p ? 'true' : 'false'); });
+        var v = p.getAttribute('data-pick') === 'vend';
+        verdict.innerHTML = (v ? '<b>Yes, the vending machine.</b> ' : '<b>Most people quit the vending machine first.</b> ') +
+          'It paid every time, so one miss stands out. The claw machine paid only sometimes, so a long dry run looks normal.';
+        reveal.hidden = false;
+      });
+    });
+  })();
+
+  /* ---------- 21:00 shaping ---------- */
+  (function(){
+    var steps = $$('#ladder li'), msg = $('#shMsg'), reset = $('#shReset'), at = 0;
+    var DONE = ['Small, but rewarded. Next step.', 'Rewarded right away. Next step.', 'Closer. Next step.', '25 minutes, reached one rewarded step at a time.'];
+    steps.forEach(function(li, i){
+      var b = $('button', li);
+      b.addEventListener('click', function(){
+        if (i !== at) return;
+        li.classList.remove('next'); li.classList.add('done'); b.disabled = true;
+        msg.textContent = DONE[i]; at++; reset.hidden = false;
+        if (steps[at]){ var nb = $('button', steps[at]); steps[at].classList.add('next'); nb.disabled = false; nb.focus(); }
+      });
+    });
+    reset.addEventListener('click', function(){
+      at = 0; reset.hidden = true; msg.textContent = 'Start with the smallest step.';
+      steps.forEach(function(li, i){ li.classList.remove('done', 'next'); $('button', li).disabled = i !== 0; });
+      steps[0].classList.add('next'); $('button', steps[0]).focus();
+    });
+  })();
+
+  /* ---------- 22:30 cue ---------- */
+  (function(){
+    var btn = $('#cueBtn'), dev = $('#cueDev'), msg = $('#cueMsg');
+    btn.addEventListener('click', function(){
+      var off = btn.getAttribute('aria-pressed') !== 'true';
+      btn.setAttribute('aria-pressed', off ? 'true' : 'false');
+      dev.classList.toggle('nodots', off);
+      btn.textContent = off ? 'Show the red dots' : 'Hide the red dots';
+      msg.textContent = off ? 'No dot, no cue. You open the apps less.' : 'Red dot on: you tap.';
+    });
+  })();
+
+  /* ---------- 23:30 feed ---------- */
+  (function(){
+    var CLIPS = [0,0,1,0,0,0,0,1,0,1,0,0,0,1,0,0,0,0,0,1], i = 0, fun = 0;
+    var MEH = ['meh', 'an ad', 'meh', 'seen it', 'meh'];
+    var btn = $('#fdBtn'), clip = $('#fdClip'), tally = $('#fdTally'), msg = $('#fdMsg');
+    btn.addEventListener('click', function(){
+      var f = CLIPS[i % CLIPS.length]; i++;
+      if (f) fun++;
+      clip.textContent = f ? 'ha! funny one' : MEH[i % MEH.length];
+      clip.classList.toggle('fun', !!f);
+      tally.textContent = 'Swipes ' + i + ' · Funny ' + fun;
+    });
+    $$('[data-r]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var r = b.getAttribute('data-r');
+        msg.textContent = r === 'VR' ? 'Variable ratio. The funny one comes after a changing number of swipes.'
+          : r === 'FR' ? 'Not a set count. You never know how many swipes it takes.'
+          : 'Time isn’t the rule here. Every swipe is a fresh chance.';
+      });
+    });
+  })();
+
+  /* ---------- day bar: the sun crosses the day ---------- */
+  (function(){
+    var chs = ['dawn','midday','afternoon','dusk','night'].map(function(id){ return document.getElementById(id); });
+    var segs = $$('.track a'), sun = $('#sun'), ticking = false;
+    function place(){
+      ticking = false;
+      var y = window.scrollY + innerHeight * 0.4, i = -1, frac = 0;
+      chs.forEach(function(c, k){ if (y >= c.offsetTop) i = k; });
+      if (i >= 0){ var c = chs[i]; frac = Math.min(1, (y - c.offsetTop) / c.offsetHeight); }
+      var atEnd = window.scrollY + innerHeight >= document.documentElement.scrollHeight - 4;
+      var pos = atEnd ? 1 : i < 0 ? 0 : (i + frac) / chs.length;
+      sun.style.left = (pos * 100).toFixed(2) + '%';
+      sun.setAttribute('data-phase', i < 0 ? 'dawn' : chs[i].id);
+      segs.forEach(function(a, k){ if (k === i) a.setAttribute('aria-current', 'step'); else a.removeAttribute('aria-current'); });
+    }
+    addEventListener('scroll', function(){ if (!ticking){ ticking = true; requestAnimationFrame(place); } }, { passive:true });
+    addEventListener('resize', place);
+    place();
+  })();
+})();
+</script>
+<!--wrapper-->
+</body>
+</html>
+<!--/wrapper-->

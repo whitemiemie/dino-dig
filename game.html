@@ -1,0 +1,1812 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Dino Dig Field Camp</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Pixelify+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Pixelify Sans draws 5 like S and 2 like a tilted 8, so digits come from Tiny5 (OFL, 0–9 only, inlined) */
+@font-face{font-family:"PixNum";src:url(data:font/woff2;base64,d09GMgABAAAAAAO0AA4AAAAACdAAAANcAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGx4cOgZgP1NUQVSBIABQEQgKhxyHPAscAAE2AiQDMAQgBYUqByAb3wjIBJ7n517PfUl+ASgj/iWG/CKrpsJVqLGeBsrA1U3NEVhShfzfWqs3p+jrNP1IvNB41LTzd31mMPVzK4UQacsmIu9SIFS1KcxynagSRo0x7/8tBAgkuW4jVTVNXfijUx1z3Zl6wcyrMAP1nx9fW1zCnNxdW8CcXrPmMRfGN5YwiSEsG13NygEGqMoGuPbijJRhi31CGz75jMetkO9HB+9WZHTXiINJvmbf5o4HxRhy53Q/hbJBgkva8ccDi56drUJtT89sRPul21MbMyJIR2tLlWioiqbqKtHRGuq7usRAn90YX5CzGDRRRhaXSSYYDQMl5xTPCDom5cxusrYZqGijTZKZ4lpsDXIwrp5fEOrEfDSaGIlmRdkwXWDeJN+myyZe13V/h0T7+gbjIYhAiv7++KEw9sV1CauzEGmRSCbhZoQjp2LI/FJxh3iIOB3eyf6+BLaIuIIs916GwFk/i5SVcQ7BYdEqZequT9G6cC4J55TX4QLuLHwypJwElaPApyT4lAIhu26xNIqEZD2lsKG1UKHSXJOKrChyohlJxKsl60ZoganL6EgliWSokyWiRDqHGVFHiP4sHN1ywFipuYjS6GyOyrAQbswKX1SifkrhzI6WGWu6Uds68epx+RlXdompCVnkAwoFL/tSnZUcHr5z8kbDiv77az/LQ358fBTnHp+e7J1i2B5+emoh0orgm072XDFsneF4kLa76DrqlxNxUiwUXNyaDyH8i2bJnRdDpTcXwXtDHukBwG0p2IAQKF5QhMpZ0PDyB3QS+UAM30vi8T3sDiWHJUtKnZgACIH0gUYkNaATSBEYBOMlyb7zcIZQYuEswQSa5+ofQQfLLDLOEvVs1OtfYJZJqrDwMc4mC2zQwjJrhN0FGphtBG9gsUYFC/MWUwLmZt1uiiUs1lmn15Eppxl6sZhlmpkd5H1uhXUKuMUtllnBYgkfy3WxERgP9texuBlyd5ouZhG8SzY36MDClPbHWaMnhfl1ZrnfNcngJl685NIHM19c/q+FVJBBNzUUyofZeUFhlYkv77KmDEP395JBDub8DNbiRQpObayxzBwWk8T5cjbtQIWvr2Ny2Ro2bfT9GTaZ4CaTz2n/FrXM2ouKh2/Zljwahl35d6Wtcdf+6wo/BAAA) format("woff2");unicode-range:U+30-39;font-weight:100 900;font-display:block}
+[hidden]{display:none!important}
+/* Layout: one 16:9 diorama stage with a HUD strip; the field-guide card slides over the right third, the
+   Dig deeper handbook covers the stage below the HUD (both drop below the stage on narrow screens).
+   Single warm-paper look to match the pixel art, so no dark variant. */
+:root{
+  color-scheme:light;
+  --sky:#feebc8; --paper:#fbf3e0; --paper-2:#f2e7cc; --ink:#354638; --ink-2:#56604f; --muted:#7f7763; --line:#d6c7a2;
+  --sage:#6f8a62; --ready:#3f7a3a; --alert:#b84332; --bone:#f7eed8; --bone-ink:#6b5a44;
+  --blue:#5d7d97; --orange:#d27a4c; --green:#7d9b7f; --purple:#a597d6; --flare:#b84332; --dino:#6c7468;
+  /* chart series (validated on --paper-2): FR, VR, FI, VI */
+  --s-fr:#2f6fa8; --s-vr:#c25a22; --s-fi:#2f8a62; --s-vi:#8f5fc0;
+  --f-pixel:"PixNum","Pixelify Sans",ui-monospace,"SF Mono",Menlo,monospace;
+  --f-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;min-height:100%;display:grid;place-items:center;background:var(--sky);color:var(--ink);font-family:var(--f-body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px;
+  -webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;touch-action:manipulation}
+button:focus-visible{outline:3px solid var(--alert);outline-offset:2px}
+
+.frame{position:relative;width:min(100%,calc((100vh - 24px) * 16 / 9));width:min(100%,calc((100dvh - 24px) * 16 / 9));container-type:inline-size;--hud:max(40px,5cqw)}
+.stage{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;border-radius:10px;background:var(--sky);box-shadow:0 0 0 2px var(--ink),0 10px 30px rgba(53,70,56,.18);user-select:none;-webkit-user-select:none}
+.world{position:absolute;inset:0;z-index:0;isolation:isolate}
+.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.stage:not(.bg-loaded) .bg{visibility:hidden}
+.bg-ph{position:absolute;inset:0;display:none;background:
+  linear-gradient(180deg,var(--sky) 0 22%,transparent 22%),
+  radial-gradient(60% 45% at 50% 52%,#e2b878 0 60%,#7f9a55 60% 66%,#c06a46 66% 70%,#8a8f96 70% 74%,#7a4a30 74% 100%)}
+.stage:not(.bg-loaded) .bg-ph{display:block}
+.bg-ph::after{content:"bg.png / bg.jpg not found · placeholder";position:absolute;left:2%;bottom:2%;font:500 12px var(--f-pixel);color:var(--ink-2)}
+
+.sun{position:absolute;left:22.75%;top:12.5%;width:6.8%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);background:#fff6e2;box-shadow:0 0 0 .5cqw rgba(255,246,226,.55);display:none;z-index:2;transition:background-color 4s}
+.sun.dusk{background:#ffc98c;box-shadow:0 0 0 .6cqw rgba(255,190,120,.45)}
+.sun-patch{position:absolute;left:22.75%;top:12.5%;width:8.8%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle closest-side,var(--sky) 86%,rgba(254,235,200,0) 100%);display:none;z-index:1}
+.stage[data-mode="game"] .sun{display:block}
+.stage[data-mode="game"].bg-loaded .sun-patch{display:block}
+.stage:not(.bg-loaded) .sun{display:block}
+
+.layer{position:absolute;inset:0;z-index:10}
+.shadow-pass{position:absolute;left:0;top:24%;width:42%;opacity:0;pointer-events:none;z-index:1800;filter:brightness(0);transform:translateX(-200%)}
+.shadow-pass.blob{height:14%;border-radius:50%;background:#000}
+/* the big dino that comes for ours: footsteps warn in three levels, the flare sends it away, waiting means a grab */
+.raider{position:absolute;left:0;top:0;width:10%;aspect-ratio:1;pointer-events:none;z-index:1750;opacity:0;transform:scaleX(-1)}
+.danger{position:absolute;inset:0;pointer-events:none;z-index:1850;opacity:0;background:radial-gradient(ellipse at 50% 55%,rgba(184,67,50,0) 48%,rgba(120,30,25,.6) 100%);transition:opacity .6s}
+.danger.l3{animation:dpulse .55s ease-in-out infinite alternate}
+@keyframes dpulse{from{filter:brightness(1)}to{filter:brightness(1.6)}}
+.spot-flare.warn img,.spot-flare.warn .ph{animation:warn .7s ease-in-out infinite alternate}
+@keyframes warn{from{filter:none}to{filter:drop-shadow(0 0 10px #ffb05a) brightness(1.2)}}
+.foot i{display:inline-block;width:.55em;height:.55em;border-radius:50%;border:1.5px solid currentColor;margin-left:.1em}
+.foot i.on{background:currentColor}
+.fx{position:absolute;inset:0;pointer-events:none;z-index:2000;overflow:hidden}
+.tint{position:absolute;inset:0;pointer-events:none;z-index:1900;mix-blend-mode:multiply;background-color:rgb(255,255,255);transition:background-color 5s linear}
+
+/* dig spots */
+.spot{position:absolute;transform:translate(-50%,-50%);aspect-ratio:1;min-width:64px;padding:0;border:0;background:none;cursor:pointer;border-radius:12px}
+.spot img{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;-webkit-user-drag:none;transition:filter .4s}
+.spot:not(.loaded) img{visibility:hidden}
+.ph{position:absolute;inset:20% 6% 18% 6%;border-radius:12px;display:grid;place-items:center;font:500 clamp(9px,.9cqw,13px)/1.1 var(--f-pixel);color:#fff;text-align:center;padding:4px}
+.spot.loaded .ph{display:none}
+.spot-blue .ph{background:var(--blue)} .spot-orange .ph{background:var(--orange);border-radius:45%}
+.spot-green .ph{background:var(--green);border-radius:50%;inset:24% 6% 20% 6%} .spot-purple .ph{background:var(--purple);border-radius:50%;inset:24% 6% 20% 6%}
+.spot-flare .ph{background:var(--flare);inset:8% 38% 9% 38%;border-radius:4px;font-size:0}
+.spot.dry img,.spot.dry .ph{filter:grayscale(.75) brightness(.95)}
+.sel-ring{position:absolute;left:10%;right:10%;top:70%;height:18%;border:2px dashed var(--ink);border-radius:50%;opacity:0;transition:opacity .2s;pointer-events:none}
+.spot-flare .sel-ring{left:24%;right:24%;top:80%;height:13%}
+.spot.sel .sel-ring{opacity:.85}
+.spot:focus-visible{outline:3px dashed var(--alert);outline-offset:-8%}
+.cracks,.tarp,.pring{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.cracks path{fill:none;stroke:#2a2622;stroke-width:1.8;stroke-linecap:square;stroke-linejoin:miter;shape-rendering:crispEdges}
+.tarp{display:none}
+.spot.covered .tarp{display:block;animation:tarpdrop .45s ease-out}
+.spot.covered .cracks{display:none}
+@keyframes tarpdrop{from{transform:translateY(-18%);opacity:0}to{transform:none;opacity:1}}
+.pring{display:none}
+.pring.on{display:block}
+.pring .trk{fill:none;stroke:rgba(255,250,235,.45);stroke-width:4}
+.pring .prg{fill:none;stroke:#fff6dc;stroke-width:4}
+.pring.ready .prg{stroke:var(--ready);stroke-width:5}
+.pring-t{font:600 13px var(--f-pixel);fill:#fffaf0;paint-order:stroke;stroke:rgba(53,70,56,.55);stroke-width:2.5px}
+.spot.pop img,.spot.pop .ph{animation:crumble .6s ease-out}
+@keyframes crumble{0%{transform:none;filter:none}12%{transform:scale(1.07,.93);filter:brightness(1.35)}30%{transform:scale(.82) translateY(8%);opacity:.2}80%{transform:scale(.82) translateY(8%);opacity:.2}100%{transform:none;opacity:1}}
+.spot.splash img,.spot.splash .ph{animation:splash .45s ease-out}
+@keyframes splash{0%{filter:none}30%{filter:brightness(1.25) saturate(1.2);transform:scale(1.04,.97)}100%{filter:none;transform:none}}
+.spot.fired img,.spot.fired .ph{animation:fired 1.3s ease-out}
+@keyframes fired{0%{filter:none}15%{filter:drop-shadow(0 0 10px #ffb05a) brightness(1.25)}70%{filter:drop-shadow(0 0 6px #ffb05a)}100%{filter:none}}
+.tag{position:absolute;left:50%;top:88%;transform:translateX(-50%);display:none;white-space:nowrap;font:500 clamp(10px,.85cqw,13px)/1 var(--f-pixel);background:var(--paper);border:2px solid var(--ink);border-radius:3px;padding:3px 6px;pointer-events:none}
+.stage[data-mode="guide"] .tag{display:block}
+
+/* notice board + skeleton stand hotspots */
+.hot{position:absolute;transform:translate(-50%,-50%);min-width:64px;min-height:64px;padding:0;background:transparent;border:2px solid transparent;border-radius:8px;cursor:pointer;transition:box-shadow .2s,border-color .2s,background-color .2s}
+.stage[data-mode="guide"] .hot:hover,.stage[data-mode="guide"] .hot:focus-visible{outline:none;border-color:rgba(255,250,232,.95);background-color:rgba(255,246,220,.14);box-shadow:0 0 0 2px rgba(255,205,120,.6),0 0 18px 6px rgba(255,214,140,.55)}
+.stage:not([data-mode="guide"]) .hot{pointer-events:none}
+.hot .tag{top:100%;transform:translate(-50%,4px)}
+
+/* dino */
+.dino{position:absolute;transform:translate(-50%,-50%);aspect-ratio:1;min-width:48px;pointer-events:none}
+.d-face{position:absolute;inset:0;transform:scaleX(var(--face,1));transition:transform .12s}
+.d-bob{position:absolute;inset:0;animation:bob 1.6s ease-in-out infinite}
+.dino.walking .d-bob{animation:waddle .3s ease-in-out infinite}
+.dino.sitting .d-bob{animation:none}
+.d-act{position:absolute;inset:0;transform-origin:50% 90%;transition:transform .3s ease-out}
+.dino.sitting .d-act{transform:scale(1.07,.8)}
+.d-act img{position:absolute;inset:0;width:100%;height:100%;-webkit-user-drag:none}
+.dino:not(.loaded) .d-act img{visibility:hidden}
+.dino .ph,.i-dino .ph{background:var(--dino);inset:12% 14% 9% 14%;border-radius:6px}
+.dino .ph::after,.i-dino .ph::after{content:"";position:absolute;right:18%;top:14%;width:12%;aspect-ratio:1;background:#fff}
+.dino.loaded .ph{display:none}
+.d-act.hit{animation:hit .22s ease-out}
+.d-act.jump{animation:jump .45s ease-out}
+.d-act.flinch{animation:flinch .32s ease-out}
+.d-act.cheer{animation:cheer .5s ease-in-out 5}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.5%)}}
+@keyframes waddle{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-5%) rotate(3deg)}}
+@keyframes hit{0%{transform:none}40%{transform:translate(5%,5%) rotate(15deg)}100%{transform:none}}
+@keyframes jump{0%{transform:none}40%{transform:translateY(-24%)}70%{transform:translateY(0) scale(1.06,.94)}100%{transform:none}}
+@keyframes flinch{0%{transform:none}35%{transform:scale(.9,.84) translateY(5%)}100%{transform:none}}
+@keyframes cheer{0%,100%{transform:none}50%{transform:translateY(-28%) rotate(-6deg)}}
+
+.px{position:absolute;left:0;top:0}
+.fly-bone{position:absolute;left:0;top:0;width:max(26px,2.6cqw)}
+.fly-bone svg{display:block;width:100%;height:auto}
+.float-txt{position:absolute;left:0;top:0;font:600 clamp(11px,1cqw,15px) var(--f-pixel);color:var(--ink);background:var(--paper);border:2px solid var(--ink);border-radius:3px;padding:2px 6px;white-space:nowrap}
+
+/* HUD */
+.hud{position:absolute;left:0;right:0;top:0;height:var(--hud);display:flex;align-items:center;gap:1cqw;padding:0 1.1cqw;z-index:40;pointer-events:none;font-family:var(--f-pixel)}
+.hud > *{pointer-events:auto}
+.hud-right{margin-left:auto;display:flex;align-items:center;gap:.8cqw}
+.chip{display:inline-flex;align-items:center;gap:.5em;background:var(--paper);border:2px solid var(--ink);border-radius:4px;padding:0 .7em;height:max(30px,3.2cqw);font:500 clamp(11px,1.15cqw,18px)/1 var(--f-pixel);white-space:nowrap}
+.clock b{font-size:1.15em;font-variant-numeric:tabular-nums}
+.clock span{color:var(--muted);font-size:.85em}
+.clock.urgent{background:#f6d3c3;border-color:var(--alert)}
+.foot{background:var(--alert);color:var(--paper);border-color:var(--alert);animation:pulse .6s ease-in-out infinite alternate}
+@keyframes pulse{to{transform:scale(1.06)}}
+.count svg{width:1.6em;height:auto}
+.count b{display:inline-block;font-variant-numeric:tabular-nums}
+.count.bump b{animation:bump .3s ease-out}
+@keyframes bump{40%{transform:scale(1.4)}}
+.hbtn{cursor:pointer;background:var(--paper)}
+.hbtn[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.book-btn{background:#e6eada;border-color:var(--sage)}
+.seg{display:inline-flex;border:2px solid var(--ink);border-radius:4px;overflow:hidden;height:max(30px,3.2cqw);background:var(--paper)}
+.seg button{border:0;background:none;cursor:pointer;padding:0 .8em;font:500 clamp(11px,1.15cqw,18px)/1 var(--f-pixel);white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.banner{position:absolute;top:calc(var(--hud) + 1cqw);left:50%;transform:translateX(-50%);z-index:45;font:500 clamp(13px,1.35cqw,21px)/1.2 var(--f-pixel);background:var(--paper);border:2px solid var(--ink);border-radius:4px;padding:.5em 1em;white-space:nowrap;opacity:0;pointer-events:none}
+.banner.show{animation:banner 2.8s ease forwards}
+@keyframes banner{0%{opacity:0;transform:translate(-50%,-6px)}10%,82%{opacity:1;transform:translate(-50%,0)}100%{opacity:0}}
+
+/* overlays: intro + field report */
+.overlay{position:absolute;inset:0;z-index:50;display:grid;place-items:center;overflow:auto;background:rgba(254,235,200,.6);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+.ov-panel{background:var(--paper);border:3px solid var(--ink);border-radius:8px;box-shadow:6px 6px 0 rgba(53,70,56,.28);padding:clamp(16px,2.6cqw,40px);text-align:center;max-width:min(70%,760px);display:flex;flex-direction:column;align-items:center;gap:clamp(8px,1.1cqw,16px)}
+.ov-eye{margin:0;font:500 clamp(10px,1cqw,15px)/1.2 var(--f-pixel);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.ov-panel h1{margin:0;font:600 clamp(22px,3.6cqw,56px)/1.02 var(--f-pixel);text-wrap:balance}
+.ov-panel h1.quote{font-size:clamp(18px,2.4cqw,36px)}
+.ov-sub{margin:0;font-size:clamp(14px,1.4cqw,21px);color:var(--ink-2);max-width:42ch;text-wrap:balance}
+.ov-btns{display:flex;gap:clamp(10px,1.6cqw,24px);flex-wrap:wrap;justify-content:center;margin-top:.3em}
+.ov-opt{display:flex;flex-direction:column;align-items:center;gap:8px}
+.ov-opt small{font-size:clamp(11px,1cqw,15px);color:var(--muted)}
+.i-scene{position:relative;width:min(380px,100%);height:clamp(80px,10cqw,140px)}
+.i-type{position:absolute;left:0;right:0;top:0;margin:0;text-align:center;font:500 clamp(13px,1.3cqw,20px) var(--f-pixel);color:var(--ink-2);opacity:0;animation:itype 3.6s ease both}
+.i-line{position:absolute;left:4%;right:4%;bottom:18%;height:3px;background:var(--ink)}
+.i-crack{position:absolute;left:52%;width:34%;bottom:calc(18% - 4px);height:10px;transform-origin:0 50%;animation:icrack 1.8s steps(4,end) 1.2s both}
+.i-dino{position:absolute;left:24%;bottom:18%;width:26%;aspect-ratio:1;transform-origin:50% 95%;animation:bob 1.6s ease-in-out infinite,ihit .45s ease-out 1.2s 4,ijump .5s ease-out 3.05s 1}
+.i-dino img{position:absolute;inset:0;width:100%;height:100%}
+.i-dino:not(.loaded) img{visibility:hidden}
+.i-dino.loaded .ph{display:none}
+.i-dust{position:absolute;left:52%;bottom:18%;width:10%;height:30%}
+.i-dust i{position:absolute;bottom:0;width:6px;height:6px;background:#cfa86c;opacity:0;animation:idust .45s ease-out 1.2s 4}
+.i-dust i:nth-child(1){left:0}.i-dust i:nth-child(2){left:40%;animation-delay:1.3s}.i-dust i:nth-child(3){left:80%;animation-delay:1.25s}
+.i-bone{position:absolute;left:56%;bottom:16%;width:12%;opacity:0;animation:ibone 1.1s ease-out 3.05s both}
+.i-bone svg{display:block;width:100%;height:auto}
+.i-in{animation:iin .6s ease-out both}
+.i1{animation-delay:3.4s}.i2{animation-delay:3.6s}.i3{animation-delay:3.9s}.i4{animation-delay:4.2s}
+.i-skip{position:absolute;right:max(12px,1.2cqw);bottom:max(12px,1.2cqw);font:500 13px var(--f-pixel);background:var(--paper);border:2px solid var(--ink);border-radius:4px;padding:.5em .9em;cursor:pointer;animation:ifade .4s ease 4.6s both}
+.intro.skip,.intro.skip *{animation:none!important}
+.intro.skip .i-skip{display:none}
+@keyframes itype{0%{opacity:0}12%,80%{opacity:1}100%{opacity:0}}
+@keyframes icrack{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes ihit{40%{transform:translate(4%,4%) rotate(14deg)}}
+@keyframes ijump{40%{transform:translateY(-20%)}}
+@keyframes idust{0%{opacity:0;transform:translateY(0)}30%{opacity:1}100%{opacity:0;transform:translateY(-140%)}}
+@keyframes ibone{0%{opacity:0;transform:translate(0,0)}20%{opacity:1;transform:translate(0,-60%)}100%{opacity:0;transform:translate(220%,-320%) rotate(-40deg)}}
+@keyframes iin{from{opacity:0;transform:translateY(12px)}}
+@keyframes ifade{to{opacity:0;visibility:hidden}}
+.report{max-width:min(94%,1000px);text-align:left;align-items:stretch;font-size:clamp(12px,1.05cqw,16px)}
+.report .ov-eye,.report h1,.report .ov-sub{text-align:center;align-self:center}
+.rep-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:clamp(10px,1.4cqw,22px);align-items:start}
+.rep-chart{background:var(--paper-2);border-radius:6px;padding:8px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.rep-svg{width:100%;height:auto;display:block}
+.rep-facts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.rep-facts li{background:var(--paper-2);border-radius:6px;padding:.55em .7em;display:flex;align-items:center;gap:10px}
+.rep-facts p{margin:0;flex:1;min-width:0}
+.rep-facts .pbtn{flex:none;min-height:36px;font-size:.82em;padding:.45em .7em}
+.rep-skel{width:58px;height:auto;flex:none}
+
+/* pixel buttons */
+.pbtn{font:500 clamp(13px,1.1cqw,17px)/1 var(--f-pixel);color:var(--ink);background:var(--paper);border:2px solid var(--ink);border-radius:4px;padding:.7em 1em;min-height:40px;box-shadow:0 3px 0 var(--ink);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:.5em}
+.pbtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.pbtn:disabled{opacity:.4;cursor:default;transform:none;box-shadow:0 3px 0 var(--ink)}
+.pbtn.primary{background:var(--ink);color:var(--paper)}
+.pbtn.ghost{box-shadow:none;background:transparent}
+.pbtn.big{font-size:clamp(15px,1.6cqw,24px);padding:.8em 1.3em}
+.pbtn kbd{font:500 .72em var(--f-pixel);border:1.5px solid currentColor;border-radius:3px;padding:.15em .35em;opacity:.8}
+
+/* field-guide card */
+.card{position:absolute;top:calc(var(--hud) + 6px);right:8px;bottom:8px;width:calc(33.333% - 8px);z-index:30;background:var(--paper);border:2px solid var(--ink);border-radius:8px;box-shadow:5px 5px 0 rgba(53,70,56,.22);overflow-y:auto;padding:clamp(12px,1.35cqw,22px);display:flex;flex-direction:column;gap:clamp(7px,.75cqw,12px);font-size:clamp(13px,1.08cqw,17px);line-height:1.35;transition:transform .28s ease,opacity .28s ease;scrollbar-width:thin}
+.card.closed{transform:translateX(calc(100% + 20px));opacity:0;pointer-events:none;visibility:hidden}
+.card p,.book p{margin:0}
+.c-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.c-tag{font:500 .74em/1 var(--f-pixel);background:var(--ink);color:var(--paper);padding:.4em .6em;border-radius:3px;letter-spacing:.04em}
+.c-x{border:2px solid var(--ink);background:var(--paper);border-radius:4px;width:40px;height:40px;font:600 20px/1 var(--f-pixel);cursor:pointer}
+.c-eye{font:500 .74em/1.2 var(--f-pixel);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.c-title{margin:0;font:600 clamp(20px,2.1cqw,32px)/1.05 var(--f-pixel);text-wrap:balance}
+.c-rule{font-weight:700;font-size:1.06em}
+.c-sub{font:500 .8em/1 var(--f-pixel);color:var(--muted)}
+.lbl{font:500 .7em/1 var(--f-pixel);text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-right:.5em}
+.c-try{color:var(--ink-2)}
+.c-live{display:flex;flex-direction:column;gap:8px}
+.c-status{min-height:1.4em;font-weight:700;color:var(--ink)}
+.c-result{color:var(--ink-2)}
+.c-note{font-size:.78em;color:var(--muted)}
+.c-acts,.c-links{display:flex;gap:8px;flex-wrap:wrap}
+.c-acts .pbtn{flex:1 1 auto}
+.c-name{width:100%;text-align:left;background:transparent;border:2px dashed #b4ad8f;border-radius:4px;padding:.6em .8em;min-height:40px;cursor:pointer;font:500 .9em/1 var(--f-pixel);color:var(--sage)}
+.c-name[aria-expanded="true"]{border-style:solid;border-color:var(--sage);background:#e6eada;color:var(--ink)}
+.c-named{background:#e6eada;border-left:4px solid var(--sage);padding:.55em .8em;display:flex;flex-direction:column;gap:2px}
+.c-named b{font:600 1.05em/1.2 var(--f-pixel)}
+.c-named span{font-size:.88em;color:var(--ink-2)}
+.c-life{color:var(--ink-2)}
+.dots{display:flex;gap:8px;align-items:center}
+.dots i{width:clamp(16px,1.5cqw,22px);aspect-ratio:1;border:2px solid var(--ink);border-radius:50%;background:transparent}
+.dots i.on{background:var(--blue)}
+.dots span{margin-left:6px;font:500 .8em var(--f-pixel);color:var(--muted)}
+.chartbox{width:100%;height:auto;display:block;background:var(--paper-2);border-radius:4px}
+.c-row{display:grid;grid-template-columns:30% minmax(0,1fr);gap:8px;align-items:center}
+.ring{width:100%;height:auto;display:block}
+.ring .rt{fill:none;stroke:var(--line);stroke-width:10}
+.ring .rp{fill:none;stroke:var(--muted);stroke-width:10}
+.ring.ready .rp{stroke:var(--ready)}
+.ring text{font:600 22px var(--f-pixel);fill:var(--ink)}
+.ring text.sm{font-size:16px}
+.chartbox .ax{stroke:#c9b98f;stroke-width:1.5}
+.chartbox .gd{stroke:#e2d4af;stroke-width:1}
+.chartbox .lb{font:500 11px var(--f-body);fill:var(--muted)}
+.chartbox .ln{fill:none;stroke:var(--ink);stroke-width:2.2;stroke-linejoin:miter}
+.chartbox .tk line{stroke:var(--alert);stroke-width:2.6;stroke-linecap:square}
+.chartbox .bar{fill:var(--orange)}
+.chartbox .ghost{fill:none;stroke:var(--orange);stroke-width:1.6;stroke-dasharray:3 3}
+.chartbox .avg{stroke:var(--ink);stroke-width:1.6;stroke-dasharray:5 4}
+.chartbox .avgl{fill:var(--ink);font-weight:700}
+.chartbox .x8a{fill:none;stroke:var(--ink);stroke-width:2.4;stroke-linejoin:round}
+.chartbox .x8b{fill:none;stroke:var(--s-vr);stroke-width:2.4;stroke-dasharray:6 4;stroke-linejoin:round}
+.chartbox .stop{stroke:var(--alert);stroke-width:1.5}
+.chartbox .hatch{stroke:#cdbd94;stroke-width:2}
+.chartbox .note{font:700 10px var(--f-body);fill:var(--alert)}
+.chartbox .dl{font:700 10.5px var(--f-body);fill:var(--ink-2)}
+.chartbox .end{font:600 11px var(--f-pixel);fill:var(--ink)}
+.waves{display:flex;gap:6px;justify-content:center;align-items:center;height:64px;background:var(--paper-2);border-radius:4px}
+.waves i{width:8px;height:5px;background:var(--sage);border-radius:1px;transition:height .25s,background-color .25s}
+.waves.noisy i{background:var(--alert);animation:wave .55s ease-in-out infinite alternate}
+.waves.noisy i:nth-child(odd){animation-delay:-.27s}
+.waves.noisy i:nth-child(3n){animation-duration:.42s}
+@keyframes wave{from{height:10px}to{height:48px}}
+.c-meta{font:500 .9em var(--f-pixel);color:var(--ink-2)}
+.legend{display:flex;gap:6px 14px;flex-wrap:wrap;font-size:.85em;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend svg{width:28px;height:8px;flex:none}
+
+/* card 6 */
+.case{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 12px;background:var(--paper-2);border-radius:6px;padding:.8em 1em;align-items:baseline}
+.case dt{font:500 .7em/1.4 var(--f-pixel);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.case dd{margin:0;font-weight:700;font-size:1.08em}
+.case.done{display:block;text-align:center;font:600 1em/1.3 var(--f-pixel)}
+.quad{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,1fr);gap:6px}
+.quad .qh{font:500 .78em/1.2 var(--f-pixel);color:var(--ink-2);text-align:center;align-self:end}
+.quad .qr{font:500 .78em/1.15 var(--f-pixel);color:var(--ink-2);display:flex;align-items:center;max-width:5.2em}
+.qc{min-height:64px;border:2px solid var(--ink);border-radius:6px;background:var(--paper);box-shadow:0 3px 0 var(--ink);font:500 .86em/1.15 var(--f-pixel);padding:.5em;cursor:pointer;text-align:center;transition:background-color .2s,border-color .2s}
+.qc:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.qc:disabled{cursor:default;opacity:.7}
+.qc.right{background:#dfe9d3;border-color:var(--ready);box-shadow:0 3px 0 var(--ready)}
+.qc.wrong{background:#f6dcd2;border-color:var(--alert);animation:nudge .35s}
+@keyframes nudge{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.qdots{display:flex;gap:6px;align-items:center}
+.qdots i{width:12px;height:12px;border:2px solid var(--ink);border-radius:2px}
+.qdots i.ok{background:var(--ready);border-color:var(--ready)}
+.qdots i.retry{background:var(--orange);border-color:var(--orange)}
+.qdots i.cur{background:var(--ink)}
+
+/* card 7 + shared skeleton / stairs */
+.tabs{display:flex;border:2px solid var(--ink);border-radius:4px;overflow:hidden;flex:none}
+.tabs button{flex:1;border:0;background:var(--paper);padding:.6em;min-height:40px;font:500 .9em/1 var(--f-pixel);cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--paper)}
+.c7body{display:flex;flex-direction:column;gap:clamp(7px,.75cqw,12px)}
+.flow{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr);gap:4px;align-items:stretch}
+.flow div{background:var(--paper-2);border-radius:4px;padding:.5em .3em;display:flex;flex-direction:column;gap:3px;text-align:center;min-width:0}
+.flow b{font:500 .62em/1.2 var(--f-pixel);text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.flow span{font:600 .95em/1.15 var(--f-pixel)}
+.flow i{align-self:center;font:600 1em var(--f-pixel);font-style:normal;color:var(--sage)}
+.skel{background:var(--paper-2);border-radius:6px;padding:8px;display:flex;align-items:center;gap:10px}
+.skel svg{width:64%;height:auto;flex:none}
+.skel p{font:600 clamp(20px,2cqw,30px)/1 var(--f-pixel)}
+.skel p span{display:block;margin-top:4px;font-size:.5em;color:var(--muted)}
+svg .outline{fill:#e4d7b2}
+svg .bone{fill:none;stroke:#cbbf9c;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;transition:stroke .3s}
+svg .bone.on{stroke:var(--ink);stroke-width:4.2}
+.stairs{width:100%;height:auto;display:block;background:var(--paper-2);border-radius:6px}
+.stp{fill:#e8dcbc;stroke:var(--ink);stroke-width:1.5;transition:fill .3s}
+.stp.past{fill:#d3c8ab}
+.stp.now{fill:#9fb48f}
+.stairs text{font:600 12px var(--f-pixel);fill:var(--ink)}
+.stairs .mini{transition:transform .45s cubic-bezier(.3,1.4,.6,1)}
+.ladder{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.ladder li{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:.38em .6em;border-radius:4px;background:var(--paper-2);font-size:.92em}
+.ladder li.past{color:var(--muted)}
+.ladder li.past .st{text-decoration:line-through}
+.ladder li.now{background:#dfe9d3;font-weight:700}
+.ladder em{font:500 .72em/1 var(--f-pixel);font-style:normal;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
+.ladder li.now em{color:var(--ready)}
+
+/* Dig deeper handbook */
+.book{position:absolute;top:calc(var(--hud) + 6px);left:8px;right:8px;bottom:8px;z-index:60;background:var(--paper);border:2px solid var(--ink);border-radius:8px;box-shadow:6px 6px 0 rgba(53,70,56,.25);display:grid;grid-template-columns:minmax(150px,17%) minmax(0,1fr);overflow:hidden;font-size:clamp(13px,1.05cqw,17px);line-height:1.35}
+.book.closed{display:none}
+.b-nav{background:var(--paper-2);border-right:2px solid var(--ink);display:flex;flex-direction:column;gap:4px;padding:10px;overflow-y:auto}
+.b-brand{font:600 .8em/1.2 var(--f-pixel);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:4px 4px 8px}
+.b-nav button{display:flex;align-items:stretch;gap:8px;text-align:left;border:2px solid transparent;border-radius:4px;background:none;padding:.45em;cursor:pointer;font:500 .9em/1.15 var(--f-pixel);min-height:44px}
+.b-nav button i{width:14px;border-radius:2px;flex:none;box-shadow:inset 0 0 0 1px rgba(53,70,56,.25)}
+.b-nav button small{display:block;font-size:.72em;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.b-nav button[aria-current="true"]{border-color:var(--ink);background:var(--paper)}
+.b-main{overflow-y:auto;padding:clamp(12px,1.5cqw,24px);display:flex;flex-direction:column;gap:12px;scrollbar-width:thin}
+.b-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.b-title{margin:4px 0 0;font:600 clamp(22px,2.3cqw,36px)/1.05 var(--f-pixel);text-wrap:balance}
+.b-lead{color:var(--ink-2);margin-top:4px!important}
+.b-big{font:600 clamp(18px,2cqw,30px)/1.15 var(--f-pixel);text-wrap:balance}
+.anims{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.anims.many{grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr))}
+.anim{margin:0;background:var(--paper-2);border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:7px;min-width:0}
+.anim h3{margin:0;font:600 .95em/1.2 var(--f-pixel)}
+.av svg{width:100%;height:auto;display:block;background:#fbf6e8;border-radius:4px}
+.anim-cap{min-height:1.35em;font-weight:700}
+.anim-ctl{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.anim-ctl .pbtn{min-height:36px;padding:.5em .8em;font-size:.85em}
+.anim-n{margin-left:auto;font:500 .8em var(--f-pixel);color:var(--muted)}
+.rule-line{border-top:2px dashed var(--line);padding-top:10px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.rule-tag{font:600 .7em/1 var(--f-pixel);letter-spacing:.1em;text-transform:uppercase;background:var(--ink);color:var(--paper);padding:.45em .6em;border-radius:3px;flex:none}
+.rule-text{font:600 1.1em/1.25 var(--f-pixel);flex:1 1 240px}
+.b-foot{display:flex;gap:8px;flex-wrap:wrap}
+.hl,.switches{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.sw{display:inline-flex;border:2px solid var(--ink);border-radius:4px;overflow:hidden}
+.chip-b{border:0;background:var(--paper);padding:.5em .8em;min-height:38px;font:500 .88em/1 var(--f-pixel);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.hl .chip-b{border:2px solid var(--ink);border-radius:4px}
+.chip-b[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.chip-b i{display:inline-block;width:10px;height:10px;border-radius:2px}
+.mgrid{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,1fr);gap:4px;font:500 .78em/1.15 var(--f-pixel);color:var(--ink-2);max-width:520px}
+.mgrid b{font-weight:600;align-self:center;text-align:center}
+.mgrid i{font-style:normal;border:2px solid var(--line);border-radius:4px;padding:.45em;text-align:center;background:var(--paper)}
+.mgrid i.on{border-color:var(--ink);background:var(--ink);color:var(--paper)}
+.flash{font:600 .95em var(--f-pixel);color:var(--alert)}
+.dpose{transform-box:fill-box;transform-origin:50% 100%}
+.dpose.dig{animation:sdig .5s ease-in-out infinite}
+.dpose.sit{transform:scale(1.08,.78)}
+.dpose.shake{animation:sshake .3s linear infinite}
+@keyframes sdig{0%,100%{transform:rotate(0)}50%{transform:rotate(16deg)}}
+@keyframes sshake{25%{transform:translateX(-2px)}75%{transform:translateX(2px)}}
+.sdust rect{fill:#cfa86c;animation:sdust .5s ease-out infinite}
+.sdust rect:nth-child(2){animation-delay:.15s}.sdust rect:nth-child(3){animation-delay:.3s}
+@keyframes sdust{0%{opacity:0;transform:translateY(0)}30%{opacity:1}100%{opacity:0;transform:translateY(-8px)}}
+.smoke circle{animation:smoke 1.4s ease-out infinite}
+@keyframes smoke{0%{opacity:0;transform:translateY(6px)}40%{opacity:.9}100%{opacity:0;transform:translateY(-10px)}}
+svg .t{font:600 12px var(--f-pixel);fill:var(--ink)}
+svg .t.on{fill:var(--paper)}
+svg .ts{font:500 11px var(--f-body);fill:var(--muted)}
+svg .tb{font:600 16px var(--f-pixel);fill:var(--ink)}
+svg .big{font:600 30px var(--f-pixel);fill:var(--ink)}
+svg .tr{font:700 10px var(--f-body);fill:var(--alert)}
+svg .rv{font:600 11px var(--f-pixel);fill:var(--alert);opacity:0;transition:opacity .3s}
+.rep-chart.revealed .rv{opacity:1}
+
+@container (max-width:760px){
+  .card,.book{position:relative;top:auto;left:auto;right:auto;bottom:auto;width:auto;margin-top:12px;max-height:none;overflow:visible}
+  .card.closed,.book.closed{display:none}
+  .book{grid-template-columns:1fr}
+  .b-nav{flex-direction:row;overflow-x:auto;border-right:0;border-bottom:2px solid var(--ink)}
+  .b-nav button{flex:none}
+  .b-brand{display:none}
+  .b-main{overflow:visible}
+  .hud{gap:6px;padding:0 6px}
+  .hud-right{gap:5px}
+  .chip,.seg button{font-size:10px;padding:0 .5em}
+  .clock span{display:none}
+  .ov-panel{max-width:92%;padding:10px 14px;gap:6px}
+  .ov-eye,.ov-opt small{display:none}
+  .ov-panel h1{font-size:18px}
+  .ov-panel h1.quote{font-size:15px}
+  .ov-sub{font-size:12px}
+  .pbtn.big{font-size:13px;padding:.5em .8em}
+  .rep-grid{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  .danger.l3,.spot-flare.warn img,.spot-flare.warn .ph,.d-bob,.dino.walking .d-bob,.foot,.waves.noisy i,.dpose.dig,.dpose.shake,.sdust rect,.smoke circle{animation:none}
+  .card,.stairs .mini,.d-act{transition:none}
+}
+</style>
+</head>
+<body>
+
+<div class="frame" id="frame">
+  <div class="stage" id="stage" data-mode="idle">
+    <div class="world" id="world">
+      <img class="bg" id="bg" alt="" draggable="false">
+      <div class="bg-ph" aria-hidden="true"></div>
+      <div class="sun-patch" aria-hidden="true"></div>
+      <div class="sun" id="sun" aria-hidden="true"></div>
+      <div class="layer" id="layer">
+        <div class="dino" id="dino" aria-hidden="true">
+          <div class="d-face"><div class="d-bob"><div class="d-act" id="dAct"><span class="ph"></span><img id="dinoImg" alt="" draggable="false"></div></div></div>
+        </div>
+      </div>
+      <img class="shadow-pass" id="shadowPass" alt="" aria-hidden="true">
+      <img class="raider" id="raider" alt="" aria-hidden="true">
+      <div class="danger" id="danger" aria-hidden="true"></div>
+      <div class="tint" id="tint" aria-hidden="true"></div>
+      <div class="fx" id="fx" aria-hidden="true"></div>
+    </div>
+
+    <header class="hud">
+      <span class="chip clock" id="clockBox" hidden><span id="phaseName">Dawn</span><b id="timeLeft">2:30</b></span>
+      <span class="chip foot" id="footChip" hidden>Footsteps <i></i><i></i><i></i></span>
+      <div class="hud-right">
+        <span class="chip count" id="countBox" aria-live="polite"><svg viewBox="0 0 16 8" aria-hidden="true" shape-rendering="crispEdges"><path fill="#6b5a44" d="M1 0h3v1h1v1h6V1h1V0h3v1h1v2h-1v2h1v2h-1v1h-3V7h-1V6H5v1H4v1H1V7H0V5h1V3H0V1h1z"/><path fill="#f7eed8" d="M2 1h1v1h1v1h8V2h1V1h1v2h-1v2h1v2h-1V6h-1V5H4v1H3v1H2V5h1V3H2z"/></svg><b id="boneCount">0</b><span id="boneOf">/40</span></span>
+        <button class="chip hbtn book-btn" id="bookBtn" type="button" aria-pressed="false">Dig deeper</button>
+        <button class="chip hbtn" id="voBtn" type="button" aria-pressed="false" title="No sound, no shaking">Visual-only</button>
+        <div class="seg" role="group" aria-label="Mode">
+          <button type="button" id="mGame" aria-pressed="false">Dino Dig</button>
+          <button type="button" id="mGuide" aria-pressed="false">Field guide</button>
+          <button type="button" id="mDay" aria-pressed="false">Your day</button>
+        </div>
+      </div>
+    </header>
+    <div class="banner" id="banner" aria-live="polite"></div>
+
+    <div class="overlay intro" id="startOv">
+      <div class="ov-panel">
+        <div class="i-scene" aria-hidden="true">
+          <p class="i-type">No signal.</p>
+          <div class="i-line"></div>
+          <svg class="i-crack" viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0 2 L12 6 L22 1 L34 7 L46 2 L58 8 L70 3 L82 7 L100 2" fill="none" stroke="#354638" stroke-width="2"/></svg>
+          <div class="i-dino" id="iDino"><span class="ph"></span><img id="iDinoImg" alt="" draggable="false"></div>
+          <div class="i-dust"><i></i><i></i><i></i></div>
+          <div class="i-bone"><svg viewBox="0 0 16 8" shape-rendering="crispEdges"><path fill="#6b5a44" d="M1 0h3v1h1v1h6V1h1V0h3v1h1v2h-1v2h1v2h-1v1h-3V7h-1V6H5v1H4v1H1V7H0V5h1V3H0V1h1z"/><path fill="#f7eed8" d="M2 1h1v1h1v1h8V2h1V1h1v2h-1v2h1v2h-1V6h-1V5H4v1H3v1H2V5h1V3H2z"/></svg></div>
+        </div>
+        <p class="ov-eye i-in i1">Dino Dig · Field camp</p>
+        <h1 class="i-in i2">Why do we keep digging?</h1>
+        <p class="ov-sub i-in i3">Tap a spot. Watch what follows.</p>
+        <div class="ov-btns i-in i4">
+          <div class="ov-opt"><button class="pbtn primary big" type="button" data-go="game">Play Dino Dig</button><small>Pack 40 bones before sunset. Mind the footsteps.</small></div>
+          <div class="ov-opt"><button class="pbtn big" type="button" data-go="guide">Field guide</button><small>No timer. Try each spot.</small></div>
+        </div>
+      </div>
+      <button class="i-skip" id="iSkip" type="button">Skip ›</button>
+    </div>
+    <div class="overlay" id="endOv" hidden>
+      <div class="ov-panel report">
+        <p class="ov-eye">Field report</p>
+        <h1 class="quote" id="endResult">Sunset</h1>
+        <div class="rep-grid" id="repBody"></div>
+        <p class="ov-sub">Change what comes right after, and you change what comes next.</p>
+        <p class="c-note" style="text-align:center">A record, not a diagnosis.</p>
+        <div class="ov-btns">
+          <button class="pbtn primary" type="button" data-go="game">Play again</button>
+          <button class="pbtn" type="button" data-go="guide">Field guide</button>
+          <button class="pbtn" type="button" data-watch="0">Dig deeper</button>
+          <a class="pbtn" href="index.html#map" data-map style="text-decoration:none">Your own day ›</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <aside class="card closed" id="card" aria-label="Field guide card"></aside>
+  <section class="book closed" id="book" aria-label="Dig deeper handbook"><nav class="b-nav" id="bNav" aria-label="Handbook layers"></nav><div class="b-main" id="bMain"></div></section>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* =====================================================================
+   LAYOUT · positions in % of the 16:9 stage (x across, y down, w = width,
+   h = height for the two camp hotspots). Edit these numbers to move things.
+   ===================================================================== */
+const DEFAULT_LAYOUT = {
+  blue:   { x: 34.0, y: 47.0, w: 9.0 },
+  orange: { x: 45.0, y: 40.5, w: 8.5 },
+  green:  { x: 44.0, y: 59.0, w: 9.0 },
+  purple: { x: 53.5, y: 52.5, w: 9.0 },
+  flare:  { x: 59.5, y: 41.0, w: 5.5 },
+  board:  { x: 64.0, y: 24.3, w: 7.0, h: 17.0 },
+  stand:  { x: 68.3, y: 48.4, w: 9.0, h: 10.0 },
+  dino:   { x: 39.5, y: 50.0, w: 7.0 }
+};
+
+/* ---------- rules (same base numbers as Dino Dig) ---------- */
+const DURATION = 150;
+const RATIOS = [2,7,4,9,3,5,6,3,8,3];          // orange slab, average 5
+const WAITS  = [3,5,5,3,5,3,3,5,3,5];          // purple pit, average 4
+const STOMP_GAPS = [14,20,16,24,18];   // seconds of quiet after each visit of the big dino
+const RAID = { first:35, step:4.5, grab:13, last:128 };   // footsteps level up every 4.5 s; no flare by 13 s = a grab
+const PHASES = [
+  { name:'Dawn',      tint:'rgb(255,224,206)', msg:'Dawn. Pack 40 bones before sunset.' },
+  { name:'Midday',    tint:'rgb(255,253,246)', msg:'Midday. Tarps over the slabs.' },
+  { name:'Afternoon', tint:'rgb(255,238,212)', msg:'Afternoon. Everything is open.' },
+  { name:'Dusk',      tint:'rgb(222,178,202)', msg:'Dusk. Sunset is close.' }
+];
+const SPOTS = [
+  { id:'blue',   card:1, name:'Blue slab',   kind:'FR',    base:.316, src:['slab_blue.png'],   chip:['#5d7d97','#7f9bb2','#3f5a70'] },
+  { id:'orange', card:2, name:'Orange slab', kind:'VR',    base:.332, src:['slab_orange.png'], chip:['#d27a4c','#e8a070','#a85a34'] },
+  { id:'green',  card:3, name:'Green pit',   kind:'FI',    base:.332, src:['pit_green.png'],   chip:['#7d9b7f','#a8bfa4'] },
+  { id:'purple', card:4, name:'Purple pit',  kind:'VI',    base:.336, src:['pit_purple.png'],  chip:['#a597d6','#c8bdeb'] },
+  { id:'flare',  card:5, name:'Flare post',  kind:'FLARE', base:.406, src:['flare.png'],       chip:['#b84332'] }
+];
+const SPOT = Object.fromEntries(SPOTS.map(s => [s.id, s]));
+const COL = { blue:'#5d7d97', orange:'#d27a4c', green:'#7d9b7f', purple:'#a597d6', flare:'#b84332' };
+const FORM_COL = { FR:COL.blue, VR:COL.orange, FI:COL.green, VI:COL.purple };
+const HOTS = [ { id:'board', card:6, name:'Notice board' }, { id:'stand', card:7, name:'Skeleton stand' } ];
+const CARDS = {
+  1:{ spot:'blue', eye:'Blue slab', title:'Count the hits.', rule:'Every 5th hit → 1 bone.', tryit:'Hit 4 times. Stop. What happens on the 5th?', result:'Bursts, then a short pause.', name:'Fixed ratio (FR 5)', life:'A coffee stamp card.', links:[9,8] },
+  2:{ spot:'orange', eye:'Orange slab', title:'Maybe the next one.', rule:'Hits needed keep changing. Average: 5.', tryit:'Keep hitting. Count each bone.', result:'Fast and steady. No pause.', name:'Variable ratio (VR 5)', life:'Lucky draws. Slot machines.', links:[9,8] },
+  3:{ spot:'green', eye:'Green pit', title:'Wait. Then dig.', rule:'After 5 s, the first hit → 1 bone.', tryit:'Hit now. Then wait. Then hit.', result:null, name:'Fixed interval (FI 5 s)', life:'Checking the letterbox at post time.', links:[9] },
+  4:{ spot:'purple', eye:'Purple pit', title:'Is it ready yet?', rule:'The wait changes: 3 or 5 s.', tryit:'Check whenever you like.', result:'Checking doesn’t make it come sooner.', name:'Variable interval (VI 4 s)', life:'Checking for a reply.', links:[9] },
+  5:{ spot:'flare', eye:'Flare post', title:'Make it stop.', rule:'Footsteps → flare → it backs off.', tryit:'Fire it now. Next time, wait and watch.', name:'Negative reinforcement', note:'Negative = taken away. Not bad. Wait too long and it grabs you: positive punishment.', life:'Buckling up to stop the beeping.' },
+  6:{ eye:'Notice board', title:'Add or take away? More or less?' },
+  7:{ eye:'Skeleton stand', title:'Why we keep digging.' },
+  8:{ eye:'Extinction', title:'When the bones stop.' },
+  9:{ eye:'All four rules', title:'Compare all 4.' }
+};
+const CASES = [
+  { a:'Dig',                  t:'a bone pops out',     n:'dig more',           q:'PR' },
+  { a:'Fire the flare',       t:'footsteps stop',      n:'flare sooner',       q:'NR' },
+  { a:'No seat belt',         t:'a saman',             n:'skip the belt less', q:'PP' },
+  { a:'Speeding',             t:'licence suspended',   n:'speed less',         q:'NP' },
+  { a:'Tidy your room',       t:'nagging stops',       n:'tidy more',          q:'NR' },
+  { a:'Hand in early',        t:'lecturer praises it', n:'start earlier',      q:'PR' },
+  { a:'Ignore the footsteps',  t:'grabbed',             n:'ignore them less',   q:'PP' },
+  { a:'Disobey',              t:'grounded',            n:'disobey less',       q:'NP' }
+];
+const QUAD = {
+  PR:{ name:'Positive reinforcement', col:'add',  row:'more' },
+  NR:{ name:'Negative reinforcement', col:'take', row:'more' },
+  PP:{ name:'Positive punishment',    col:'add',  row:'less' },
+  NP:{ name:'Negative punishment',    col:'take', row:'less' }
+};
+const STEPS = ['Looks at the slab', 'Walks to it', 'Hits once', 'Hits five times', 'Fills the crate'];
+const SERIES = [
+  { k:'FR', name:'Fixed ratio',       color:'var(--s-fr)', dash:'' },
+  { k:'VR', name:'Variable ratio',    color:'var(--s-vr)', dash:'' },
+  { k:'FI', name:'Fixed interval',    color:'var(--s-fi)', dash:'5 4' },
+  { k:'VI', name:'Variable interval', color:'var(--s-vi)', dash:'5 4' }
+];
+const BONE_D1 = 'M1 0h3v1h1v1h6V1h1V0h3v1h1v2h-1v2h1v2h-1v1h-3V7h-1V6H5v1H4v1H1V7H0V5h1V3H0V1h1z';
+const BONE_D2 = 'M2 1h1v1h1v1h8V2h1V1h1v2h-1v2h1v2h-1V6h-1V5H4v1H3v1H2V5h1V3H2z';
+const BONE_SVG = '<svg viewBox="0 0 16 8" shape-rendering="crispEdges"><path fill="#6b5a44" d="' + BONE_D1 + '"/><path fill="#f7eed8" d="' + BONE_D2 + '"/></svg>';
+const CRACKS = {
+  blue:   ['M44 40 L48 45 L46 50', 'M58 34 L55 41 L60 46', 'M46 50 L52 55 L50 61 M30 48 L36 51', 'M60 46 L67 52 L65 58 M52 55 L59 59'],
+  orange: ['M46 30 L51 36 L48 42', 'M58 40 L54 47 L59 53 M38 44 L44 47', 'M48 42 L55 50 L52 58 M62 30 L66 36']
+};
+/* Skeleton artwork from the Dino Dig project (src/art.js): 40 pieces, lit in assembly order. */
+const DINO_OUTLINE = 'M35 140 L35 104 L50 123 L77 138 L111 139 L135 116 L150 87 L150 39 Q150 24 166 24 L230 24 Q244 24 244 38 L244 65 L207 65 L207 76 L233 76 L233 87 L190 87 L190 104 L209 104 L209 124 L198 124 L198 115 L181 115 L173 146 L154 165 L154 196 L175 196 L175 207 L140 207 L134 174 L117 174 L106 196 L126 196 L126 207 L90 207 L90 175 L65 161 Z';
+const BONE_PATHS = [
+  'M166 33L231 33L235 39L235 55L197 55','M187 64L196 77L226 77','M166 39L177 39L177 50L166 50Z','M186 34L186 55L199 55','M207 54v6m11-6v6m11-6v6',
+  'M166 60L162 68','M161 72L157 80','M155 84L151 92','M149 96L145 104','M143 108L138 117',
+  'M115 145Q114 157 123 161','M120 138Q122 156 132 158','M126 130Q129 150 140 153','M131 123Q139 144 148 147','M138 115Q149 136 156 138',
+  'M120 145L129 149','M126 137L136 143','M132 129L143 136','M139 121L150 129','M145 113L158 123',
+  'M106 150L128 143L142 117','M110 153L128 153L135 165L121 171L107 165Z','M130 149L144 158L140 171',
+  'M103 151L96 151','M92 151L85 150','M81 150L75 148','M71 147L65 145','M61 143L56 140','M53 137L49 133','M47 129L44 125','M43 121L41 117','M40 113L39 109',
+  'M170 106L188 109L188 119','M165 115L179 120L180 127',
+  'M116 170L102 184','M102 185L100 199','M100 200L119 200','M138 171L146 185','M146 187L147 199','M147 200L169 200'
+];
+const BONE_ORDER = [20,21,22, 23,24,25,26,27,28,29,30,31, 34,35,36,37,38,39, 10,11,12,13,14,15,16,17,18,19, 5,6,7,8,9,32,33, 0,1,2,3,4];
+
+/* ---------- helpers ---------- */
+const $ = id => document.getElementById(id);
+const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp01 = v => Math.max(0, Math.min(1, v));
+function mulberry(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function bag(arr, rnd){ rnd = rnd || Math.random; let pool = []; return () => { if (!pool.length){ pool = arr.slice(); for (let i = pool.length - 1; i > 0; i--){ const j = Math.floor(rnd() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; } } return pool.pop(); }; }
+function restartClass(el, c){ el.classList.remove(c); void el.offsetWidth; el.classList.add(c); }
+function fmtTime(s){ return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
+const f1 = v => (Math.round(v * 10) / 10).toFixed(1);
+function skelSvg(n, id, cls){
+  const lit = new Set(BONE_ORDER.slice(0, Math.min(40, n)));
+  return '<svg' + (cls ? ' class="' + cls + '"' : '') + (id ? ' id="' + id + '"' : '') + ' viewBox="18 12 242 210" role="img" aria-label="Dinosaur skeleton, ' + Math.min(40, n) + ' of 40 bones found"><path class="outline" d="' + DINO_OUTLINE + '"/>' +
+    BONE_PATHS.map((d, i) => '<path class="bone' + (lit.has(i) ? ' on' : '') + '" data-piece="' + i + '" d="' + d + '"/>').join('') + '</svg>';
+}
+
+/* ---------- elements ---------- */
+const stage = $('stage'), world = $('world'), layer = $('layer'), fx = $('fx'), tint = $('tint'), sun = $('sun');
+const dinoEl = $('dino'), dAct = $('dAct'), cardEl = $('card'), banner = $('banner'), bookEl = $('book');
+const startOv = $('startOv'), endOv = $('endOv'), clockBox = $('clockBox'), timeLeft = $('timeLeft'), phaseName = $('phaseName');
+const footChip = $('footChip'), countBox = $('countBox'), boneCount = $('boneCount'), boneOf = $('boneOf');
+const mGame = $('mGame'), mGuide = $('mGuide'), voBtn = $('voBtn'), bookBtn = $('bookBtn'), shadowEl = $('shadowPass');
+const raiderEl = $('raider'), dangerEl = $('danger');
+const layout = JSON.parse(JSON.stringify(DEFAULT_LAYOUT));
+const LS_VO = 'dinodig-field-vo';
+
+/* ---------- images with placeholder fallback ---------- */
+function loadImg(img, list, host, cls){
+  let i = 0;
+  img.addEventListener('error', () => { i++; if (i < list.length) img.src = list[i]; });
+  img.addEventListener('load', () => host.classList.add(cls || 'loaded'));
+  img.src = list[0];
+}
+loadImg($('bg'), ['bg.png', 'bg.jpg'], stage, 'bg-loaded');
+loadImg($('dinoImg'), ['dino_sage_hat.png', 'dino.png'], dinoEl);
+loadImg($('iDinoImg'), ['dino_sage_hat.png', 'dino.png'], $('iDino'));
+shadowEl.addEventListener('error', () => { shadowEl.removeAttribute('src'); shadowEl.classList.add('blob'); });
+shadowEl.src = 'raider.png';
+raiderEl.src = 'raider.png';
+
+/* ---------- build spots + hotspots ---------- */
+const spotEls = {}, hotEls = {};
+SPOTS.forEach(s => {
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'spot spot-' + s.id; b.dataset.id = s.id;
+  b.setAttribute('aria-label', s.name);
+  let extra = '';
+  if (CRACKS[s.id]) {
+    extra += '<svg class="cracks" viewBox="0 0 100 100" aria-hidden="true">' + CRACKS[s.id].map((d, i) => '<path data-s="' + (i + 1) + '" d="' + d + '" style="display:none"/>').join('') + '</svg>';
+    extra += '<svg class="tarp" viewBox="0 0 100 100" aria-hidden="true" shape-rendering="crispEdges"><path d="M8 52 L28 26 L74 20 L94 42 L90 70 L52 84 L12 72 Z" fill="#c8b27a" stroke="#6b5a3a" stroke-width="1.6"/><path d="M28 26 L40 76 M74 20 L62 80 M50 23 L51 82" stroke="#a8925e" stroke-width="1.2" fill="none"/><g fill="#6b5a3a"><rect x="8" y="50" width="3" height="3"/><rect x="91" y="40" width="3" height="3"/><rect x="88" y="68" width="3" height="3"/><rect x="11" y="70" width="3" height="3"/></g></svg>';
+  }
+  if (s.kind === 'FI' || s.kind === 'VI') {
+    extra += '<svg class="pring" viewBox="0 0 100 100" aria-hidden="true"><g transform="translate(50 49) scale(1 .58)"><circle class="trk" r="27" vector-effect="non-scaling-stroke"/><circle class="prg" r="27" pathLength="100" stroke-dasharray="0 100" transform="rotate(-90)" vector-effect="non-scaling-stroke"/></g><text class="pring-t" x="50" y="54" text-anchor="middle"></text></svg>';
+  }
+  b.innerHTML = '<span class="sel-ring"></span><span class="ph">' + s.name + '</span><img alt="" draggable="false">' + extra + '<span class="tag">' + s.name + '</span>';
+  layer.appendChild(b); spotEls[s.id] = b;
+  loadImg(b.querySelector('img'), s.src, b);
+});
+HOTS.forEach(h => {
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'hot'; b.dataset.card = h.card;
+  b.setAttribute('aria-label', h.name);
+  b.innerHTML = '<span class="tag">' + h.name + '</span>';
+  layer.appendChild(b); hotEls[h.id] = b;
+});
+
+/* ---------- state ---------- */
+let mode = 'idle';            // idle | game | guide
+let clock = 0;                // seconds; advances only while the tab is visible and the handbook is closed
+let sel = 'blue';
+let visualOnly = false;
+try { visualOnly = localStorage.getItem(LS_VO) === '1'; } catch(e){}
+const D = { x:layout.dino.x, y:layout.dino.y, tx:0, ty:0, face:1, endFace:1, walking:false, onArrive:null, target:null, cheering:false, grabbed:false };
+const G = { id:0, on:false, t0:0, bones:0, phase:-1, rules:{}, nextStomp:RAID.first, gap:bag(STOMP_GAPS), shown:-1, cheering:false, dry:null, eps:0, flares:0, stops:0, grabs:0 };
+const F = { active:false, nextStep:0, level:1, nextLevel:0, grabAt:0 };
+let guideGrabs = 0;
+let guideRules = {}, guideBones = 0, guideFlares = 0, cardStates = {}, lastGameBones = 0;
+let cardOpen = 0, prevCard = 0, lastHitAt = -1, sceneTimers = [];
+let C6 = { i:0, tries:0, res:[], lock:false, done:false, token:0 };
+let C7 = { tab:'loop', step:0 };
+let X8 = { stage:0, shown:3, anim:null, slab:'orange', geo:null };
+let bookOpen = false, BK = { ch:0 }, QSEL = { add:true, more:true }, RACE_HL = null;
+
+/* ---------- rule engine ---------- */
+function makeRule(kind, t0, rnd, respawn){
+  const r = { kind, t0, hits:[], bones:[], used:[], cycle:0, respawnUntil:-1, respawn:respawn == null ? 0.6 : respawn, boneAt:null, dry:false, dryFrom:0 };
+  if (kind === 'FR') r.need = 5;
+  if (kind === 'VR'){ r.draw = bag(RATIOS, rnd); r.need = r.draw(); }
+  if (kind === 'FI'){ r.wait = 5; r.since = t0; r.readyAt = t0 + 5; }
+  if (kind === 'VI'){ r.draw = bag(WAITS, rnd); r.wait = r.draw(); r.since = t0; r.readyAt = t0 + r.wait; r.lastWait = null; }
+  return r;
+}
+function ruleHit(r, t){
+  if (t < r.respawnUntil) return 'respawn';
+  r.hits.push(t - r.t0);
+  if (r.dry){ r.cycle++; return 'hit'; }                       // extinction: the action no longer pays
+  if (r.kind === 'FR' || r.kind === 'VR'){
+    r.cycle++;
+    if (r.cycle >= r.need){
+      r.used.push(r.cycle); r.bones.push({ t:t - r.t0, n:r.hits.length }); r.boneAt = t;
+      r.cycle = 0; r.respawnUntil = t + r.respawn; if (r.kind === 'VR') r.need = r.draw();
+      return 'bone';
+    }
+    return 'hit';
+  }
+  if (t >= r.readyAt){
+    r.bones.push({ t:t - r.t0, n:r.hits.length }); r.boneAt = t;
+    if (r.kind === 'VI'){ r.lastWait = r.wait; r.wait = r.draw(); }
+    r.since = t; r.readyAt = t + r.wait;
+    return 'bone';
+  }
+  return 'early';
+}
+function crackStage(r){
+  if (!r) return 0;
+  const cap = r.kind === 'FR' ? 4 : r.kind === 'VR' ? 3 : 0;
+  if (!cap || !r.cycle) return 0;
+  return r.dry ? ((r.cycle - 1) % cap) + 1 : Math.min(cap, r.cycle);
+}
+
+/* ---------- typical learned patterns (illustration, seeded) ---------- */
+function typical(kind, seed){
+  const rnd = mulberry(seed), digs = []; let t, k;
+  if (kind === 'FR'){ t = 0.3; while (t < 20){ for (k = 0; k < 5 && t < 20; k++){ digs.push(t); t += 0.15 + rnd() * 0.05; } t += 1.35 + rnd() * 0.3; } }
+  else if (kind === 'VR'){ t = 0.25; while (t < 20){ digs.push(t); t += 0.27 + rnd() * 0.1; } }
+  else if (kind === 'VI'){ t = 0.4; while (t < 20){ digs.push(t); t += 0.58 + rnd() * 0.24; } }
+  else { const fr = [0.44, 0.62, 0.74, 0.84, 0.91, 0.96, 1.012]; let last = 0; while (last < 20){ for (k = 0; k < fr.length; k++){ t = last + 5 * fr[k] + (k < fr.length - 1 ? (rnd() - 0.5) * 0.1 : 0); if (t < 20) digs.push(t); } last += 5 * 1.012; } }
+  const r = makeRule(kind, 0, rnd, 0); digs.forEach(d => ruleHit(r, d)); return r;
+}
+const TYP = { FR:typical('FR', 11), VR:typical('VR', 23), FI:typical('FI', 37), VI:typical('VI', 41) };
+
+/* ---------- sound (synthesised; Visual-only turns it off) ---------- */
+let ac = null, noiseBuf = null;
+function audio(){
+  if (visualOnly) return null;
+  if (!ac){
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
+    try { ac = new AC(); } catch(e){ return null; }
+    const len = Math.floor(ac.sampleRate * 0.6); noiseBuf = ac.createBuffer(1, len, ac.sampleRate);
+    const d = noiseBuf.getChannelData(0); for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+  }
+  if (ac.state === 'suspended' && ac.resume) ac.resume().catch(() => {});
+  return ac;
+}
+function tone(f, dur, type, vol, delay, f2){
+  const a = audio(); if (!a) return;
+  const t = a.currentTime + (delay || 0), o = a.createOscillator(), g = a.createGain();
+  o.type = type; o.frequency.setValueAtTime(f, t); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + dur);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + dur + 0.03);
+}
+function noise(dur, vol, cut){
+  const a = audio(); if (!a) return;
+  const t = a.currentTime, s = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+  s.buffer = noiseBuf; f.type = 'lowpass'; f.frequency.value = cut;
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  s.connect(f); f.connect(g); g.connect(a.destination); s.start(t); s.stop(t + dur + 0.03);
+}
+const sfx = {
+  tick(){ noise(0.05, 0.18, 900); },
+  bone(){ tone(784, 0.10, 'triangle', 0.18); tone(1175, 0.16, 'triangle', 0.15, 0.07); },
+  right(){ tone(660, 0.09, 'triangle', 0.15); tone(990, 0.14, 'triangle', 0.13, 0.08); },
+  thump(l){ tone(72, 0.3, 'sine', 0.16 + 0.07 * l, 0, 38); noise(0.18, 0.1 + 0.05 * l, 220); },
+  whoosh(){ noise(0.5, 0.22, 1800); },
+  roar(){ tone(110, 0.7, 'sawtooth', 0.08, 0, 55); noise(0.6, 0.28, 520); },
+  early(){ tone(220, 0.08, 'square', 0.035); }
+};
+
+/* ---------- layout + positioning ---------- */
+function applyLayout(){
+  SPOTS.forEach(s => { const L = layout[s.id], el = spotEls[s.id]; el.style.left = L.x + '%'; el.style.top = L.y + '%'; el.style.width = L.w + '%'; el.style.zIndex = String(Math.round(L.y * 10)); });
+  HOTS.forEach(h => { const L = layout[h.id], el = hotEls[h.id]; el.style.left = L.x + '%'; el.style.top = L.y + '%'; el.style.width = L.w + '%'; el.style.height = L.h + '%'; el.style.zIndex = String(Math.round(L.y * 10)); });
+  dinoEl.style.width = layout.dino.w + '%';
+  placeDino();
+}
+function placeDino(){ dinoEl.style.left = D.x + '%'; dinoEl.style.top = D.y + '%'; dinoEl.style.zIndex = String(Math.round(D.y * 10) + 6); }
+function setFace(f){ D.face = f; dinoEl.style.setProperty('--face', f); }
+function standPos(id){
+  const L = layout[id], s = SPOT[id], dw = layout.dino.w;
+  const half = id === 'flare' ? 0.18 : 0.42;
+  let x = L.x - L.w * half - dw * 0.28, face = 1;
+  if (x < 4){ x = L.x + L.w * half + dw * 0.28; face = -1; }
+  const y = L.y + (s.base * L.w - 0.412 * dw) * 16 / 9 + 0.4;
+  return { x, y, face };
+}
+function hotStand(id){
+  const L = layout[id], dw = layout.dino.w;
+  let x = L.x - L.w / 2 - dw * 0.3, face = 1;
+  if (x < 4){ x = L.x + L.w / 2 + dw * 0.3; face = -1; }
+  return { x, y:L.y + L.h / 2 - 0.412 * dw * 16 / 9, face };
+}
+function pxOf(L){ const W = world.clientWidth, H = world.clientHeight; return { x:L.x / 100 * W, y:L.y / 100 * H, w:L.w / 100 * W, W, H }; }
+
+/* ---------- dino movement + animation ---------- */
+function sit(on){ dinoEl.classList.toggle('sitting', on); }
+function walkTo(p, cb, target){
+  sit(false);
+  D.tx = p.x; D.ty = p.y; D.endFace = p.face; D.onArrive = cb || null; D.target = target || null;
+  const dx = p.x - D.x;
+  if (Math.hypot(dx, (p.y - D.y) * 9 / 16) < 0.4){
+    D.x = p.x; D.y = p.y; D.walking = false; dinoEl.classList.remove('walking'); setFace(p.face); placeDino();
+    D.onArrive = null; D.target = null; if (cb) cb(); return;
+  }
+  if (Math.abs(dx) > 0.3) setFace(dx > 0 ? 1 : -1);
+  D.walking = true; dinoEl.classList.add('walking');
+}
+function stepDino(dt){
+  if (!D.walking) return;
+  const dx = D.tx - D.x, dy = (D.ty - D.y) * 9 / 16, dist = Math.hypot(dx, dy), sp = 42 * dt;
+  if (dist <= sp){
+    D.x = D.tx; D.y = D.ty; D.walking = false; dinoEl.classList.remove('walking'); setFace(D.endFace);
+    const cb = D.onArrive; D.onArrive = null; D.target = null; placeDino(); if (cb) cb(); return;
+  }
+  D.x += dx / dist * sp; D.y += dy / dist * sp * 16 / 9; placeDino();
+}
+function dinoAnim(name){ dAct.classList.remove('hit', 'jump', 'flinch', 'cheer'); void dAct.offsetWidth; dAct.classList.add(name); }
+dAct.addEventListener('animationend', () => { dAct.classList.remove('hit', 'jump', 'flinch', 'cheer'); });
+function later(fn, ms){ sceneTimers.push(setTimeout(fn, ms)); }
+function clearSceneTimers(){ sceneTimers.forEach(clearTimeout); sceneTimers = []; }
+
+/* ---------- particles + flying bone ---------- */
+function burst(x, y, colors, n, o){
+  if (reduce) n = Math.min(n, 3);
+  for (let i = 0; i < n; i++){
+    const p = document.createElement('i'); p.className = 'px';
+    const s = (o.size || 5) + Math.random() * 3; p.style.width = p.style.height = s + 'px'; p.style.background = colors[i % colors.length];
+    fx.appendChild(p);
+    const dx = (Math.random() - .5) * (o.spread || 60), up = -(o.up || 40) * (.4 + Math.random() * .8), fall = o.fall == null ? 30 : o.fall;
+    p.animate([
+      { transform:'translate(' + x + 'px,' + y + 'px)', opacity:1 },
+      { transform:'translate(' + (x + dx * .6) + 'px,' + (y + up) + 'px)', opacity:1, offset:.45 },
+      { transform:'translate(' + (x + dx) + 'px,' + (y + up + fall) + 'px)', opacity:0 }
+    ], { duration:(o.dur || 560) * (.8 + Math.random() * .4), easing:'ease-out' }).onfinish = () => p.remove();
+  }
+}
+function digDust(id){
+  const p = pxOf(layout[id]);
+  burst(p.x - D.face * p.w * 0.12, p.y + p.w * 0.05, ['#e2c08a', '#cfa86c', '#f0d9a8'], 7, { size:4, spread:50, up:30, fall:20 });
+}
+function flyBone(id){
+  const a = pxOf(layout[id]), b = pxOf(layout.stand);
+  const el = document.createElement('div'); el.className = 'fly-bone'; el.innerHTML = BONE_SVG; fx.appendChild(el);
+  const hw = el.offsetWidth / 2, sx = a.x - hw, sy = a.y - a.w * 0.15, ex = b.x - hw, ey = b.y - 10;
+  el.animate([
+    { transform:'translate(' + sx + 'px,' + sy + 'px) scale(1)', opacity:1 },
+    { transform:'translate(' + ((sx + ex) / 2) + 'px,' + (Math.min(sy, ey) - a.H * 0.14) + 'px) scale(1.3) rotate(-20deg)', opacity:1, offset:.45 },
+    { transform:'translate(' + ex + 'px,' + ey + 'px) scale(.7) rotate(-40deg)', opacity:.4 }
+  ], { duration:reduce ? 10 : 760, easing:'ease-in-out' }).onfinish = () => { el.remove(); restartClass(countBox, 'bump'); };
+}
+function floatText(id, txt){
+  const p = pxOf(layout[id]); const el = document.createElement('span'); el.className = 'float-txt'; el.textContent = txt; fx.appendChild(el);
+  const w = el.offsetWidth, x = p.x - w / 2, y = p.y - p.w * 0.45;
+  el.animate([{ transform:'translate(' + x + 'px,' + y + 'px)', opacity:1 }, { transform:'translate(' + x + 'px,' + (y - 26) + 'px)', opacity:0 }], { duration:1000, easing:'ease-out' }).onfinish = () => el.remove();
+}
+function shake(level){
+  if (visualOnly || reduce) return;
+  const a = 1.5 + level * 1.3;
+  world.animate([{ transform:'translate(0,0)' }, { transform:'translate(' + (-a) + 'px,' + (a / 2) + 'px)' }, { transform:'translate(' + a + 'px,' + (-a / 2) + 'px)' }, { transform:'translate(0,0)' }], { duration:260 });
+}
+function cliffDust(level){
+  const W = world.clientWidth, H = world.clientHeight;
+  for (let k = 0; k < 2 + level; k++) burst(W * (0.2 + Math.random() * 0.6), H * (0.62 + Math.random() * 0.12), ['#8a5a3a', '#a8774f', '#6e4a30'], 3, { size:3, spread:10, up:2, fall:H * 0.08, dur:1000 });
+}
+function shadowPass(){
+  if (reduce) return;
+  const W = world.clientWidth;
+  shadowEl.style.top = (24 + Math.random() * 12) + '%';
+  shadowEl.animate([
+    { transform:'translateX(' + (W * 1.05) + 'px) scaleX(-1)', opacity:0 },
+    { opacity:.16, offset:.15 }, { opacity:.16, offset:.85 },
+    { transform:'translateX(' + (-W * 0.5) + 'px) scaleX(-1)', opacity:0 }
+  ], { duration:4200, easing:'linear' });
+}
+function morningGlow(){
+  if (reduce) return;
+  tint.animate([{ backgroundColor:'rgb(255,255,255)' }, { backgroundColor:'rgb(255,212,186)', offset:.35 }, { backgroundColor:'rgb(255,255,255)' }], { duration:1800, easing:'ease-in-out' });
+}
+
+/* ---------- selection ---------- */
+function select(id){ sel = id; SPOTS.forEach(s => spotEls[s.id].classList.toggle('sel', s.id === id)); }
+function orderedSpots(){ return SPOTS.map(s => s.id).sort((a, b) => layout[a].x - layout[b].x); }
+/* arrow keys pick the nearest spot in that direction on screen (→ from the green pit is the purple pit) */
+const DIRS = { ArrowRight:[1,0], ArrowLeft:[-1,0], ArrowUp:[0,-1], ArrowDown:[0,1] };
+function moveSel(key){
+  const d = DIRS[key], a = layout[sel]; let best = null, bs = Infinity;
+  SPOTS.forEach(s => {
+    if (s.id === sel) return;
+    const b = layout[s.id], vx = b.x - a.x, vy = (b.y - a.y) * 9 / 16;
+    const along = vx * d[0] + vy * d[1], perp = Math.abs(vx * d[1] - vy * d[0]);
+    if (along <= 0 || perp > along * 2.5) return;
+    const sc = along + perp * 2; if (sc < bs){ bs = sc; best = s.id; }
+  });
+  if (!best) return;
+  select(best);
+  if (mode === 'guide' && cardOpen >= 1 && cardOpen <= 5) openCard(SPOT[best].card);
+  else if (!D.grabbed) walkTo(standPos(best), null, best);
+}
+function cycleSel(dir){
+  const ids = orderedSpots(), i = ids.indexOf(sel), next = ids[(i + dir + ids.length) % ids.length];
+  select(next);
+  if (mode === 'guide' && cardOpen >= 1 && cardOpen <= 5) openCard(SPOT[next].card);
+  else walkTo(standPos(next), null, next);
+}
+
+/* ---------- acting on a spot ---------- */
+function overlayOpen(){ return !startOv.hidden || !endOv.hidden; }
+function spotAction(id){
+  if (overlayOpen() || bookOpen) return;
+  if (mode === 'guide' && cardOpen !== SPOT[id].card){ openCard(SPOT[id].card); return; }
+  act(id);
+}
+function act(id){
+  if (overlayOpen() || D.cheering || D.grabbed || bookOpen) return;
+  if (mode !== 'game' && mode !== 'guide') return;
+  select(id);
+  if (D.walking && D.target === id) return;
+  walkTo(standPos(id), () => doHit(id), id);
+}
+function isCovered(id){ return mode === 'game' && G.phase === 1 && (id === 'blue' || id === 'orange'); }
+function doHit(id){
+  if (clock - lastHitAt < 0.11) return;
+  lastHitAt = clock;
+  setFace(standPos(id).face); dinoAnim('hit');
+  if (id === 'flare'){ fireFlare(); return; }
+  digDust(id); sfx.tick();
+  let r;
+  if (mode === 'game'){
+    if (!G.on || G.cheering) return;
+    if (isCovered(id)){ floatText(id, 'Covered.'); return; }
+    r = G.rules[id];
+  } else r = ensureGuideRule(id);
+  const res = ruleHit(r, clock);
+  updateCracks(id, r);
+  if (res === 'bone') reward(id, r);
+  if (mode === 'guide'){
+    const n = SPOT[id].card, k = SPOT[id].kind;
+    if (res === 'bone') setStatus(n, k === 'VR' ? '+1 bone. That one took ' + r.used[r.used.length - 1] + ' hits.' : k === 'FI' ? '+1 bone. The clock restarts.' : k === 'VI' ? '+1 bone. This wait: ' + r.lastWait + ' s.' : '+1 bone.');
+    else if (res === 'early'){ sfx.early(); setStatus(n, k === 'FI' ? 'Too early. Nothing.' : 'Not yet.'); }
+    if (cardOpen === n) renderLive();
+  }
+}
+function reward(id, r){
+  sfx.bone(); dinoAnim('jump');
+  const s = SPOT[id], p = pxOf(layout[id]);
+  if (s.kind === 'FR' || s.kind === 'VR'){ restartClass(spotEls[id], 'pop'); burst(p.x, p.y, s.chip, 10, { size:5, spread:90, up:40, fall:30, dur:650 }); }
+  else restartClass(spotEls[id], 'splash');
+  flyBone(id);
+  if (mode === 'game'){
+    G.bones++;
+    if (G.bones >= 40 && !G.cheering){
+      G.cheering = true; D.cheering = true; showBanner('40 bones packed!');
+      const gid = G.id;
+      setTimeout(() => { if (G.id === gid && G.on) dinoAnim('cheer'); }, 480);
+      setTimeout(() => { if (G.id === gid) endGame('complete'); }, 3000);
+    }
+  } else {
+    guideBones++;
+    if (cardOpen === 7 && C7.tab === 'loop') updateSkeleton();
+  }
+  updateCount();
+}
+function fireFlare(){
+  restartClass(spotEls.flare, 'fired'); sfx.whoosh();
+  const p = pxOf(layout.flare);
+  burst(p.x, p.y - p.w * 0.75, ['#cfc6b8', '#e4ddd0', '#b8ae9f'], 9, { size:6, spread:40, up:60, fall:-20, dur:1300 });
+  const was = F.active;
+  if (mode === 'game' && G.on){ G.flares++; if (was) G.stops++; }
+  if (was){ stopFootsteps(); shadowPass(); if (mode === 'game' && G.on && G.stops === 1) showBanner('It backs off. Quiet again.'); }
+  if (mode === 'guide'){
+    guideFlares++;
+    setStatus(5, was ? 'It backs off. Something unpleasant was removed.' : 'Already quiet. Nothing removed.', true);
+    if (cardOpen === 5) renderLive();
+  }
+}
+function updateCracks(id, r){
+  const svg = spotEls[id].querySelector('.cracks'); if (!svg) return;
+  const s = crackStage(r);
+  svg.querySelectorAll('path').forEach(p => { p.style.display = (+p.dataset.s <= s) ? '' : 'none'; });
+}
+function updateCount(){ boneCount.textContent = mode === 'game' ? G.bones : guideBones; boneOf.hidden = mode !== 'game'; }
+
+/* ---------- footsteps ---------- */
+function setDanger(l){
+  footChip.querySelectorAll('i').forEach((el, k) => el.classList.toggle('on', k < l));
+  dangerEl.style.opacity = l ? (0.16 * l).toFixed(2) : '0';
+  dangerEl.classList.toggle('l3', l >= 3);
+  spotEls.flare.classList.toggle('warn', l > 0);
+}
+function startFootsteps(){
+  F.active = true; F.nextStep = clock + 0.25; F.level = 1; F.nextLevel = clock + RAID.step; F.grabAt = clock + RAID.grab;
+  if (mode === 'game' && G.on){ G.eps++; if (G.eps === 1) showBanner('Footsteps. Something big is coming.'); }
+  footChip.hidden = false; setDanger(1); shadowPass();
+  if (cardOpen === 5) renderLive();
+}
+function stopFootsteps(){
+  if (!F.active) return;
+  F.active = false; footChip.hidden = true; setDanger(0);
+  if (mode === 'game' && G.on) G.nextStomp = (clock - G.t0) + G.gap();
+  if (cardOpen === 5) renderLive();
+}
+function tickFoot(){
+  if (!F.active) return;
+  if (clock >= F.nextStep){
+    F.nextStep += [1.2, 1.2, 0.9, 0.6][F.level]; sfx.thump(F.level); shake(F.level); cliffDust(F.level);
+    if (!D.walking && !dAct.classList.contains('hit') && !dAct.classList.contains('jump') && !D.cheering) dinoAnim('flinch');
+  }
+  if (F.level < 3 && clock >= F.nextLevel){ F.level++; F.nextLevel += RAID.step; setDanger(F.level); shadowPass(); }
+  if (clock >= F.grabAt){ if (D.cheering) stopFootsteps(); else grab(); }
+}
+/* nobody fired the flare: the big dino lifts ours, shakes it and drops it. No bones are lost; it only feels bad. */
+function grab(){
+  const inGame = mode === 'game' && G.on;
+  if (inGame) G.grabs++; else if (mode === 'guide') guideGrabs++;
+  stopFootsteps();
+  D.grabbed = true; D.walking = false; D.onArrive = null; D.target = null; dinoEl.classList.remove('walking'); sit(false);
+  sfx.roar(); shake(3);
+  dangerEl.style.opacity = '.85';
+  const W = world.clientWidth, H = world.clientHeight, dw = dinoEl.offsetWidth, R = dw * 4.2, T = 2300;
+  const jx = D.x / 100 * W + dw * 0.05, jy = D.y / 100 * H - dw * 0.2;      // where the jaws close: the small dino's back
+  raiderEl.style.width = R + 'px'; raiderEl.style.left = (jx - 0.221 * R) + 'px'; raiderEl.style.top = (jy - 0.335 * R) + 'px';
+  const lift = Math.min(H * 0.2, R * 0.3);
+  if (!reduce){
+    raiderEl.animate([
+      { transform:'translate(' + (R * .55) + 'px,' + (-R * .45) + 'px) scaleX(-1)', opacity:0 },
+      { transform:'translate(0,0) scaleX(-1)', opacity:1, offset:.18 },
+      { transform:'translate(0,0) scaleX(-1)', opacity:1, offset:.26 },
+      { transform:'translate(0,' + (-lift) + 'px) scaleX(-1)', opacity:1, offset:.55 },
+      { transform:'translate(0,' + (-lift) + 'px) scaleX(-1)', opacity:1, offset:.64 },
+      { transform:'translate(' + (R * .6) + 'px,' + (-R * .6) + 'px) scaleX(-1)', opacity:0 }
+    ], { duration:T, easing:'ease-in-out' });
+    dinoEl.style.zIndex = '1760';
+    dinoEl.animate([
+      { transform:'translate(-50%,-50%)' },
+      { transform:'translate(-50%,-50%)', offset:.26 },
+      { transform:'translate(-50%,calc(-50% - ' + (lift * .5) + 'px)) rotate(-12deg)', offset:.4 },
+      { transform:'translate(-50%,calc(-50% - ' + lift + 'px)) rotate(10deg)', offset:.55 },
+      { transform:'translate(-50%,calc(-50% - ' + lift + 'px)) rotate(-8deg)', offset:.64 },
+      { transform:'translate(-50%,-50%) rotate(0deg)', offset:.76, easing:'cubic-bezier(.5,0,1,.5)' },
+      { transform:'translate(-50%,calc(-50% - ' + (lift * .12) + 'px))', offset:.84 },
+      { transform:'translate(-50%,-50%)' }
+    ], { duration:T });
+  }
+  later(() => showBanner('Grabbed! It dropped you. Fire the flare sooner.'), T * 0.3);
+  later(() => { sfx.thump(3); shake(2); burst(D.x / 100 * W, D.y / 100 * H + dw * 0.4, ['#e2c08a', '#cfa86c', '#f0d9a8'], 9, { size:5, spread:70, up:26, fall:16 }); sit(true); }, T * 0.78);
+  later(() => { dangerEl.style.opacity = '0'; placeDino(); }, T);
+  later(() => { sit(false); D.grabbed = false; }, T + 900);
+  if (mode === 'guide'){ setStatus(5, 'Grabbed! Waiting it out was punished.', true); if (cardOpen === 5) renderLive(); }
+}
+
+/* ---------- modes ---------- */
+function setModeUI(){
+  stage.dataset.mode = mode;
+  mGame.setAttribute('aria-pressed', mode === 'game' ? 'true' : 'false');
+  mGuide.setAttribute('aria-pressed', mode === 'guide' ? 'true' : 'false');
+  clockBox.hidden = mode !== 'game';
+  updateCount();
+}
+function resetScene(){
+  closeBook(); closeCard(); stopFootsteps(); clearSceneTimers();
+  D.grabbed = false; raiderEl.getAnimations().forEach(a => a.cancel()); dinoEl.getAnimations().forEach(a => a.cancel()); dangerEl.style.opacity = '0';
+  SPOTS.forEach(s => { spotEls[s.id].classList.remove('covered', 'pop', 'splash', 'fired', 'dry'); updateCracks(s.id, null); });
+  D.cheering = false; D.walking = false; dinoEl.classList.remove('walking'); sit(false);
+  D.x = layout.dino.x; D.y = layout.dino.y; setFace(1); placeDino();
+  tint.style.backgroundColor = 'rgb(255,255,255)';
+  sun.classList.remove('dusk'); sun.style.left = ''; sun.style.top = '';
+}
+function startGame(){
+  if (mode === 'game') lastGameBones = G.bones;
+  resetScene(); startOv.hidden = true; endOv.hidden = true;
+  mode = 'game';
+  Object.assign(G, { on:true, t0:clock, bones:0, phase:-1, cheering:false, nextStomp:RAID.first, gap:bag(STOMP_GAPS), shown:-1, dry:null, eps:0, flares:0, stops:0, grabs:0 });
+  G.id++;
+  G.rules = {}; SPOTS.forEach(s => { if (s.kind !== 'FLARE') G.rules[s.id] = makeRule(s.kind, clock); });
+  timeLeft.textContent = fmtTime(DURATION); clockBox.classList.remove('urgent');
+  setModeUI(); select(sel); audio();
+}
+function enterGuide(){
+  if (mode === 'game') lastGameBones = G.bones;
+  resetScene(); startOv.hidden = true; endOv.hidden = true;
+  G.on = false; mode = 'guide';
+  guideRules = {}; guideBones = lastGameBones; guideFlares = 0; guideGrabs = 0; cardStates = {};
+  C6 = { i:0, tries:0, res:[], lock:false, done:false, token:C6.token + 1 };
+  C7 = { tab:'loop', step:0 };
+  setModeUI(); select(sel); audio();
+}
+function endGame(reason){
+  if (!G.on) return;
+  G.on = false; stopFootsteps(); D.cheering = false; lastGameBones = G.bones;
+  const gid = G.id, show = () => { if (G.id !== gid || mode !== 'game') return; buildReport(reason); endOv.hidden = false; };
+  if (reason === 'time'){ showBanner('Sunset.'); shadowPass(); setTimeout(show, 1400); } else show();
+}
+function onPhase(i){
+  G.phase = i; const P = PHASES[i];
+  tint.style.backgroundColor = P.tint; phaseName.textContent = P.name;
+  showBanner(P.msg);
+  ['blue', 'orange'].forEach(id => spotEls[id].classList.toggle('covered', i === 1));
+  sun.classList.toggle('dusk', i === 3);
+  if (i === 3 && !G.dry){ G.dry = Math.random() < 0.5 ? 'blue' : 'orange'; const r = G.rules[G.dry]; r.dry = true; r.dryFrom = r.hits.length; }   // dusk: one slab quietly stops paying
+}
+function tickGame(){
+  if (mode !== 'game' || !G.on) return;
+  const gt = clock - G.t0;
+  if (gt >= DURATION && !G.cheering){ endGame('time'); return; }
+  const ph = gt < 25 ? 0 : gt < 50 ? 1 : gt < 125 ? 2 : 3;
+  if (ph !== G.phase) onPhase(ph);
+  if (!F.active && !G.cheering && !D.grabbed && gt >= G.nextStomp && gt < RAID.last) startFootsteps();
+  const left = Math.max(0, Math.ceil(DURATION - gt));
+  if (left !== G.shown){ G.shown = left; timeLeft.textContent = fmtTime(left); clockBox.classList.toggle('urgent', left <= 15); }
+  const p = clamp01(gt / DURATION);
+  sun.style.left = (10 + 80 * p) + '%'; sun.style.top = (34 - 26 * Math.sin(Math.PI * p)) + '%';
+}
+function showBanner(msg){ banner.textContent = msg; restartClass(banner, 'show'); }
+
+/* ---------- field report (end of a dig) ---------- */
+function repChart(){
+  const items = [['blue','Blue','FR 5'], ['orange','Orange','VR 5'], ['green','Green','FI 5 s'], ['purple','Purple','VI 4 s'], ['flare','Flare','Neg. reinf.']];
+  const val = id => id === 'flare' ? G.flares : G.rules[id].hits.length;
+  const sub = id => id === 'flare' ? G.stops + ' stopped' : G.rules[id].bones.length + ' bones';
+  const max = Math.max(1, ...items.map(i => val(i[0])));
+  let o = '<line x1="8" y1="118" x2="312" y2="118" stroke="#c9b98f" stroke-width="1.5"/>';
+  items.forEach((it, i) => {
+    const x = 18 + i * 60, v = val(it[0]), h = v / max * 92, b = (i * 0.08).toFixed(2) + 's';
+    o += '<rect x="' + x + '" y="118" width="40" height="0" rx="2" fill="' + COL[it[0]] + '">' + an('height', 0, f1(h), '.6s', b) + an('y', 118, f1(118 - h), '.6s', b) + '</rect>' +
+         tx(x + 20, f1(112 - h), v, 't', 'middle') + tx(x + 20, 134, it[1], 't', 'middle') + tx(x + 20, 148, sub(it[0]), 'ts', 'middle') + tx(x + 20, 165, it[2], 'rv', 'middle');
+  });
+  return '<svg class="rep-svg" viewBox="0 0 320 172" role="img" aria-label="Hits at each dig spot this round">' + o + '</svg>';
+}
+function buildReport(reason){
+  const R = G.rules, ids = ['blue', 'orange', 'green', 'purple'];
+  $('endResult').textContent = reason === 'complete' ? 'All 40 bones packed before sunset.' : 'Sunset. ' + G.bones + ' of 40 bones packed.';
+  const total = ids.reduce((a, id) => a + R[id].hits.length, 0);
+  const top = ids.slice().sort((a, b) => R[b].hits.length - R[a].hits.length)[0];
+  let facts = '<li>' + skelSvg(G.bones, null, 'rep-skel') + '<p><b>' + G.bones + ' / 40</b> bones · ' + total + ' hits</p><button class="pbtn" type="button" data-watch="0">▶ The loop</button></li>';
+  if (total) facts += '<li><p>Most hits: <b>' + SPOT[top].name + '</b> (' + R[top].hits.length + ').</p><button class="pbtn" type="button" data-watch="2">▶ Four schedules</button></li>';
+  if (G.eps) facts += '<li><p>The big dino came <b>' + G.eps + '</b> time' + (G.eps > 1 ? 's' : '') + '. The flare chased it off <b>' + G.stops + '</b>' + (G.grabs ? '. It grabbed you <b>' + G.grabs + '</b>' : '') + '.</p><button class="pbtn" type="button" data-watch="1" data-quad="NR">▶ Make it stop</button>' + (G.grabs ? '<button class="pbtn" type="button" data-watch="1" data-quad="PP">▶ Grabbed</button>' : '') + '</li>';
+  if (G.dry){ const r = R[G.dry], k = r.hits.length - r.dryFrom; facts += '<li><p>At dusk, the ' + SPOT[G.dry].name.toLowerCase() + ' stopped paying. You still hit it <b>' + k + '</b> time' + (k === 1 ? '' : 's') + '.</p><button class="pbtn" type="button" data-watch="3">▶ When it stops</button></li>'; }
+  $('repBody').innerHTML = '<div class="rep-chart" id="repChart">' + repChart() + '<button class="pbtn ghost" type="button" data-reveal>Reveal the rules</button></div><ul class="rep-facts">' + facts + '</ul>';
+}
+
+/* ---------- cards: open / close ---------- */
+function ensureGuideRule(id){ if (!guideRules[id] && SPOT[id].kind !== 'FLARE') guideRules[id] = makeRule(SPOT[id].kind, clock); return guideRules[id]; }
+function setStatus(n, text, sticky){ cardStates[n] = cardStates[n] || {}; cardStates[n].status = text; cardStates[n].at = clock; cardStates[n].sticky = !!sticky; }
+function showStatus(n, text){ setStatus(n, text, true); if (cardOpen === n){ const se = $('cStatus'); if (se && se.textContent !== text) se.textContent = text; } }
+function openCard(n){
+  if (mode !== 'guide') return;
+  if (cardOpen === n) return;
+  leaveCard(cardOpen, n);
+  cardOpen = n; cardStates[n] = cardStates[n] || { status:'', at:-9 };
+  const spot = CARDS[n].spot;
+  if (spot){ select(spot); ensureGuideRule(spot); walkTo(standPos(spot), null, spot); }
+  if (n === 5 && !F.active) startFootsteps();
+  if (n === 6) walkTo(hotStand('board'), null, null);
+  if (n === 8){ X8 = { stage:0, shown:X_STOP, anim:null, slab:prevCard === 1 ? 'blue' : 'orange', geo:null }; setStatus(8, 'Predict first: who quits sooner?', true); }
+  renderCard();
+  cardEl.classList.remove('closed');
+}
+function leaveCard(from, to){
+  if (from === 5 && to !== 5) stopFootsteps();
+  if (from === 8){ clearSceneTimers(); X8.anim = null; SPOTS.forEach(s => spotEls[s.id].classList.remove('dry')); sit(false); }
+}
+function closeCard(){
+  if (!cardOpen) return;
+  leaveCard(cardOpen, 0);
+  cardOpen = 0; cardEl.classList.add('closed');
+}
+function resetCard(){
+  const n = cardOpen; if (!n) return;
+  if (n === 5){ guideFlares = 0; guideGrabs = 0; stopFootsteps(); startFootsteps(); setStatus(5, ''); renderLive(); return; }
+  if (n <= 4){ const id = CARDS[n].spot; guideRules[id] = makeRule(SPOT[id].kind, clock); updateCracks(id, null); setStatus(n, 'Reset.'); renderLive(); return; }
+  if (n === 6){ C6 = { i:0, tries:0, res:[], lock:false, done:false, token:C6.token + 1 }; setStatus(6, '', true); renderCard(); return; }
+  if (n === 7){ C7.step = 0; if (C7.tab === 'steps') updateSteps(); return; }
+  if (n === 8) replay8();
+}
+
+/* ---------- cards: render ---------- */
+function nameBlock(term, note){
+  return '<button class="c-name" type="button" data-cmd="name" aria-expanded="false">Name it +</button>' +
+         '<div class="c-named" hidden><b>' + term + '</b>' + (note ? '<span>' + note + '</span>' : '') + '</div>';
+}
+function toggleName(b){
+  const box = b.nextElementSibling, open = box.hidden; box.hidden = !open;
+  b.setAttribute('aria-expanded', open ? 'true' : 'false'); b.textContent = open ? 'Name it −' : 'Name it +';
+}
+function backBlock(){ return prevCard ? '<div class="c-links"><button class="pbtn ghost" type="button" data-cmd="back">← Back to Card ' + prevCard + '</button></div>' : ''; }
+function renderCard(){
+  const n = cardOpen, c = CARDS[n];
+  let h = '<div class="c-top"><span class="c-tag">Card ' + n + '</span><button class="c-x" type="button" data-cmd="close" aria-label="Close card">×</button></div>' +
+          '<p class="c-eye">' + c.eye + '</p><h2 class="c-title">' + c.title + '</h2>';
+  if (n <= 5){
+    h += '<p class="c-rule">' + c.rule + '</p><p class="c-try"><span class="lbl">Try</span>' + c.tryit + '</p>' +
+         '<div class="c-live" id="cLive"></div><p class="c-status" id="cStatus" role="status"></p>' +
+         '<div class="c-acts">' + (n <= 4
+            ? '<button class="pbtn primary" type="button" data-cmd="hit">Hit <kbd>Space</kbd></button>'
+            : '<button class="pbtn primary" type="button" data-cmd="hit">Fire the flare</button><button class="pbtn" type="button" data-cmd="steps">Footsteps again</button>') + '</div>' +
+         nameBlock(c.name, c.note) +
+         (c.life ? '<p class="c-life"><span class="lbl">In life</span>' + c.life + '</p>' : '') +
+         (c.links ? '<div class="c-links">' + c.links.map(k => '<button class="pbtn ghost" type="button" data-card="' + k + '">' + (k === 9 ? 'Compare all 4 →' : 'Stop the bones →') + '</button>').join('') + '</div>' : '');
+  } else if (n === 6){
+    h += '<p class="c-sub" id="c6n"></p><dl class="case" id="c6case"></dl>' +
+         '<div class="quad" role="group" aria-label="Four kinds of consequence">' +
+           '<span></span><span class="qh">+ Added</span><span class="qh">− Taken away</span>' +
+           '<span class="qr">More often</span><button class="qc" type="button" data-q="PR">Positive reinforcement</button><button class="qc" type="button" data-q="NR">Negative reinforcement</button>' +
+           '<span class="qr">Less often</span><button class="qc" type="button" data-q="PP">Positive punishment</button><button class="qc" type="button" data-q="NP">Negative punishment</button>' +
+         '</div><p class="c-status" id="cStatus" role="status"></p><div class="qdots" id="c6dots" aria-hidden="true"></div>' +
+         '<div class="c-acts" id="c6again" hidden><button class="pbtn primary" type="button" data-cmd="again6">Practice again</button></div>';
+  } else if (n === 7){
+    h += '<div class="tabs" role="tablist" aria-label="Skeleton stand">' +
+           '<button type="button" role="tab" data-tab="loop" aria-selected="' + (C7.tab === 'loop') + '">The loop</button>' +
+           '<button type="button" role="tab" data-tab="steps" aria-selected="' + (C7.tab === 'steps') + '">Small steps</button>' +
+         '</div><div class="c7body" id="c7body"></div>';
+  } else if (n === 8){
+    h += '<div class="legend"><span><svg viewBox="0 0 28 8" aria-hidden="true"><line x1="1" y1="4" x2="27" y2="4" stroke="var(--ink)" stroke-width="3"/></svg>Paid every hit</span>' +
+         '<span><svg viewBox="0 0 28 8" aria-hidden="true"><line x1="1" y1="4" x2="27" y2="4" stroke="var(--s-vr)" stroke-width="3" stroke-dasharray="6 4"/></svg>Paid some hits</span></div>' +
+         '<div id="c8chart"></div><p class="c-note">Illustration, not real data.</p><p class="c-status" id="cStatus" role="status"></p>' +
+         '<div class="c-acts"><button class="pbtn primary" type="button" data-cmd="xstop">Stop the bones</button><button class="pbtn" type="button" data-cmd="xnight" disabled>Next morning</button><button class="pbtn ghost" type="button" data-cmd="xreset">Replay ↺</button></div>' +
+         nameBlock('Extinction · partial reinforcement effect · spontaneous recovery') + backBlock();
+  } else if (n === 9){
+    h += '<div class="legend">' + SERIES.map(s => '<span><svg viewBox="0 0 28 8" aria-hidden="true"><line x1="1" y1="4" x2="27" y2="4" stroke="' + s.color + '" stroke-width="3"' + (s.dash ? ' stroke-dasharray="' + s.dash + '"' : '') + '/></svg>' + s.k + ' · ' + s.name + '</span>').join('') + '</div>' +
+         compareSvg() + '<p class="c-rule">Ratio = faster. Variable = no pause.</p>' +
+         '<p class="c-note">Typical patterns once each rule is learned. Illustration, not real data.</p>' + backBlock();
+  }
+  cardEl.innerHTML = h; cardEl.scrollTop = 0;
+  if (n <= 5) renderLive();
+  if (n === 6) update6();
+  if (n === 7) render7();
+  if (n === 8){ $('c8chart').innerHTML = ext8Svg(); update8(); }
+  const se = $('cStatus'); if (se && n >= 6) se.textContent = currentStatus(n);
+}
+function currentStatus(n){ const st = cardStates[n]; if (!st || !st.status) return ''; return (st.sticky || clock - st.at < 2.4) ? st.status : ''; }
+
+/* ---------- cards 1–5: live part ---------- */
+function renderLive(){
+  const n = cardOpen; if (!n || n > 5) return;
+  const live = $('cLive'); if (!live) return;
+  let html = '', status = currentStatus(n);
+  if (n === 5){
+    html = '<div class="waves ' + (F.active ? 'noisy' : 'quiet') + '" aria-hidden="true">' + '<i></i>'.repeat(11) + '</div>' +
+           '<p class="c-meta">' + (F.active ? 'Footsteps · level ' + F.level + ' of 3' : 'Quiet') + ' · Flares: <b>' + guideFlares + '</b> · Grabbed: <b>' + guideGrabs + '</b></p>';
+  } else {
+    const r = guideRules[CARDS[n].spot]; if (!r) return;
+    if (n === 1) html = dotsHtml(r.cycle) + recordSvg(r);
+    if (n === 2) html = vrSvg(r);
+    if (n === 3){
+      const ready = clock >= r.readyAt;
+      html = '<div class="c-row">' + ringSvg(clamp01((clock - r.since) / r.wait), ready, ready ? 'Ready' : Math.ceil(r.readyAt - clock) + 's') + recordSvg(r) + '</div>';
+      if (!status && ready) status = 'Ready. A hit collects it.';
+    }
+    if (n === 4){
+      const reveal = r.boneAt != null && clock - r.boneAt < 2.2;
+      html = '<div class="c-row">' + ringSvg(clamp01((clock - r.since) / 5), false, reveal ? r.lastWait + ' s' : '?') + recordSvg(r) + '</div>';
+    }
+    if (CARDS[n].result && r.bones.length) html += '<p class="c-result"><span class="lbl">Result</span>' + CARDS[n].result + '</p>';
+  }
+  live.innerHTML = html;
+  const se = $('cStatus'); if (se && se.textContent !== status) se.textContent = status;
+}
+function dotsHtml(k){ let h = '<div class="dots" role="img" aria-label="' + k + ' of 5 hits">'; for (let i = 0; i < 5; i++) h += '<i class="' + (i < k ? 'on' : '') + '"></i>'; return h + '<span>' + k + ' / 5</span></div>'; }
+function stepPath(hits, X, Y, tEnd){
+  let d = 'M' + f1(X(0)) + ' ' + f1(Y(0));
+  for (let i = 0; i < hits.length; i++){ if (hits[i] > tEnd) break; d += 'H' + f1(X(hits[i])) + 'V' + f1(Y(i + 1)); }
+  return d + 'H' + f1(X(tEnd));
+}
+function recordSvg(r){
+  const W = 300, H = 120, ml = 28, mr = 12, mt = 12, mb = 24, pw = W - ml - mr, ph = H - mt - mb;
+  const now = Math.max(0, clock - r.t0), T = Math.max(20, Math.ceil(now / 10) * 10), N = Math.max(10, Math.ceil(r.hits.length / 10) * 10);
+  const X = t => ml + pw * Math.min(1, t / T), Y = n => mt + ph * (1 - n / N);
+  let ticks = '';
+  r.bones.forEach(b => { const x = X(b.t), y = Y(b.n); ticks += '<line x1="' + f1(x) + '" y1="' + f1(y) + '" x2="' + f1(x + 6) + '" y2="' + f1(y + 9) + '"/>'; });
+  return '<svg class="chartbox" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Cumulative record: ' + r.hits.length + ' hits and ' + r.bones.length + ' bones in ' + Math.round(now) + ' seconds">' +
+    '<line class="ax" x1="' + ml + '" y1="' + (mt + ph) + '" x2="' + (ml + pw) + '" y2="' + (mt + ph) + '"/><line class="ax" x1="' + ml + '" y1="' + mt + '" x2="' + ml + '" y2="' + (mt + ph) + '"/>' +
+    '<text class="lb" x="' + (ml - 5) + '" y="' + (mt + 8) + '" text-anchor="end">' + N + '</text><text class="lb" x="' + (ml - 5) + '" y="' + (mt + ph + 3) + '" text-anchor="end">0</text>' +
+    '<text class="lb" x="' + (ml + pw) + '" y="' + (H - 6) + '" text-anchor="end">' + T + ' s</text><text class="lb" x="' + ml + '" y="' + (H - 6) + '">Total hits · slash = bone</text>' +
+    '<path class="ln" d="' + stepPath(r.hits, X, Y, now) + '"/><g class="tk">' + ticks + '</g></svg>';
+}
+function vrSvg(r){
+  const W = 300, H = 120, ml = 22, mr = 58, mt = 16, mb = 24, pw = W - ml - mr, ph = H - mt - mb, MAX = 9;
+  const used = r.used.slice(-9), bw = pw / 10, Y = v => mt + ph * (1 - v / MAX);
+  let bars = '';
+  used.forEach((u, i) => {
+    const x = ml + i * bw + 3, y = Y(u);
+    bars += '<rect class="bar" x="' + f1(x) + '" y="' + f1(y) + '" width="' + f1(bw - 6) + '" height="' + f1(mt + ph - y) + '"/><text class="lb" x="' + f1(x + (bw - 6) / 2) + '" y="' + f1(y - 3) + '" text-anchor="middle">' + u + '</text>';
+  });
+  const gx = ml + used.length * bw + 3, gy = Y(Math.max(r.cycle, 0.2));
+  bars += '<rect class="ghost" x="' + f1(gx) + '" y="' + f1(gy) + '" width="' + f1(bw - 6) + '" height="' + f1(mt + ph - gy) + '"/><text class="lb" x="' + f1(gx + (bw - 6) / 2) + '" y="' + f1(gy - 3) + '" text-anchor="middle">?</text>';
+  const ay = Y(5);
+  return '<svg class="chartbox" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Hits needed for each bone: ' + (used.join(', ') || 'none yet') + '. Average 5.">' +
+    '<line class="ax" x1="' + ml + '" y1="' + (mt + ph) + '" x2="' + (ml + pw) + '" y2="' + (mt + ph) + '"/>' + bars +
+    '<line class="avg" x1="' + ml + '" y1="' + f1(ay) + '" x2="' + (ml + pw) + '" y2="' + f1(ay) + '"/><text class="lb avgl" x="' + (ml + pw + 5) + '" y="' + f1(ay + 4) + '">Average 5</text>' +
+    '<text class="lb" x="' + ml + '" y="' + (H - 6) + '">Hits needed for each bone</text></svg>';
+}
+function ringSvg(p, ready, center){
+  const small = String(center).length > 3;
+  return '<svg class="ring' + (ready ? ' ready' : '') + '" viewBox="0 0 100 100" role="img" aria-label="Timer ' + center + '"><circle class="rt" cx="50" cy="50" r="38"/>' +
+    '<circle class="rp" cx="50" cy="50" r="38" pathLength="100" stroke-dasharray="' + (p * 100).toFixed(1) + ' 100" transform="rotate(-90 50 50)"/>' +
+    '<text x="50" y="' + (small ? 56 : 58) + '" text-anchor="middle" class="' + (small ? 'sm' : '') + '">' + center + '</text></svg>';
+}
+function updatePitRings(){
+  ['green', 'purple'].forEach(id => {
+    const svg = spotEls[id].querySelector('.pring'), r = guideRules[id];
+    if (mode !== 'guide' || !r){ svg.classList.remove('on'); return; }
+    svg.classList.add('on');
+    const fi = r.kind === 'FI', p = fi ? clamp01((clock - r.since) / r.wait) : clamp01((clock - r.since) / 5);
+    svg.classList.toggle('ready', fi && clock >= r.readyAt);
+    svg.querySelector('.prg').setAttribute('stroke-dasharray', (p * 100).toFixed(1) + ' 100');
+    const t = fi ? '' : (r.boneAt != null && clock - r.boneAt < 2.2 ? r.lastWait + 's' : '?');
+    const te = svg.querySelector('.pring-t'); if (te.textContent !== t) te.textContent = t;
+  });
+}
+
+/* ---------- card 6 ---------- */
+function update6(){
+  const box = $('c6case'), dots = $('c6dots'); if (!box) return;
+  if (C6.done){
+    $('c6n').textContent = '8 of 8 sorted'; box.className = 'case done'; box.innerHTML = '<dd>All sorted.</dd>';
+    $('c6again').hidden = false; showStatus(6, '8/8. Positive = add. Negative = take away.');
+  } else {
+    const c = CASES[C6.i];
+    $('c6n').textContent = 'Case ' + (C6.i + 1) + ' of ' + CASES.length; box.className = 'case';
+    box.innerHTML = '<dt>Action</dt><dd>' + c.a + '</dd><dt>Then</dt><dd>' + c.t + '</dd><dt>Next time</dt><dd>' + c.n + '</dd>';
+    $('c6again').hidden = true;
+  }
+  cardEl.querySelectorAll('.qc').forEach(b => { b.classList.remove('right', 'wrong'); b.disabled = C6.done; });
+  dots.innerHTML = CASES.map((_, i) => '<i class="' + (C6.res[i] === 1 ? 'ok' : C6.res[i] === 2 ? 'retry' : (i === C6.i && !C6.done ? 'cur' : '')) + '"></i>').join('');
+}
+function answer6(btn){
+  if (C6.lock || C6.done) return;
+  const c = CASES[C6.i], q = btn.dataset.q;
+  C6.tries++;
+  if (q === c.q){
+    C6.res[C6.i] = C6.tries === 1 ? 1 : 2; C6.lock = true;
+    btn.classList.add('right'); sfx.right(); showStatus(6, '✓ ' + QUAD[q].name);
+    const dots = $('c6dots'); if (dots && dots.children[C6.i]) dots.children[C6.i].className = C6.res[C6.i] === 1 ? 'ok' : 'retry';
+    const token = C6.token;
+    setTimeout(() => { if (C6.token !== token) return; C6.i++; C6.tries = 0; C6.lock = false; if (C6.i >= CASES.length) C6.done = true; if (cardOpen === 6) update6(); }, 1100);
+  } else {
+    restartClass(btn, 'wrong'); sfx.early();
+    showStatus(6, QUAD[q].col !== QUAD[c.q].col ? 'Check: added or taken away?' : 'Check: more or less next time?');
+  }
+}
+
+/* ---------- card 7 ---------- */
+function render7(){
+  const body = $('c7body'); if (!body) return;
+  cardEl.querySelectorAll('[data-tab]').forEach(t => t.setAttribute('aria-selected', t.dataset.tab === C7.tab ? 'true' : 'false'));
+  if (C7.tab === 'loop'){
+    body.innerHTML =
+      '<div class="flow" aria-label="Action, then consequence, then next time"><div><b>Action</b><span>Dig</span></div><i aria-hidden="true">→</i><div><b>Consequence</b><span>Bone</span></div><i aria-hidden="true">→</i><div><b>Next time</b><span>Dig more</span></div></div>' +
+      '<div class="skel">' + skelSvg(guideBones, 'skelSvg') + '<p><b id="skelN">0</b>/40<span>bones found</span></p></div>' +
+      '<p class="c-rule">What follows an action changes what comes next.</p>' + nameBlock('Reinforcement', 'Bones are secondary reinforcers.');
+    updateSkeleton();
+  } else {
+    let svg = '<svg class="stairs" viewBox="0 0 300 140" role="img" aria-label="Five steps toward the goal">';
+    for (let i = 0; i < 5; i++){ const x = 20 + i * 52, top = 128 - (14 + i * 20); svg += '<rect class="stp" id="stp' + i + '" x="' + x + '" y="' + top + '" width="52" height="' + (128 - top) + '"/><text x="' + (x + 26) + '" y="' + (top + 13) + '" text-anchor="middle">' + (i + 1) + '</text>'; }
+    svg += '<g fill="#947b5f" stroke="#5a4632" stroke-width="1.2"><rect x="264" y="17" width="16" height="17"/><path d="M264 25h16M272 17v17" fill="none"/></g>' +
+           '<g class="mini" id="miniDino"><g transform="scale(.14) translate(-35 -24)"><path d="' + DINO_OUTLINE + '" fill="#535353"/><rect x="166" y="38" width="9" height="9" fill="#fbf3e0"/></g></g></svg>';
+    body.innerHTML = svg + '<ol class="ladder" id="ladder">' + STEPS.map((s, i) => '<li data-i="' + i + '"><span class="st">' + (i + 1) + '. ' + s + '</span><em></em></li>').join('') + '</ol>' +
+      '<div class="c-acts"><button class="pbtn primary" type="button" data-cmd="raise">Raise the bar</button><button class="pbtn" type="button" data-cmd="steps-reset">Reset</button></div>' + nameBlock('Shaping (successive approximations)');
+    updateSteps(true);
+  }
+}
+function updateSkeleton(){
+  const svg = $('skelSvg'); if (!svg) return;
+  const n = Math.min(40, guideBones), lit = new Set(BONE_ORDER.slice(0, n));
+  svg.querySelectorAll('.bone').forEach(p => p.classList.toggle('on', lit.has(+p.dataset.piece)));
+  svg.setAttribute('aria-label', 'Dinosaur skeleton, ' + n + ' of 40 bones found');
+  const t = $('skelN'); if (t) t.textContent = n;
+}
+function updateSteps(instant){
+  const mini = $('miniDino'); if (!mini) return;
+  const i = C7.step, x = 20 + i * 52 + 26, top = 128 - (14 + i * 20);
+  if (instant) mini.style.transition = 'none';
+  mini.style.transform = 'translate(' + (x - 15) + 'px,' + (top - 26) + 'px)';
+  if (instant){ void mini.getBoundingClientRect(); mini.style.transition = ''; }
+  for (let k = 0; k < 5; k++){ const r = $('stp' + k); if (r) r.setAttribute('class', 'stp' + (k < i ? ' past' : k === i ? ' now' : '')); }
+  cardEl.querySelectorAll('#ladder li').forEach(li => { const k = +li.dataset.i; li.className = k < i ? 'past' : k === i ? 'now' : ''; li.querySelector('em').textContent = k < i ? 'Not any more' : k === i ? 'Rewarded now' : ''; });
+  const raise = cardEl.querySelector('[data-cmd="raise"]'); if (raise) raise.disabled = i >= STEPS.length - 1;
+}
+
+/* ---------- card 8 ---------- */
+const X_STOP = 3, X_N0 = 14, X_N1 = 15, X_END = 20;
+function crf(t){ if (t < X_STOP) return 30; if (t < X_N0) return 30 * Math.exp(-(t - X_STOP) / 1.3); if (t < X_N1) return null; return 10 * Math.exp(-(t - X_N1) / 0.9); }
+function prf(t){ if (t < X_STOP) return 36; if (t < X_N0) return 36 * Math.exp(-(t - X_STOP) / 5.5); if (t < X_N1) return null; return 14 * Math.exp(-(t - X_N1) / 2.5); }
+function curvePath(fn, X, Y){ let d = '', pen = false; for (let i = 0; i <= X_END * 10; i++){ const t = i / 10, v = fn(t); if (v === null){ pen = false; continue; } d += (pen ? 'L' : 'M') + f1(X(t)) + ' ' + f1(Y(v)); pen = true; } return d; }
+function ext8Svg(){
+  const W = 300, H = 160, ml = 28, mr = 10, mt = 20, mb = 34, pw = W - ml - mr, ph = H - mt - mb;
+  const X = t => ml + pw * t / X_END, Y = v => mt + ph * (1 - v / 40);
+  X8.geo = { X };
+  let o = '<defs><pattern id="c8hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line class="hatch" x1="0" y1="0" x2="0" y2="6"/></pattern>' +
+          '<clipPath id="c8clip"><rect id="c8rect" x="0" y="0" height="' + H + '" width="' + f1(X(X8.shown)) + '"/></clipPath></defs>';
+  [0, 20, 40].forEach(v => { o += '<line class="' + (v ? 'gd' : 'ax') + '" x1="' + ml + '" x2="' + (ml + pw) + '" y1="' + f1(Y(v)) + '" y2="' + f1(Y(v)) + '"/><text class="lb" x="' + (ml - 5) + '" y="' + f1(Y(v) + 4) + '" text-anchor="end">' + v + '</text>'; });
+  o += '<text class="lb" x="' + ml + '" y="' + (mt - 7) + '">hits / min</text>';
+  [0, 5, 10].forEach(m => { o += '<text class="lb" x="' + f1(X(X_STOP + m)) + '" y="' + (mt + ph + 14) + '" text-anchor="middle">' + m + '</text>'; });
+  o += '<text class="lb" x="' + f1(X(X_STOP / 2)) + '" y="' + (mt + ph + 14) + '" text-anchor="middle">bones</text><text class="lb" x="' + f1(X((X_STOP + X_N0) / 2)) + '" y="' + (H - 4) + '" text-anchor="middle">minutes without bones</text>';
+  o += '<g id="c8night"' + (X8.stage >= 2 ? '' : ' visibility="hidden"') + '><rect fill="url(#c8hatch)" x="' + f1(X(X_N0)) + '" y="' + mt + '" width="' + f1(X(X_N1) - X(X_N0)) + '" height="' + ph + '"/><text class="lb" x="' + f1(X((X_N1 + X_END) / 2)) + '" y="' + (mt + ph + 14) + '" text-anchor="middle">next morning</text></g>';
+  o += '<line class="stop" x1="' + f1(X(X_STOP)) + '" x2="' + f1(X(X_STOP)) + '" y1="' + (mt - 2) + '" y2="' + (mt + ph) + '"/><text class="note" x="' + f1(X(X_STOP) + 5) + '" y="' + (mt + 8) + '">bones stop</text>';
+  o += '<g clip-path="url(#c8clip)"><path class="x8a" d="' + curvePath(crf, X, Y) + '"/><path class="x8b" d="' + curvePath(prf, X, Y) + '"/></g>';
+  o += '<text class="dl" x="' + f1(X(0.15)) + '" y="' + f1(Y(36) - 5) + '">some hits</text><text class="dl" x="' + f1(X(0.15)) + '" y="' + f1(Y(30) + 13) + '">every hit</text>';
+  return '<svg class="chartbox" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Illustration. After the bones stop, the learner paid for every hit quits within about 5 minutes. The learner paid for some hits keeps going past 10 minutes. Both return briefly next morning.">' + o + '</svg>';
+}
+function setShown8(t){ X8.shown = t; const r = $('c8rect'); if (r && X8.geo) r.setAttribute('width', f1(X8.geo.X(t))); }
+function animate8(to, done){ if (reduce){ setShown8(to); if (done) done(); update8(); return; } X8.anim = { from:X8.shown, to, start:performance.now(), dur:2200, done }; }
+function tick8(){
+  const a = X8.anim; if (!a) return;
+  const k = clamp01((performance.now() - a.start) / a.dur), e = 1 - Math.pow(1 - k, 2);
+  setShown8(a.from + (a.to - a.from) * e);
+  if (k >= 1){ X8.anim = null; if (a.done) a.done(); update8(); }
+}
+function update8(){
+  const stop = cardEl.querySelector('[data-cmd="xstop"]'), night = cardEl.querySelector('[data-cmd="xnight"]');
+  if (stop) stop.disabled = X8.stage !== 0;
+  if (night) night.disabled = !(X8.stage === 1 && !X8.anim);
+}
+function fakeHit(id){ setFace(standPos(id).face); dinoAnim('hit'); digDust(id); sfx.tick(); }
+function stop8(){
+  if (X8.stage !== 0) return;
+  X8.stage = 1; showStatus(8, ''); update8();
+  const id = X8.slab; spotEls[id].classList.add('dry'); select(id);
+  walkTo(standPos(id), () => { later(() => fakeHit(id), 0); later(() => fakeHit(id), 420); later(() => sit(true), 1000); }, id);
+  animate8(X_N0, () => showStatus(8, 'Paid every hit: quits fast. Paid some hits: keeps going.'));
+}
+function night8(){
+  if (X8.stage !== 1 || X8.anim) return;
+  X8.stage = 2; showStatus(8, ''); update8();
+  const g = $('c8night'); if (g) g.removeAttribute('visibility');
+  const id = X8.slab; sit(false); morningGlow();
+  later(() => walkTo(standPos(id), () => { later(() => fakeHit(id), 0); later(() => fakeHit(id), 400); later(() => fakeHit(id), 800); later(() => sit(true), 1400); }, id), 500);
+  animate8(X_END, () => showStatus(8, 'It comes back for a while.'));
+}
+function replay8(){
+  clearSceneTimers(); sit(false); SPOTS.forEach(s => spotEls[s.id].classList.remove('dry'));
+  X8.stage = 0; X8.anim = null; X8.shown = X_STOP;
+  const box = $('c8chart'); if (box) box.innerHTML = ext8Svg();
+  showStatus(8, 'Predict first: who quits sooner?'); update8();
+}
+
+/* ---------- card 9 ---------- */
+function compareSvg(){
+  const W = 300, H = 170, ml = 28, mr = 30, mt = 12, mb = 26, pw = W - ml - mr, ph = H - mt - mb, T = 20;
+  const top = Math.max(...SERIES.map(s => TYP[s.k].hits.length)), N = Math.ceil(top / 10) * 10;
+  const X = t => ml + pw * Math.min(1, t / T), Y = n => mt + ph * (1 - n / N);
+  let o = '';
+  [0, N / 2, N].forEach(v => { o += '<line class="' + (v ? 'gd' : 'ax') + '" x1="' + ml + '" x2="' + (ml + pw) + '" y1="' + f1(Y(v)) + '" y2="' + f1(Y(v)) + '"/><text class="lb" x="' + (ml - 5) + '" y="' + f1(Y(v) + 4) + '" text-anchor="end">' + v + '</text>'; });
+  for (let s = 0; s <= T; s += 5) o += '<text class="lb" x="' + f1(X(s)) + '" y="' + (H - 8) + '" text-anchor="' + (s === 0 ? 'start' : s === T ? 'end' : 'middle') + '">' + s + (s === T ? ' s' : '') + '</text>';
+  SERIES.forEach(s => {
+    const r = TYP[s.k];
+    o += '<path d="' + stepPath(r.hits, X, Y, T) + '" fill="none" stroke="' + s.color + '" stroke-width="2.2"' + (s.dash ? ' stroke-dasharray="' + s.dash + '"' : '') + '/>';
+    r.bones.forEach(b => { const x = X(b.t), y = Y(b.n); o += '<line x1="' + f1(x) + '" y1="' + f1(y) + '" x2="' + f1(x + 4) + '" y2="' + f1(y + 7) + '" stroke="' + s.color + '" stroke-width="1.6"/>'; });
+  });
+  spreadLabels(SERIES.map(s => ({ k:s.k, y:Y(TYP[s.k].hits.length) + 4 }))).forEach(l => { o += '<text class="end" x="' + (ml + pw + 4) + '" y="' + f1(l.y) + '">' + l.k + '</text>'; });
+  o += '<text class="lb" x="' + (ml + 4) + '" y="' + (mt + 8) + '">total hits</text>';
+  return '<svg class="chartbox" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Cumulative records over 20 seconds: ' + SERIES.map(s => s.k + ' ' + TYP[s.k].hits.length + ' hits').join(', ') + '.">' + o + '</svg>';
+}
+function spreadLabels(arr){ arr.sort((a, b) => a.y - b.y); for (let i = 1; i < arr.length; i++) if (arr[i].y - arr[i - 1].y < 12) arr[i].y = arr[i - 1].y + 12; return arr; }
+
+/* =====================================================================
+   DIG DEEPER · field handbook with step-controlled SVG animations
+   ===================================================================== */
+const CHAPTERS = [
+  { id:'loop', n:'1', nav:'The loop', color:'#7f9a55', title:'What makes an action repeat?', lead:'Actions that pay off get repeated.',
+    anims:[['loop', 'Action → consequence → next time'], ['thorn', 'Thorndike’s puzzle box', 'Illustration, not real data.']],
+    name:'Law of effect (Thorndike) · operant conditioning (Skinner)', note:'Bones are secondary reinforcers: valued, but not food.', rule:'A consequence strengthens whatever came right before it.', card:7 },
+  { id:'quad', n:'2', nav:'Four consequences', color:'#8a8f96', title:'Add or take away? More or less?', lead:'Two questions name every consequence.',
+    anims:[['quad', '']], name:'Positive / negative reinforcement · positive / negative punishment', rule:'Positive and negative are maths, not morals.', card:6 },
+  { id:'race', n:'3', nav:'Four schedules', color:'#c06a46', title:'Count the hits, or watch the clock?', lead:'Four rules. Four shapes of digging.',
+    anims:[['race', 'Four learned diggers · 20 seconds', 'Illustration of typical learned patterns.']], name:'Schedules of reinforcement: FR · VR · FI · VI', rule:'Ratio = faster. Variable = no pause.', card:9 },
+  { id:'ext', n:'4', nav:'Extinction', color:'#e8c45a', title:'What happens when the bones stop?', lead:'Stop the reward. Watch the action fade.',
+    anims:[['ext', 'Two diggers, no more bones', 'Illustration, not real data.']], name:'Extinction · partial reinforcement effect · spontaneous recovery', note:'A broken vending machine vs a slot machine.', rule:'Stop the reward and the action fades. Unpredictable rewards fade slowest.', card:8 },
+  { id:'notes', n:'5', nav:'Field notes', color:'#e2c99a', title:'How do we use this carefully?', lead:'Small steps. Right away. With care.',
+    anims:[['shape', 'Shaping'], ['timing', 'Timing'], ['punish', 'Punishment, with care'], ['drift', 'Instinctive drift'], ['cvo', 'Classical vs operant']], rule:'Reward right away. Reward the right thing.', card:7 },
+  { id:'end', n:'', nav:'Bedrock', color:'#6e4a30', title:'Why do we keep digging?' }
+];
+const ANIM = {
+  loop:{ n:3, ms:1300, r:aLoop }, thorn:{ n:10, ms:500, r:aThorn }, quad:{ n:3, ms:1300, r:aQuad }, race:{ n:40, ms:500, r:aRace },
+  ext:{ n:4, ms:2200, r:aExt }, shape:{ n:4, ms:1100, r:aShape }, timing:{ n:2, ms:1600, r:aTiming }, punish:{ n:2, ms:1700, r:aPunish },
+  drift:{ n:3, ms:1300, r:aDrift }, cvo:{ n:3, ms:1500, r:aCvo }
+};
+const AS = {};
+const QDATA = { PR:{ a:'Digs', t:'A bone appears', n:'Digs more' }, NR:{ a:'Fires the flare', t:'Footsteps stop', n:'Flares sooner' }, PP:{ a:'Pokes the campfire', t:'Gets singed', n:'Pokes it less' }, NP:{ a:'Kicks the crate', t:'A bone is taken', n:'Kicks it less' } };
+const TH = [160, 135, 140, 95, 80, 85, 55, 45, 40, 30];
+const EX_T = [3, 7, 14, 17, 20];
+
+/* svg helpers */
+const sd = d => reduce ? '0.01s' : d;
+function an(attr, from, to, dur, begin){ return '<animate attributeName="' + attr + '" from="' + from + '" to="' + to + '" dur="' + sd(dur || '.6s') + '" begin="' + (begin || '0s') + '" fill="freeze"/>'; }
+function mv(from, to, dur, begin){ return '<animateTransform attributeName="transform" type="translate" from="' + from + '" to="' + to + '" dur="' + sd(dur || '.8s') + '" begin="' + (begin || '0s') + '" fill="freeze"/>'; }
+function fd(inner, begin){ return '<g opacity="0">' + an('opacity', 0, 1, '.45s', begin || '0s') + inner + '</g>'; }
+function tx(x, y, s, cls, anchor){ return '<text class="' + (cls || 't') + '" x="' + x + '" y="' + y + '"' + (anchor ? ' text-anchor="' + anchor + '"' : '') + '>' + s + '</text>'; }
+function svgw(vb, body, label){ return '<svg viewBox="0 0 ' + vb + '" role="img" aria-label="' + label + '">' + body + '</svg>'; }
+function dg(x, y, sc, o){
+  o = o || {}; const f = o.flip ? -1 : 1;
+  return '<g transform="translate(' + x + ' ' + y + ')"><g class="dpose ' + (o.cls || '') + '"' + (o.style ? ' style="' + o.style + '"' : '') + '><g transform="scale(' + (sc * f) + ' ' + sc + ') translate(-139.5 -207)"><path d="' + DINO_OUTLINE + '" fill="#535353"/><rect x="166" y="38" width="9" height="9" fill="#fbf6e8"/></g></g></g>';
+}
+function boneG(x, y, sc){ return '<g transform="translate(' + x + ' ' + y + ') scale(' + sc + ') translate(-8 -4)"><path fill="#6b5a44" d="' + BONE_D1 + '"/><path fill="#f7eed8" d="' + BONE_D2 + '"/></g>'; }
+function dust(x, y){ return '<g class="sdust" transform="translate(' + x + ' ' + y + ')"><rect x="0" y="-4" width="4" height="4"/><rect x="7" y="-6" width="4" height="4"/><rect x="-6" y="-5" width="3" height="3"/></g>'; }
+function ground(y, x1, x2){ return '<line x1="' + (x1 || 8) + '" y1="' + y + '" x2="' + (x2 || 352) + '" y2="' + y + '" stroke="#c9b98f" stroke-width="2"/>'; }
+function crate(x, y){ return '<rect x="' + (x - 14) + '" y="' + (y - 20) + '" width="28" height="20" fill="#947b5f" stroke="#5a4632" stroke-width="1.5"/><path d="M' + (x - 14) + ' ' + (y - 10) + 'h28" stroke="#5a4632"/>'; }
+function fire(x, y){ return '<path d="M' + (x - 12) + ' ' + y + 'h24" stroke="#5a4632" stroke-width="4"/><path d="M' + x + ' ' + (y - 26) + 'q10 12 4 22h-8q-6-10 4-22z" fill="#e8803a"/><path d="M' + x + ' ' + (y - 14) + 'q5 6 2 10h-4q-3-5 2-10z" fill="#ffd36b"/>'; }
+function waves(x, y, on){ let o = ''; for (let i = 0; i < 5; i++){ const h = on ? [10, 18, 26, 18, 10][i] : 3; o += '<rect x="' + (x + i * 7) + '" y="' + (y - h) + '" width="4" height="' + h + '" fill="' + (on ? '#b84332' : '#6f8a62') + '"/>'; } return o; }
+function flarePost(x, y){ return '<rect x="' + (x - 3) + '" y="' + (y - 34) + '" width="6" height="34" fill="#f4ead6" stroke="#b84332" stroke-width="1.5"/><rect x="' + (x - 4) + '" y="' + (y - 41) + '" width="8" height="7" fill="#d27a4c"/>'; }
+function bell(x, y){ return '<g transform="translate(' + x + ' ' + y + ')"><path d="M-10 6 Q-10 -12 0 -14 Q10 -12 10 6 Z" fill="#e8c45a" stroke="#5a4632" stroke-width="1.5"/><circle cy="9" r="3" fill="#5a4632"/></g>'; }
+function bowl(x, y, food){ return '<g transform="translate(' + x + ' ' + y + ')"><path d="M-14 0 h28 l-5 10 h-18 z" fill="#947b5f"/></g>' + (food ? boneG(x, y - 4, 1) : ''); }
+function drop(x, y){ return '<path d="M' + x + ' ' + (y - 9) + ' q7 10 0 15 q-7 -5 0 -15z" fill="#7fb2d8"/>'; }
+
+/* animation 1 · the loop */
+function aLoop(s){
+  const box = (x, label, on) => '<rect x="' + x + '" y="8" width="100" height="26" rx="4" fill="' + (on ? '#354638' : '#fbf6e8') + '" stroke="#354638" stroke-width="2"/>' + tx(x + 50, 26, label, on ? 't on' : 't', 'middle');
+  const F = (k, el, b) => s === k ? fd(el, b) : el;
+  let o = box(10, 'Action', s >= 1) + box(130, 'Consequence', s >= 2) + box(250, 'Next time', s >= 3) +
+          (s >= 2 ? tx(120, 26, '→', 'tb', 'middle') : '') + (s >= 3 ? tx(240, 26, '→', 'tb', 'middle') : '') + ground(150);
+  o += dg(60, 150, .28, { cls: s >= 1 ? 'dig' : '' }) + (s >= 1 ? dust(92, 148) : '');
+  if (s >= 2) o += '<ellipse cx="180" cy="150" rx="22" ry="5" fill="#e2c08a"/>' + (s === 2 ? '<g>' + mv('0 34', '0 0', '.5s') + boneG(180, 112, 3) + '</g>' : boneG(180, 112, 3)) + F(2, tx(206, 104, '+1', 'tb'), '.4s');
+  if (s >= 3) o += F(3, [270, 300, 330].map((x, i) => dg(x, 150, .14, { cls:'dig', style:'animation-delay:-' + (i * .15) + 's' })).join('') + tx(300, 80, '↑ more often', 't', 'middle'));
+  return { svg:svgw('360 165', o, 'Action, consequence, next time'), cap:['Press Play or Step.', 'Action: the dino digs.', 'Consequence: a bone appears.', 'Next time: it digs more often.'][s] };
+}
+/* animation 2 · Thorndike */
+function aThorn(s){
+  let o = '<line x1="34" y1="140" x2="350" y2="140" stroke="#c9b98f" stroke-width="1.5"/><line x1="34" y1="20" x2="34" y2="140" stroke="#c9b98f" stroke-width="1.5"/>' +
+          tx(30, 26, '180', 'ts', 'end') + tx(30, 143, '0', 'ts', 'end') + tx(40, 14, 'Seconds to escape', 'ts') + tx(350, 166, 'Trial', 'ts', 'end');
+  for (let i = 0; i < 10; i++){
+    const x = 46 + i * 30, h = TH[i] / 180 * 115;
+    o += tx(x + 10, 154, i + 1, 'ts', 'middle');
+    if (i < s) o += '<rect x="' + x + '" y="' + f1(140 - h) + '" width="20" height="' + f1(h) + '" fill="#947b5f">' + (i === s - 1 ? an('height', 0, f1(h), '.4s') + an('y', 140, f1(140 - h), '.4s') : '') + '</rect>';
+  }
+  return { svg:svgw('360 170', o, 'Illustration: escape time falls across ten trials'), cap: s === 0 ? 'A cat must find the latch to escape.' : s < 10 ? 'Trial ' + s + ': ' + TH[s - 1] + ' s' : 'Escape gets faster with practice.' };
+}
+/* animation 3 · four consequences */
+function qcode(){ return QSEL.add ? (QSEL.more ? 'PR' : 'PP') : (QSEL.more ? 'NR' : 'NP'); }
+function aQuad(s){
+  const c = qcode(), d = QDATA[c], add = QSEL.add, up = QSEL.more, F = (k, el, b) => s === k ? fd(el, b) : el;
+  let o = '';
+  ['Action', 'Then', 'Next time'].forEach((l, i) => { const x = 6 + i * 118; o += '<rect x="' + x + '" y="24" width="112" height="118" rx="6" fill="' + (s > i ? '#fbf6e8' : '#efe6cf') + '" stroke="' + (s > i ? '#354638' : '#d6c7a2') + '" stroke-width="2"/>' + tx(x + 56, 16, l, 't', 'middle'); });
+  if (s >= 1){
+    let p = '';
+    if (c === 'PR') p = dg(50, 112, .2, { cls:'dig' }) + dust(74, 110);
+    if (c === 'NR') p = dg(36, 112, .2, { cls:'shake' }) + waves(58, 62, true) + flarePost(102, 112);
+    if (c === 'PP') p = dg(40, 112, .2) + fire(92, 112);
+    if (c === 'NP') p = dg(38, 112, .2, { cls:'dig' }) + crate(92, 112) + boneG(92, 86, 1.4);
+    o += F(1, p + tx(62, 134, d.a, 'ts', 'middle'));
+  }
+  if (s >= 2){
+    let p = '<circle cx="216" cy="44" r="12" fill="' + (add ? '#354638' : '#b84332') + '"/>' + tx(216, 49, add ? '+' : '−', 't on', 'middle');
+    if (c === 'PR') p += s === 2 ? '<g>' + mv('0 26', '0 0', '.5s') + boneG(180, 86, 2.4) + '</g>' : boneG(180, 86, 2.4);
+    if (c === 'NR') p += waves(166, 92, false) + tx(180, 108, 'quiet', 'ts', 'middle');
+    if (c === 'PP') p += fire(180, 112) + '<g class="smoke"><circle cx="186" cy="74" r="6" fill="#bdb6a8"/><circle cx="194" cy="62" r="8" fill="#cfc8ba"/></g>';
+    if (c === 'NP') p += crate(180, 112) + (s === 2 ? '<g>' + mv('0 0', '26 -46', '.9s') + an('opacity', 1, 0, '.9s') + boneG(180, 86, 1.4) + '</g>' : '');
+    o += F(2, p + tx(180, 134, d.t, 'ts', 'middle'));
+  }
+  if (s >= 3) o += F(3, dg(272, 112, .2, { cls: up ? 'dig' : '' }) + tx(322, 86, up ? '↑' : '↓', 'big', 'middle') + tx(298, 134, d.n, 'ts', 'middle'));
+  return { svg:svgw('360 150', o, QUAD[c].name), cap: s < 3 ? ['Set the two switches. Then Play.', 'Action.', 'Then: something is ' + (add ? 'added.' : 'taken away.')][s] : '= ' + QUAD[c].name };
+}
+/* animation 4 · four schedules race */
+function aRace(s){
+  const t = s * 0.5, ml = 30, pw = 290, mt = 82, ph = 108, N = 70, end = s === ANIM.race.n;
+  const X = v => ml + pw * Math.min(1, v / 20), Y = n => mt + ph * (1 - n / N);
+  let o = '<line x1="' + ml + '" y1="' + (mt + ph) + '" x2="' + (ml + pw) + '" y2="' + (mt + ph) + '" stroke="#c9b98f" stroke-width="1.5"/><line x1="' + ml + '" y1="' + mt + '" x2="' + ml + '" y2="' + (mt + ph) + '" stroke="#c9b98f" stroke-width="1.5"/>' +
+          tx(ml - 4, mt + 6, N, 'ts', 'end') + tx(ml - 4, mt + ph + 3, '0', 'ts', 'end') + tx(ml + pw, mt + ph + 15, '20 s', 'ts', 'end') + tx(ml + 4, mt + 10, 'total hits', 'ts');
+  SERIES.forEach((S, i) => {
+    const cx = 52 + i * 85, r = TYP[S.k], dim = RACE_HL && RACE_HL !== S.k;
+    const hit = s > 0 && !end && r.hits.some(h => h > t - 0.5 && h <= t), bone = s > 0 && r.bones.some(b => b.t > t - 0.5 && b.t <= t);
+    o += '<g opacity="' + (dim ? .3 : 1) + '"><rect x="' + (cx - 30) + '" y="4" width="60" height="16" rx="3" fill="' + FORM_COL[S.k] + '"/>' + tx(cx, 16, S.k, 't on', 'middle') + dg(cx, 70, .13, { cls: hit ? 'dig' : '' }) + (bone ? fd(boneG(cx + 22, 36, 1.4)) : '') + '</g>';
+    o += '<path d="' + stepPath(r.hits, X, Y, t) + '" fill="none" stroke="' + S.color + '" stroke-width="2.2"' + (S.dash ? ' stroke-dasharray="' + S.dash + '"' : '') + ' opacity="' + (dim ? .18 : 1) + '"/>';
+    r.bones.forEach(b => { if (b.t <= t) o += '<line x1="' + f1(X(b.t)) + '" y1="' + f1(Y(b.n)) + '" x2="' + f1(X(b.t) + 4) + '" y2="' + f1(Y(b.n) + 7) + '" stroke="' + S.color + '" stroke-width="1.6" opacity="' + (dim ? .18 : 1) + '"/>'; });
+  });
+  if (end) spreadLabels(SERIES.map(S => ({ k:S.k, y:Y(TYP[S.k].hits.length) + 4 }))).forEach(l => { o += tx(ml + pw + 4, f1(l.y), l.k, 't'); });
+  return { svg:svgw('360 205', o, 'Four learned diggers over 20 seconds'), cap: s === 0 ? 'Four diggers. Each knows one rule.' : end ? 'Ratio = faster. Variable = no pause.' : 't = ' + t.toFixed(1) + ' s' };
+}
+/* animation 5 · extinction */
+function aExt(s){
+  const T = EX_T[s], P = s ? EX_T[s - 1] : 3, ml = 30, pw = 315, mt = 112, ph = 84;
+  const X = t => ml + pw * t / 20, Y = v => mt + ph * (1 - v / 40);
+  const L = ['dig', 'sit', 'sit', 'dig', 'sit'][s], R = ['dig', 'dig', 'sit', 'dig', 'sit'][s];
+  let o = '<defs><clipPath id="exClip"><rect x="0" y="0" height="220" width="' + f1(X(T)) + '">' + (s ? an('width', f1(X(P)), f1(X(T)), '1.6s') : '') + '</rect></clipPath>' +
+          '<pattern id="exHatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#cdbd94" stroke-width="2"/></pattern></defs>';
+  if (s === 3) o += fd('<rect x="0" y="0" width="360" height="100" fill="#ffe1c4"/>');
+  o += ground(80, 20, 340) + dg(110, 80, .24, { cls:L }) + (L === 'dig' ? dust(140, 78) : '') + dg(270, 80, .24, { cls:R }) + (R === 'dig' ? dust(300, 78) : '');
+  if (s === 0) o += boneG(150, 44, 1.6) + boneG(310, 50, 1.6);
+  o += tx(110, 96, 'Paid every hit', 'ts', 'middle') + tx(270, 96, 'Paid some hits', 'ts', 'middle') +
+       '<line x1="' + ml + '" y1="' + (mt + ph) + '" x2="' + (ml + pw) + '" y2="' + (mt + ph) + '" stroke="#c9b98f" stroke-width="1.5"/>' + tx(ml - 4, mt + 6, '40', 'ts', 'end') + tx(ml - 4, mt + ph + 3, '0', 'ts', 'end') +
+       '<line x1="' + f1(X(3)) + '" y1="' + (mt - 4) + '" x2="' + f1(X(3)) + '" y2="' + (mt + ph) + '" stroke="#b84332" stroke-width="1.5"/>' + tx(f1(X(3) + 4), mt + 6, 'bones stop', 'tr');
+  if (s >= 3) o += '<rect x="' + f1(X(14)) + '" y="' + mt + '" width="' + f1(X(15) - X(14)) + '" height="' + ph + '" fill="url(#exHatch)"/>' + tx(f1(X(17.5)), mt + ph + 14, 'next morning', 'ts', 'middle');
+  o += '<g clip-path="url(#exClip)"><path d="' + curvePath(crf, X, Y) + '" fill="none" stroke="#354638" stroke-width="2.4"/><path d="' + curvePath(prf, X, Y) + '" fill="none" stroke="#c25a22" stroke-width="2.4" stroke-dasharray="6 4"/></g>' + tx(ml, mt + ph + 14, 'hits per minute', 'ts');
+  return { svg:svgw('360 212', o, 'Illustration of extinction for two diggers'), cap:['Both dig. Bones keep coming. Who quits first?', 'Bones stop. Paid every hit: quits fast.', 'Paid some hits: keeps going, then quits.', 'Next morning: it comes back for a while.', 'Then it fades again.'][s] };
+}
+/* animation 6 · shaping */
+function aShape(s){
+  const pos = i => ({ x:20 + i * 52 + 26, y:128 - (14 + i * 20) });
+  let o = '';
+  for (let i = 0; i < 5; i++){ const x = 20 + i * 52, top = 128 - (14 + i * 20); o += '<rect class="stp' + (i < s ? ' past' : i === s ? ' now' : '') + '" x="' + x + '" y="' + top + '" width="52" height="' + (128 - top) + '"/>' + tx(x + 26, top + 13, i + 1, 't', 'middle'); }
+  o += '<rect x="264" y="17" width="16" height="17" fill="#947b5f" stroke="#5a4632" stroke-width="1.2"/>';
+  const p = pos(s), q = pos(Math.max(0, s - 1));
+  o += '<g>' + (s ? mv(f1(q.x - p.x) + ' ' + f1(q.y - p.y), '0 0', '.5s') : '') + dg(p.x, p.y, .14) + '</g>' + fd(boneG(p.x + 20, p.y - 30, 1.3), '.5s');
+  return { svg:svgw('300 140', o, 'Shaping in five steps'), cap:(s + 1) + '. ' + STEPS[s] + (s === 4 ? '. Shaping complete.' : ' → bone. Then raise the bar.') };
+}
+/* animation 7 · timing */
+function aTiming(s){
+  const acts = ['Dig', 'Sniff', 'Sit'], xs = [60, 150, 240];
+  let o = '<line x1="20" y1="104" x2="290" y2="104" stroke="#c9b98f" stroke-width="1.5"/>' + tx(20, 20, 'One action per second.', 'ts');
+  acts.forEach((a, i) => {
+    const good = s >= 1 && i === 0, bad = s >= 2 && i === 1;
+    o += '<rect x="' + (xs[i] - 34) + '" y="62" width="68" height="26" rx="4" fill="' + (good ? '#dfe9d3' : bad ? '#f6dcd2' : '#fbf6e8') + '" stroke="' + (good ? '#3f7a3a' : bad ? '#b84332' : '#354638') + '" stroke-width="2"/>' + tx(xs[i], 80, a, 't', 'middle') + tx(xs[i], 120, i + ' s', 'ts', 'middle');
+  });
+  if (s >= 1) o += s === 1 ? '<g>' + mv('0 -40', '0 0', '.5s') + boneG(76, 50, 1.6) + '</g>' : boneG(76, 50, 1.6);
+  if (s >= 2) o += '<g>' + mv('0 -40', '0 0', '.5s') + boneG(166, 50, 1.6) + '</g>';
+  return { svg:svgw('300 130', o, 'Timing of the reward'), cap:['When should the bone arrive?', 'Right away: digging gets stronger.', 'One second late: sniffing gets stronger.'][s] };
+}
+/* animation 8 · punishment */
+function aPunish(s){
+  const xs = [55, 150, 245];
+  let o = '';
+  if (s === 0) o += ground(112, 20, 280) + dg(150, 112, .26) + tx(150, 22, 'Harsh punishment…', 't', 'middle');
+  if (s === 1) xs.forEach((x, i) => { o += fd('<circle cx="' + x + '" cy="58" r="28" fill="#f6dcd2" stroke="#b84332" stroke-width="2"/>' + (i === 1 ? boneG(x, 62, 1.4) + '<ellipse cx="' + x + '" cy="70" rx="18" ry="6" fill="#cfa86c"/>' : tx(x, 68, ['!', '', '→'][i], 'big', 'middle')) + tx(x, 108, ['Fear', 'Hiding', 'Avoids you'][i], 't', 'middle'), (i * .3) + 's'); });
+  if (s === 2) xs.forEach((x, i) => { o += fd('<circle cx="' + x + '" cy="58" r="28" fill="#dfe9d3" stroke="#3f7a3a" stroke-width="2"/>' + tx(x, 68, '✓', 'big', 'middle') + tx(x, 108, ['Right away', 'Every time', 'Reward good acts'][i], 't', 'middle'), (i * .3) + 's'); });
+  return { svg:svgw('300 125', o, 'Punishment, with care'), cap:['What does harsh punishment teach?', 'Fear, hiding, and avoiding the punisher.', 'Better: right away, every time, plus reward.'][s] };
+}
+/* animation 9 · instinctive drift */
+function aDrift(s){
+  let o = ground(112, 10, 290) + crate(262, 112) + tx(262, 126, 'crate', 'ts', 'middle');
+  const x = s === 0 ? 40 : 150, flip = s >= 2;
+  const carry = s < 3 ? boneG(x + (flip ? -12 : 12), 66, 1.4) : '<g>' + mv('0 0', '-22 40', '.8s') + an('opacity', 1, 0, '.8s') + boneG(138, 66, 1.4) + '</g>';
+  const body = dg(x, 112, .18, { flip, cls: s === 3 ? 'dig' : '' }) + carry;
+  o += s === 1 ? '<g>' + mv('-110 0', '0 0', '1s') + body + '</g>' : body;
+  if (s >= 3) o += fd('<ellipse cx="116" cy="112" rx="20" ry="7" fill="#cfa86c"/>', '.6s');
+  return { svg:svgw('300 132', o, 'Instinctive drift'), cap:['Trained: carry the bone to the crate.', 'It heads for the crate…', '…stops…', '…and buries it. Instinct can win.'][s] };
+}
+/* animation 10 · classical vs operant */
+function aCvo(s){
+  let o = '<line x1="160" y1="8" x2="160" y2="128" stroke="#d6c7a2" stroke-width="2" stroke-dasharray="4 4"/>' + tx(80, 18, 'Classical', 't', 'middle') + tx(240, 18, 'Operant', 't', 'middle');
+  if (s >= 1) o += bell(36, 64) + bowl(78, 74, s < 3) + (s === 3 ? tx(78, 96, 'no food', 'ts', 'middle') : '') + tx(104, 68, '→', 't', 'middle') + (s === 2 ? drop(128, 66) : fd(drop(128, 66), '.4s')) + tx(128, 92, 'drool', 'ts', 'middle');
+  if (s === 2) o += tx(80, 112, '× 5 pairings', 'ts', 'middle');
+  if (s >= 1) o += dg(204, 96, .17, { cls:'dig' });
+  if (s >= 2) o += s === 2 ? fd(boneG(250, 70, 1.6)) : boneG(250, 70, 1.6);
+  if (s >= 3) o += fd(tx(288, 78, '↑', 'big', 'middle'));
+  o += tx(80, 130, 'Involuntary · signal first', 'ts', 'middle') + tx(240, 130, 'Voluntary · consequence after', 'ts', 'middle');
+  return { svg:svgw('320 138', o, 'Classical versus operant conditioning'), cap:['Two kinds of learning.', 'Bell + food → drool. A dino digs.', 'Pair them again and again. A bone appears.', 'Bell alone → drool. The dino digs more.'][s] };
+}
+
+/* animation controls */
+function animFig(k, title, note){
+  return '<figure class="anim" data-k="' + k + '">' + (title ? '<h3>' + title + '</h3>' : '') + '<div class="av" id="av-' + k + '"></div><p class="anim-cap" id="ac-' + k + '" aria-live="polite"></p>' +
+    '<div class="anim-ctl"><button class="pbtn primary" type="button" data-a="play">▶ Play</button><button class="pbtn" type="button" data-a="step">Step ›</button><button class="pbtn ghost" type="button" data-a="reset">↺ Reset</button><span class="anim-n" id="an-' + k + '"></span></div>' +
+    (note ? '<p class="c-note">' + note + '</p>' : '') + '</figure>';
+}
+function drawA(k){
+  const A = ANIM[k], st = AS[k], el = $('av-' + k); if (!el || !st) return;
+  const out = A.r(st.s); el.innerHTML = out.svg;
+  $('ac-' + k).textContent = out.cap || ''; $('an-' + k).textContent = 'Step ' + st.s + ' / ' + A.n;
+  const pb = el.closest('.anim').querySelector('[data-a="play"]'); pb.textContent = st.timer ? '❚❚ Pause' : '▶ Play';
+}
+function stopA(k){ const st = AS[k]; if (st && st.timer){ clearInterval(st.timer); st.timer = null; } }
+function stopAll(){ Object.keys(AS).forEach(stopA); }
+function ctlA(k, a){
+  const A = ANIM[k], st = AS[k]; if (!st) return;
+  if (a === 'reset'){ stopA(k); st.s = 0; }
+  else if (a === 'step'){ stopA(k); st.s = Math.min(A.n, st.s + 1); }
+  else if (a === 'play'){
+    if (st.timer) stopA(k);
+    else {
+      if (st.s >= A.n) st.s = 0;
+      st.s++;
+      st.timer = setInterval(() => { if (st.s >= A.n){ stopA(k); drawA(k); return; } st.s++; drawA(k); }, A.ms);
+    }
+  }
+  drawA(k);
+}
+function updateQuadUI(){
+  const c = qcode();
+  bookEl.querySelectorAll('[data-qs]').forEach(b => { const v = b.dataset.qs; b.setAttribute('aria-pressed', (v === 'add' && QSEL.add) || (v === 'take' && !QSEL.add) || (v === 'more' && QSEL.more) || (v === 'less' && !QSEL.more) ? 'true' : 'false'); });
+  bookEl.querySelectorAll('#mgrid i').forEach(i => i.classList.toggle('on', i.dataset.c === c));
+  const fl = $('qflash'); if (fl) fl.hidden = QSEL.add;
+}
+function bedrockHtml(){
+  const art = svgw('300 120', '<rect width="300" height="120" fill="#f6dcc8"/><circle cx="255" cy="94" r="18" fill="#ffc98c"/>' + ground(104, 0, 300) + dg(80, 104, .26, { cls:'sit' }) +
+    '<g transform="translate(140 18) scale(.36) translate(-18 -12)"><path d="' + DINO_OUTLINE + '" fill="#e4d7b2"/>' + BONE_PATHS.map(d => '<path d="' + d + '" fill="none" stroke="#354638" stroke-width="4.2" stroke-linecap="round"/>').join('') + '</g>', 'The dino rests beside a finished skeleton at sunset');
+  return '<div class="anim" style="max-width:640px">' + art.replace('<svg ', '<svg style="width:100%;height:auto;display:block;border-radius:4px" ') + '</div>' +
+    '<p class="b-big">Change what comes right after, and you change what comes next.</p>' +
+    '<p class="b-lead">One thing you want to do more often? What could follow it, right away?</p>' +
+    '<div class="b-foot"><button class="pbtn primary" type="button" data-go="game">Play Dino Dig</button><button class="pbtn" type="button" data-go="guide">Field guide</button></div>' +
+    '<p class="c-note">Sources: PSY 111 Learning (Part 1) · Thorndike (1898) · Skinner (1938) · Ferster &amp; Skinner (1957) · Breland &amp; Breland (1961).</p>';
+}
+function renderBook(){
+  stopAll();
+  const C = CHAPTERS[BK.ch], playing = mode === 'game' && G.on, report = !endOv.hidden;
+  $('bNav').innerHTML = '<p class="b-brand">Field handbook</p>' + CHAPTERS.map((c, i) => '<button type="button" data-ch="' + i + '" aria-current="' + (i === BK.ch) + '"><i style="background:' + c.color + '"></i><span><small>' + (c.n ? 'Layer ' + c.n : 'The end') + '</small>' + c.nav + '</span></button>').join('');
+  let h = '<div class="b-head"><div><p class="c-eye">' + (C.n ? 'Layer ' + C.n + ' of 5' : 'Bedrock') + (playing ? ' · Game paused' : '') + '</p><h2 class="b-title">' + C.title + '</h2>' + (C.lead ? '<p class="b-lead">' + C.lead + '</p>' : '') + '</div>' +
+          '<button class="pbtn" type="button" data-b="close">' + (report ? '← Back to my report' : 'Close ×') + '</button></div>';
+  if (C.id === 'end') h += bedrockHtml();
+  else {
+    if (C.id === 'quad') h += '<div class="switches"><div class="sw" role="group" aria-label="Was something added or taken away?"><button class="chip-b" type="button" data-qs="add">+ Added</button><button class="chip-b" type="button" data-qs="take">− Taken away</button></div>' +
+        '<div class="sw" role="group" aria-label="Next time, more or less often?"><button class="chip-b" type="button" data-qs="more">More often</button><button class="chip-b" type="button" data-qs="less">Less often</button></div></div>' +
+        '<div class="mgrid" id="mgrid"><span></span><b>+ Added</b><b>− Taken away</b><b>More often</b><i data-c="PR">Positive reinforcement</i><i data-c="NR">Negative reinforcement</i><b>Less often</b><i data-c="PP">Positive punishment</i><i data-c="NP">Negative punishment</i></div>' +
+        '<p class="flash" id="qflash" hidden>Negative = take away. Not bad.</p>';
+    if (C.id === 'race') h += '<div class="hl" role="group" aria-label="Highlight one rule">' + ['all', 'FR', 'VR', 'FI', 'VI'].map(k => '<button class="chip-b" type="button" data-hl="' + k + '" aria-pressed="' + ((RACE_HL || 'all') === k) + '">' + (k === 'all' ? 'All' : '<i style="background:' + FORM_COL[k] + '"></i>' + k) + '</button>').join('') + '</div>';
+    h += '<div class="anims' + (C.anims.length > 2 ? ' many' : '') + '">' + C.anims.map(a => animFig(a[0], a[1], a[2])).join('') + '</div>';
+    if (C.name) h += nameBlock(C.name, C.note);
+    h += '<p class="rule-line"><span class="rule-tag">Field rule</span><span class="rule-text">' + C.rule + '</span></p>' +
+         '<div class="b-foot">' + (playing ? '' : '<button class="pbtn" type="button" data-try="' + C.card + '">Try it at the quarry → Card ' + C.card + '</button>') +
+         '<button class="pbtn primary" type="button" data-ch="' + (BK.ch + 1) + '">Next: ' + CHAPTERS[BK.ch + 1].nav + ' →</button></div>';
+  }
+  $('bMain').innerHTML = h; $('bMain').scrollTop = 0;
+  (C.anims || []).forEach(a => { AS[a[0]] = { s:0, timer:null }; drawA(a[0]); });
+  if (C.id === 'quad') updateQuadUI();
+}
+function openBook(ch, quad){
+  if (quad) QSEL = { add: quad === 'PR' || quad === 'PP', more: quad === 'PR' || quad === 'NR' };
+  BK.ch = ch || 0; bookOpen = true;
+  bookEl.classList.remove('closed'); bookBtn.setAttribute('aria-pressed', 'true');
+  renderBook();
+}
+function closeBook(){
+  if (!bookOpen) return;
+  stopAll(); bookOpen = false;
+  bookEl.classList.add('closed'); bookBtn.setAttribute('aria-pressed', 'false');
+}
+
+/* ---------- input wiring ---------- */
+layer.addEventListener('click', e => {
+  const sp = e.target.closest('.spot'); if (sp){ spotAction(sp.dataset.id); return; }
+  const ht = e.target.closest('.hot'); if (ht && mode === 'guide' && !bookOpen){ prevCard = 0; openCard(+ht.dataset.card); }
+});
+cardEl.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const cmd = b.dataset.cmd;
+  if (cmd === 'close') closeCard();
+  else if (cmd === 'hit'){ const s = CARDS[cardOpen] && CARDS[cardOpen].spot; if (s) act(s); }
+  else if (cmd === 'steps'){ stopFootsteps(); startFootsteps(); setStatus(5, ''); renderLive(); }
+  else if (cmd === 'name') toggleName(b);
+  else if (cmd === 'back' && prevCard){ const n = prevCard; prevCard = 0; openCard(n); }
+  else if (cmd === 'again6'){ C6 = { i:0, tries:0, res:[], lock:false, done:false, token:C6.token + 1 }; showStatus(6, ''); update6(); }
+  else if (cmd === 'raise'){ if (C7.step < STEPS.length - 1){ C7.step++; sfx.bone(); updateSteps(); } }
+  else if (cmd === 'steps-reset'){ C7.step = 0; updateSteps(); }
+  else if (cmd === 'xstop') stop8();
+  else if (cmd === 'xnight') night8();
+  else if (cmd === 'xreset') replay8();
+  else if (b.dataset.q) answer6(b);
+  else if (b.dataset.tab){ C7.tab = b.dataset.tab; render7(); }
+  else if (b.dataset.card){ prevCard = cardOpen; openCard(+b.dataset.card); }
+});
+bookEl.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.ch){ BK.ch = +b.dataset.ch; renderBook(); }
+  else if (b.dataset.b === 'close') closeBook();
+  else if (b.dataset.a) ctlA(b.closest('.anim').dataset.k, b.dataset.a);
+  else if (b.dataset.cmd === 'name') toggleName(b);
+  else if (b.dataset.qs){ const v = b.dataset.qs; if (v === 'add' || v === 'take') QSEL.add = v === 'add'; else QSEL.more = v === 'more'; updateQuadUI(); stopA('quad'); AS.quad.s = 0; drawA('quad'); }
+  else if (b.dataset.hl){ RACE_HL = b.dataset.hl === 'all' ? null : b.dataset.hl; bookEl.querySelectorAll('[data-hl]').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false')); drawA('race'); }
+  else if (b.dataset.try){ const n = +b.dataset.try; closeBook(); if (mode !== 'guide') enterGuide(); prevCard = 0; openCard(n); }
+});
+endOv.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.watch != null) openBook(+b.dataset.watch, b.dataset.quad);
+  else if (b.hasAttribute('data-reveal')){ const c = $('repChart'), on = !c.classList.contains('revealed'); c.classList.toggle('revealed', on); b.textContent = on ? 'Hide the rules' : 'Reveal the rules'; }
+});
+document.addEventListener('click', e => {
+  const g = e.target.closest('[data-go]'); if (!g) return;
+  if (g.dataset.go === 'game') startGame(); else enterGuide();
+});
+mGame.addEventListener('click', startGame);
+mGuide.addEventListener('click', enterGuide);
+bookBtn.addEventListener('click', () => { if (bookOpen) closeBook(); else openBook(BK.ch); });
+voBtn.addEventListener('click', () => { visualOnly = !visualOnly; voBtn.setAttribute('aria-pressed', visualOnly ? 'true' : 'false'); try { localStorage.setItem(LS_VO, visualOnly ? '1' : '0'); } catch(e){} });
+$('iSkip').addEventListener('click', () => startOv.classList.add('skip'));
+let spaceHandled = false;
+document.addEventListener('keydown', e => {
+  const t = e.target;
+  if (t && t.matches && t.matches('input,textarea,select')) return;
+  if (e.key === 'Escape'){ if (bookOpen) closeBook(); else if (cardOpen) closeCard(); return; }
+  if (bookOpen){
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft'){ e.preventDefault(); const n = BK.ch + (e.key === 'ArrowRight' ? 1 : -1); if (n >= 0 && n < CHAPTERS.length){ BK.ch = n; renderBook(); } }
+    return;
+  }
+  if (!startOv.hidden && (e.code === 'Space' || e.key === ' ') && !startOv.classList.contains('skip') && !(t && t.tagName === 'BUTTON')){ e.preventDefault(); startOv.classList.add('skip'); return; }
+  if (overlayOpen()) return;
+  if (DIRS[e.key]){ e.preventDefault(); if (mode === 'game' || mode === 'guide') moveSel(e.key); return; }
+  if (e.code === 'Space' || e.key === ' '){
+    if (t && t.tagName === 'BUTTON' && !t.classList.contains('spot')) return;
+    e.preventDefault(); spaceHandled = true;
+    if (!e.repeat) spotAction(sel);
+    return;
+  }
+  if ((e.key === 'r' || e.key === 'R') && mode === 'guide' && cardOpen){ e.preventDefault(); resetCard(); }
+});
+document.addEventListener('keyup', e => { if ((e.code === 'Space' || e.key === ' ') && spaceHandled){ e.preventDefault(); spaceHandled = false; } });
+
+/* ---------- switching to the map: index.html keeps both pages loaded, so the round waits here ---------- */
+let away = false;
+const embedded = window.parent !== window;
+function goMap(){ if (embedded) window.parent.postMessage({ dd:'go', view:'map' }, '*'); else location.href = 'index.html#map'; }
+$('mDay').addEventListener('click', goMap);
+document.addEventListener('click', e => { const a = e.target.closest('a[data-map]'); if (a){ e.preventDefault(); goMap(); } });
+window.addEventListener('message', e => {
+  const d = e.data; if (!d || typeof d !== 'object' || !d.dd) return;
+  if (d.dd === 'away') away = true;
+  else if (d.dd === 'show') away = false;
+  else if (d.dd === 'mode'){ away = false; if (d.mode === 'guide' && mode !== 'guide') enterGuide(); }
+});
+
+/* ---------- main loop (the handbook and the map both pause the quarry clock) ---------- */
+let last = 0, liveAcc = 0;
+function frame(now){
+  requestAnimationFrame(frame);
+  const dt = last ? Math.min(0.1, (now - last) / 1000) : 0; last = now;
+  if (document.hidden || bookOpen || away) return;
+  clock += dt;
+  stepDino(dt); tickGame(); tickFoot(); updatePitRings(); tick8();
+  liveAcc += dt;
+  if (cardOpen && cardOpen <= 5 && liveAcc > 0.15){ liveAcc = 0; renderLive(); }
+}
+
+/* ---------- boot ---------- */
+function boot(){
+  voBtn.setAttribute('aria-pressed', visualOnly ? 'true' : 'false');
+  if (reduce) startOv.classList.add('skip');
+  applyLayout(); select(sel); setFace(1); setModeUI();
+  requestAnimationFrame(frame);
+}
+const hot = window.claude && window.claude.hot;
+if (hot && hot.ready) hot.ready(boot); else boot();
+})();
+</script>
+
+</body>
+</html>
