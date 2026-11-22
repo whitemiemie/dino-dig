@@ -437,10 +437,10 @@ svg .rv{font:600 11px var(--f-pixel);fill:var(--alert);opacity:0;transition:opac
     </div>
 
     <header class="hud">
-      <span class="chip clock" id="clockBox" hidden><span id="phaseName">Dawn</span><b id="timeLeft">2:30</b></span>
+      <span class="chip clock" id="clockBox" hidden><span id="phaseName">Dawn</span><b id="timeLeft">1:30</b></span>
       <span class="chip foot" id="footChip" hidden>Footsteps <i></i><i></i><i></i></span>
       <div class="hud-right">
-        <span class="chip count" id="countBox" aria-live="polite"><svg viewBox="0 0 16 8" aria-hidden="true" shape-rendering="crispEdges"><path fill="#6b5a44" d="M1 0h3v1h1v1h6V1h1V0h3v1h1v2h-1v2h1v2h-1v1h-3V7h-1V6H5v1H4v1H1V7H0V5h1V3H0V1h1z"/><path fill="#f7eed8" d="M2 1h1v1h1v1h8V2h1V1h1v2h-1v2h1v2h-1V6h-1V5H4v1H3v1H2V5h1V3H2z"/></svg><b id="boneCount">0</b><span id="boneOf">/40</span></span>
+        <span class="chip count" id="countBox" aria-live="polite"><svg viewBox="0 0 16 8" aria-hidden="true" shape-rendering="crispEdges"><path fill="#6b5a44" d="M1 0h3v1h1v1h6V1h1V0h3v1h1v2h-1v2h1v2h-1v1h-3V7h-1V6H5v1H4v1H1V7H0V5h1V3H0V1h1z"/><path fill="#f7eed8" d="M2 1h1v1h1v1h8V2h1V1h1v2h-1v2h1v2h-1V6h-1V5H4v1H3v1H2V5h1V3H2z"/></svg><b id="boneCount">0</b><span id="boneOf">/24</span></span>
         <button class="chip hbtn book-btn" id="bookBtn" type="button" aria-pressed="false">Dig deeper</button>
         <button class="chip hbtn" id="voBtn" type="button" aria-pressed="false" title="No sound, no shaking">Visual-only</button>
         <div class="seg" role="group" aria-label="Mode">
@@ -466,7 +466,7 @@ svg .rv{font:600 11px var(--f-pixel);fill:var(--alert);opacity:0;transition:opac
         <h1 class="i-in i2">Why do we keep digging?</h1>
         <p class="ov-sub i-in i3">Tap a spot. Watch what follows.</p>
         <div class="ov-btns i-in i4">
-          <div class="ov-opt"><button class="pbtn primary big" type="button" data-go="game">Play Dino Dig</button><small>Pack 40 bones before sunset. Mind the footsteps.</small></div>
+          <div class="ov-opt"><button class="pbtn primary big" type="button" data-go="game">Play Dino Dig</button><small>Pack 24 bones before sunset. Mind the footsteps.</small></div>
           <div class="ov-opt"><button class="pbtn big" type="button" data-go="guide">Field guide</button><small>No timer. Try each spot.</small></div>
         </div>
       </div>
@@ -512,13 +512,14 @@ const DEFAULT_LAYOUT = {
 };
 
 /* ---------- rules (same base numbers as Dino Dig) ---------- */
-const DURATION = 150;
+const DURATION = 90;
+const GOAL = 24;                                // bones to pack; the 40-piece skeleton fills in proportion
 const RATIOS = [2,7,4,9,3,5,6,3,8,3];          // orange slab, average 5
 const WAITS  = [3,5,5,3,5,3,3,5,3,5];          // purple pit, average 4
-const STOMP_GAPS = [14,20,16,24,18];   // seconds of quiet after each visit of the big dino
-const RAID = { first:35, step:4.5, grab:13, last:128 };   // footsteps level up every 4.5 s; no flare by 13 s = a grab
+const STOMP_GAPS = [12,15,13,16,14];   // seconds of quiet after each visit of the big dino
+const RAID = { first:18, step:3, grab:9, last:75 };       // footsteps level up every 3 s; no flare by 9 s = a grab
 const PHASES = [
-  { name:'Dawn',      tint:'rgb(255,224,206)', msg:'Dawn. Pack 40 bones before sunset.' },
+  { name:'Dawn',      tint:'rgb(255,224,206)', msg:'Dawn. Pack ' + GOAL + ' bones before sunset.' },
   { name:'Midday',    tint:'rgb(255,253,246)', msg:'Midday. Tarps over the slabs.' },
   { name:'Afternoon', tint:'rgb(255,238,212)', msg:'Afternoon. Everything is open.' },
   { name:'Dusk',      tint:'rgb(222,178,202)', msg:'Dusk. Sunset is close.' }
@@ -598,9 +599,10 @@ function bag(arr, rnd){ rnd = rnd || Math.random; let pool = []; return () => { 
 function restartClass(el, c){ el.classList.remove(c); void el.offsetWidth; el.classList.add(c); }
 function fmtTime(s){ return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
 const f1 = v => (Math.round(v * 10) / 10).toFixed(1);
+function pieces(n){ return Math.min(40, Math.round(Math.min(GOAL, n) * 40 / GOAL)); }
 function skelSvg(n, id, cls){
-  const lit = new Set(BONE_ORDER.slice(0, Math.min(40, n)));
-  return '<svg' + (cls ? ' class="' + cls + '"' : '') + (id ? ' id="' + id + '"' : '') + ' viewBox="18 12 242 210" role="img" aria-label="Dinosaur skeleton, ' + Math.min(40, n) + ' of 40 bones found"><path class="outline" d="' + DINO_OUTLINE + '"/>' +
+  const lit = new Set(BONE_ORDER.slice(0, pieces(n)));
+  return '<svg' + (cls ? ' class="' + cls + '"' : '') + (id ? ' id="' + id + '"' : '') + ' viewBox="18 12 242 210" role="img" aria-label="Dinosaur skeleton, ' + Math.min(GOAL, n) + ' of ' + GOAL + ' bones found"><path class="outline" d="' + DINO_OUTLINE + '"/>' +
     BONE_PATHS.map((d, i) => '<path class="bone' + (lit.has(i) ? ' on' : '') + '" data-piece="' + i + '" d="' + d + '"/>').join('') + '</svg>';
 }
 
@@ -937,8 +939,8 @@ function reward(id, r){
   flyBone(id);
   if (mode === 'game'){
     G.bones++;
-    if (G.bones >= 40 && !G.cheering){
-      G.cheering = true; D.cheering = true; showBanner('40 bones packed!');
+    if (G.bones >= GOAL && !G.cheering){
+      G.cheering = true; D.cheering = true; showBanner(GOAL + ' bones packed!');
       const gid = G.id;
       setTimeout(() => { if (G.id === gid && G.on) dinoAnim('cheer'); }, 480);
       setTimeout(() => { if (G.id === gid) endGame('complete'); }, 3000);
@@ -1091,7 +1093,7 @@ function tickGame(){
   if (mode !== 'game' || !G.on) return;
   const gt = clock - G.t0;
   if (gt >= DURATION && !G.cheering){ endGame('time'); return; }
-  const ph = gt < 25 ? 0 : gt < 50 ? 1 : gt < 125 ? 2 : 3;
+  const ph = gt < 15 ? 0 : gt < 30 ? 1 : gt < 55 ? 2 : 3;
   if (ph !== G.phase) onPhase(ph);
   if (!F.active && !G.cheering && !D.grabbed && gt >= G.nextStomp && gt < RAID.last) startFootsteps();
   const left = Math.max(0, Math.ceil(DURATION - gt));
@@ -1117,10 +1119,10 @@ function repChart(){
 }
 function buildReport(reason){
   const R = G.rules, ids = ['blue', 'orange', 'green', 'purple'];
-  $('endResult').textContent = reason === 'complete' ? 'All 40 bones packed before sunset.' : 'Sunset. ' + G.bones + ' of 40 bones packed.';
+  $('endResult').textContent = reason === 'complete' ? 'All ' + GOAL + ' bones packed before sunset.' : 'Sunset. ' + G.bones + ' of ' + GOAL + ' bones packed.';
   const total = ids.reduce((a, id) => a + R[id].hits.length, 0);
   const top = ids.slice().sort((a, b) => R[b].hits.length - R[a].hits.length)[0];
-  let facts = '<li>' + skelSvg(G.bones, null, 'rep-skel') + '<p><b>' + G.bones + ' / 40</b> bones · ' + total + ' hits</p><button class="pbtn" type="button" data-watch="0">▶ The loop</button></li>';
+  let facts = '<li>' + skelSvg(G.bones, null, 'rep-skel') + '<p><b>' + G.bones + ' / ' + GOAL + '</b> bones · ' + total + ' hits</p><button class="pbtn" type="button" data-watch="0">▶ The loop</button></li>';
   if (total) facts += '<li><p>Most hits: <b>' + SPOT[top].name + '</b> (' + R[top].hits.length + ').</p><button class="pbtn" type="button" data-watch="2">▶ Four schedules</button></li>';
   if (G.eps) facts += '<li><p>The big dino came <b>' + G.eps + '</b> time' + (G.eps > 1 ? 's' : '') + '. The flare chased it off <b>' + G.stops + '</b>' + (G.grabs ? '. It grabbed you <b>' + G.grabs + '</b>' : '') + '.</p><button class="pbtn" type="button" data-watch="1" data-quad="NR">▶ Make it stop</button>' + (G.grabs ? '<button class="pbtn" type="button" data-watch="1" data-quad="PP">▶ Grabbed</button>' : '') + '</li>';
   if (G.dry){ const r = R[G.dry], k = r.hits.length - r.dryFrom; facts += '<li><p>At dusk, the ' + SPOT[G.dry].name.toLowerCase() + ' stopped paying. You still hit it <b>' + k + '</b> time' + (k === 1 ? '' : 's') + '.</p><button class="pbtn" type="button" data-watch="3">▶ When it stops</button></li>'; }
@@ -1335,7 +1337,7 @@ function render7(){
   if (C7.tab === 'loop'){
     body.innerHTML =
       '<div class="flow" aria-label="Action, then consequence, then next time"><div><b>Action</b><span>Dig</span></div><i aria-hidden="true">→</i><div><b>Consequence</b><span>Bone</span></div><i aria-hidden="true">→</i><div><b>Next time</b><span>Dig more</span></div></div>' +
-      '<div class="skel">' + skelSvg(guideBones, 'skelSvg') + '<p><b id="skelN">0</b>/40<span>bones found</span></p></div>' +
+      '<div class="skel">' + skelSvg(guideBones, 'skelSvg') + '<p><b id="skelN">0</b>/' + GOAL + '<span>bones found</span></p></div>' +
       '<p class="c-rule">What follows an action changes what comes next.</p>' + nameBlock('Reinforcement', 'Bones are secondary reinforcers.');
     updateSkeleton();
   } else {
@@ -1350,9 +1352,9 @@ function render7(){
 }
 function updateSkeleton(){
   const svg = $('skelSvg'); if (!svg) return;
-  const n = Math.min(40, guideBones), lit = new Set(BONE_ORDER.slice(0, n));
+  const n = Math.min(GOAL, guideBones), lit = new Set(BONE_ORDER.slice(0, pieces(n)));
   svg.querySelectorAll('.bone').forEach(p => p.classList.toggle('on', lit.has(+p.dataset.piece)));
-  svg.setAttribute('aria-label', 'Dinosaur skeleton, ' + n + ' of 40 bones found');
+  svg.setAttribute('aria-label', 'Dinosaur skeleton, ' + n + ' of ' + GOAL + ' bones found');
   const t = $('skelN'); if (t) t.textContent = n;
 }
 function updateSteps(instant){

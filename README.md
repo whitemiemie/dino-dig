@@ -2,7 +2,7 @@
 
 An interactive exhibit on operant conditioning, built for PSY 111. One page holds two views:
 
-- **Dino Dig** (`game.html`): a 150-second pixel-art dig. Four dig spots run four reinforcement schedules (fixed ratio 5, variable ratio 5, fixed interval 5 s, variable interval 4 s). A big dinosaur keeps coming for ours: firing the flare post sends it away (negative reinforcement), and ignoring the footsteps gets ours grabbed and dropped (positive punishment). At dusk one slab quietly stops paying (extinction). Field guide mode explains each spot on a card.
+- **Dino Dig** (`game.html`): a 90-second pixel-art dig (goal: 24 bones). Four dig spots run four reinforcement schedules (fixed ratio 5, variable ratio 5, fixed interval 5 s, variable interval 4 s). A big dinosaur keeps coming for ours: firing the flare post sends it away (negative reinforcement), and ignoring the footsteps gets ours grabbed and dropped (positive punishment). At dusk one slab quietly stops paying (extinction). Field guide mode explains each spot on a card.
 - **A Day of Small Bones** (`day-map.html`): a map tour of one ordinary day in 12 stops, from a phone notification at 07:05 to one more video at 23:30, covering the four consequences, the four schedules, extinction, shaping, discriminative stimuli and real-world uses.
 
 ## Run it
