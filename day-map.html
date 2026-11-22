@@ -1268,15 +1268,17 @@ html[data-phase="night"] .clock i{background:#ece6f4;box-shadow:0 0 0 2px var(--
     else location.href = 'index.html#game';
   });
 
-  /* reveal the rule after the visitor has acted; collect its bone */
-  function reveal(sceneEl){
+  /* reveal the rule only when the visitor taps "Name it"; collect its bone.
+     Scene actions still call reveal(scene) but without `manual`, so they no longer show the answer. */
+  function reveal(sceneEl, manual){
+    if (!manual) return;
     var r = $('.rule', sceneEl); if (!r || !r.hidden) return;
     r.hidden = false; replay(r, 'in');
     var nm = $('[data-nameit]', sceneEl); if (nm) nm.hidden = true;
     var id = r.getAttribute('data-bone'); if (id) collect(id, r);
     setTimeout(function(){ if (!portrait) r.scrollIntoView({ block:'nearest', behavior: reduce ? 'auto' : 'smooth' }); }, 30);
   }
-  $$('[data-nameit]').forEach(function(b){ b.addEventListener('click', function(){ reveal(b.closest('.scene')); }); });
+  $$('[data-nameit]').forEach(function(b){ b.addEventListener('click', function(){ reveal(b.closest('.scene'), true); }); });
 
   /* ================= scene behaviour (ported from day.html) ================= */
   var S = { fr:{ taps:0, wins:0, w:'free coffee', ws:'free coffees' }, vr:{ taps:0, wins:0, w:'prize', ws:'prizes' },
